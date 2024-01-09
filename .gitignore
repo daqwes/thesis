@@ -1,2 +1,3 @@
 papers/**/*.pdf
 papers/**/*.dat
+.Rproj.user
