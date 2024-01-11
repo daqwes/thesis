@@ -65,19 +65,20 @@ def init_matrices() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
             Pra.append(npa(functools.reduce(np.kron, projectors(a[j], r[i]))).flatten("F"))
     Pra = npa(Pra)
 
-
     # Pauli basis for n qubit 
-    if os.path.exists(f"sig_b_{n}.pkl"):
-        with open(f"sig_b_{n}.pkl", 'rb') as file:
+    sig_b_path = f"pkled/sig_b_{n}.pkl"
+    if os.path.exists(sig_b_path):
+        with open(sig_b_path, 'rb') as file:
             sig_b = pickle.load(file) 
     else:
         sig_b = npa([functools.reduce(np.kron, (basis[b[i,:], :, :])) for i in range(J)])
-        with open(f"sig_b_{n}.pkl", 'wb') as file:
+        with open(sig_b_path, 'wb') as file:
             pickle.dump(sig_b, file)
     # Only used for the calculation of rho_hat, size: 6^n x 4^n
     # Matrix P_{(r,a),b}
-    if os.path.exists(f"P_rab_{n}.pkl"):
-        with open(f"P_rab_{n}.pkl", 'rb') as file:
+    P_rab_path = f"pkled/P_rab_{n}.pkl"
+    if os.path.exists():
+        with open(P_rab_path, 'rb') as file:
             P_rab = pickle.load(file) 
     else:
         P_rab = np.zeros((I, J))
@@ -89,7 +90,7 @@ def init_matrices() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
                         * np.prod(a[l, b[j] != 0] == b[j, b[j]!=0])
                     tmp[s,l] = val
             P_rab[:, j] = tmp.flatten(order="F")
-        with open(f"P_rab_{n}.pkl", 'wb') as file:
+        with open(P_rab_path, 'wb') as file:
             pickle.dump(P_rab, file)
 
     return Pra, sig_b, P_rab
@@ -217,7 +218,7 @@ def MH(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_ty
     Returns:
         np.ndarray[d=2^n, d]
     """
-    path = f"rho_{n}_{rho_type}.pkl"
+    path = f"pkled/rho_{n}_{rho_type}.pkl"
     if os.path.exists(path) and not ignore_pkl:
         with open(path, "rb") as file:
             rho = pickle.load(file)
@@ -296,7 +297,7 @@ def run_experiment(rho_type):
     if not ignore_pkl:
         np.random.seed(0)
     if reset_pkl:
-        for file in glob.glob("rho_*.pkl"):
+        for file in glob.glob("pkled/rho_*.pkl"):
             os.remove(file)
     rho = MH(p_as, Pra, u_hat, n_meas, rho_type, ignore_pkl, n_iter, n_burnin)
     mean_rho = np.real(np.mean((dens_ma - rho) @ np.conj((dens_ma - rho).T)))
