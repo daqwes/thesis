@@ -141,7 +141,7 @@ def get_true_rho(rho_type: str = "rank1") -> np.ndarray:
 def compute_measurements(dens_ma, n_meas: int=2000):
     """Simulate the data measurement process
     Args:
-        dens_ma (np.ndarray): True rho
+        dens_ma (np.ndarray[d= 2^n, d]): True rho
         n_meas (int): Number of measurements
     Returns:
         np.ndarray[R*A]: Vector mapping each observable and result combination to its empirical probability
@@ -282,8 +282,7 @@ def plot_evs(dens_ma, rho_mh, rho_inv, rho_type):
     plt.show()
 
 
-def run_experiment(rho_type):
-    
+def run_experiment(rho_type: str):
     Pra, sig_b, P_rab = init_matrices()
 
     ignore_pkl = True
