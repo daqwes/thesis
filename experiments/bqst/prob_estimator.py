@@ -7,18 +7,8 @@ from typing import *
 import matplotlib.pyplot as plt
 import pickle
 import os
-np.random.seed(0)
+import glob
 npa = np.array
-
-def norm_complex(arr: np.ndarray):
-    if len(arr.shape) > 1:
-        ret_out = np.zeros_like(arr)
-        for i in range(arr.shape[0]):
-            ret_out[i,:] = arr[i]/np.sqrt((np.abs(arr[i])**2).sum())  
-        return ret_out
-    else:
-        return arr/np.sqrt((np.abs(arr)**2).sum())
-    
 
 sx = np.array([[0, 1], [1, 0]])
 sy = np.array([[0, 1j], [-1j, 0]])
@@ -33,16 +23,29 @@ A = 3**n # Number of possible measurements
 npa = np.array
 b = npa(list(itertools.product(range(4), repeat=n))) # {I, x, y, z}^n
 a = npa(list(itertools.product(range(1, 4), repeat=n))) # {x,y,z}^n
-# r = npa(list(itertools.product([1, 0], repeat=n))) # {0, 1}^n -> acts like a mask for which bases to select
 r = npa(list(itertools.product([-1, 1], repeat=n)))
+
+
+def norm_complex(arr: np.ndarray):
+    """Normalizes complex vector or matrix, in which case it normalizes it row by row
+    Args:
+        arr (np.ndarray)
+    Returns:
+        np.ndarray
+    """
+    if len(arr.shape) > 1:
+        ret_out = np.zeros_like(arr)
+        for i in range(arr.shape[0]):
+            ret_out[i,:] = arr[i]/np.sqrt((np.abs(arr[i])**2).sum())  
+        return ret_out
+    else:
+        return arr/np.sqrt((np.abs(arr)**2).sum())
 
 def projectors(idx_list, r_):
     """
     Returns the P^{a_i}_{s_i} list of projection matrices
     Note1: the evs returned by numpy and the ones obtained don't match, 
     but as they are not unique, it is still correct.
-    Note2: because we are working in R^2, we can use the [-1, 1] indexing
-    (which works differently in R - it removes the neg col - but still the same here)
     """
     r_idx = [1 if i==-1 else 0 for i in r_]
     evs = [eig(basis[i])[1] for i in idx_list]
@@ -51,12 +54,11 @@ def projectors(idx_list, r_):
     return ret
 
 def init_matrices() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Initializes all the matrices for the simulation of the data and 
+    """Initializes all the matrices for the simulation of the data, the inversion method and for the prob-estimator
     Returns:
         Tuple[np.ndarray[A*R, d*d], np.ndarray[J, d*d], np.ndarray[I, J]]: Pra, sig_b, P_rab
     """
     # Corresponds to P^a_s in paper (each row here is a matrix), size: 2^n x 3^n flattened
-    # The projectors matrices 
     Pra = []
     for j in range(A):
         for i in range(R):
@@ -64,25 +66,20 @@ def init_matrices() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     Pra = npa(Pra)
 
 
+    # Pauli basis for n qubit 
     if os.path.exists(f"sig_b_{n}.pkl"):
         with open(f"sig_b_{n}.pkl", 'rb') as file:
             sig_b = pickle.load(file) 
     else:
-        #### All possible combinations of a (kron product of all permutations)
-        # Pauli basis for n qubit 
         sig_b = npa([functools.reduce(np.kron, (basis[b[i,:], :, :])) for i in range(J)])
         with open(f"sig_b_{n}.pkl", 'wb') as file:
             pickle.dump(sig_b, file)
-    # Only used for the calculation of rho_hat, 
-    ### Maybe matches to p_a,s = P(R^a = s) in paper, size: 6^n x 4^n
-    # For every comb of the bases (j in 0:J), then for every activation of the bases (r[s in S, ])
+    # Only used for the calculation of rho_hat, size: 6^n x 4^n
     # Matrix P_{(r,a),b}
     if os.path.exists(f"P_rab_{n}.pkl"):
         with open(f"P_rab_{n}.pkl", 'rb') as file:
             P_rab = pickle.load(file) 
     else:
-        #### All possible combinations of a (kron product of all permutations)
-        # Pauli basis for n qubit 
         P_rab = np.zeros((I, J))
         for j in range(J):
             tmp = np.zeros((R, A))
@@ -98,7 +95,7 @@ def init_matrices() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     return Pra, sig_b, P_rab
 
 def get_true_rho(rho_type: str = "rank1") -> np.ndarray:
-    """
+    """ Sample true rho 
     Args:
         rho_type (str): type of density matrix we want to sample. Possibilities are
             - rank1
@@ -133,7 +130,7 @@ def get_true_rho(rho_type: str = "rank1") -> np.ndarray:
         w = 0.98
         dens_ma = w * dens_ma + (1 - w) * np.eye(d)/d
     elif rho_type == "rankd":
-        # Maximal mixed state (rank=16)
+        # Maximal mixed state (rankd = 16)
         u = norm_complex(np.random.multivariate_normal(np.zeros(d*2),np.eye(d*2)/100, size=(d)).view(np.complex128))
         dens_ma = np.conj(u.T) @ u /d
     else:
@@ -141,7 +138,7 @@ def get_true_rho(rho_type: str = "rank1") -> np.ndarray:
     return dens_ma
 
 def compute_measurements(dens_ma, n_meas: int=2000):
-    """
+    """Simulate the data measurement process
     Args:
         dens_ma (np.ndarray): True rho
         n_meas (int): Number of measurements
@@ -162,14 +159,13 @@ def compute_measurements(dens_ma, n_meas: int=2000):
                 Prob_ar[i,j] = np.diag(dens_ma @ npa(functools.reduce(np.kron, projectors(a[i], r[j])))).sum()
     Prob_ar = np.real(Prob_ar)
 
-
-    # For each observable, we sample according to the true probabilities calculated above
-    # n_meas samples, and then give the probability
+    # For each observable, we sample n_meas samples 
+    # according to the true probabilities calculated above, and then give the probability
     # For example: 
     # if n=4 (qubits) and a_i = {x, x, y, z}, then an outcome could be s_j {-1, 1, -1, 1}
     # For this pair of a,s, we calculate the number of times we sampled this situation (the H == s part) 
+    # and get the empirical probability for this combination
 
-    # Nb of times we repeat the measurements
     p_ra = np.zeros((R, A)) # = \hat{p}_a,s
     for i, x in enumerate(Prob_ar):
         H = np.random.choice(R, n_meas, replace=True, p=x) #n_meas elements
@@ -181,13 +177,13 @@ def compute_measurements(dens_ma, n_meas: int=2000):
     return p_ra.flatten(order="F")
 
 def compute_rho_inversion(p_as: np.ndarray, P_rab: np.ndarray, sig_b: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    """
+    """Compute the rho estimate with the inversion method
     Args:
         p_as (np.ndarray[R*A]): Vector mapping each observable and result combination to its empirical probability
-        P_rab: (np.ndarray[I, J])
-        sig_b: (np.ndarray[J, 16, 16])
+        P_rab: (np.ndarray[I=2^n x 3^n, J=4^n])
+        sig_b: (np.ndarray[J, d=16, d])
     Returns:
-        Tuple[np.ndarray, np.ndarray]: the approximation of rho using the inversion technique, and its eigenvectors 
+        Tuple[np.ndarray[d=2^n, d], np.ndarray]: the approximation of rho using the inversion technique, and its eigenvectors 
     """
     temp1 = p_as @ P_rab
     temp1 = temp1/d
@@ -201,45 +197,42 @@ def compute_rho_inversion(p_as: np.ndarray, P_rab: np.ndarray, sig_b: np.ndarray
     rho_hat = np.zeros((d, d), dtype=np.complex128)
     for s in range(J):
         rho_hat += rho_b[s] * sig_b[s]
-    # rho_hat = rho_hat.astype(float)
+
     u_hat = eig(rho_hat)[1]
 
     # renormalize lambda_hat
     lamb_til = eig(rho_hat)[0]
     lamb_til[lamb_til < 0] = 0
     lamb_hat = lamb_til/lamb_til.sum()
-    return u_hat, rho_hat
+    return rho_hat, u_hat
 
-def MH(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_type: str, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
-    """Metropolis-Hastings on gammas and Vs
+def MH(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_type: str, ignore_pkl: bool, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
+    """Estimate rho using MH and the prob-estimator likelihood
     Args:
-        p_as (np.ndarray):
-        Pra (np.ndarray):
-        u_hat (np.ndarray):
+        p_as (np.ndarray[R=2^n * A=3^n]):
+        Pra (np.ndarray[R*A, 16x16=256]):
+        u_hat (np.ndarray[d, d]):
         n_meas (int): number of measurements
         rho_type (str):
     Returns:
-        np.ndarray
+        np.ndarray[d=2^n, d]
     """
     path = f"rho_{n}_{rho_type}.pkl"
-    if os.path.exists(path):
+    if os.path.exists(path) and not ignore_pkl:
         with open(path, "rb") as file:
             rho = pickle.load(file)
         return rho
     rho = np.zeros((d, d))
     Te = np.random.standard_exponential(d) # Initial Y_i^0
-    Id = np.eye(d)
     U = u_hat # eigenvectors of \hat(rho) found using inversion, initial V_i^0
     Lamb = Te/Te.sum() # gamma^0
     ro = 1/2
     be = 1
 
     gamm = n_meas/2 # lambda in paper 
-    entry = []
     start_time = time.time()
     Pra_m = Pra.reshape((I, J))
     for t in range(n_iter + n_burnin):
-        print(t)
         for j in range(d): # Loop for Y_i       
             Te_can = Te.copy() 
             Te_can[j] = Te[j] * np.exp(be * np.random.uniform(-0.5, 0.5, 1)) # \tilde(Y)_i = exp(y ~ U(-0.5, 0.5)) Y_i^t-1
@@ -272,22 +265,50 @@ def MH(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_ty
         pickle.dump(rho, file)
     return rho
 
+def plot_evs(dens_ma, rho_mh, rho_inv, rho_type):
+    evs_true = sorted(np.abs(eig(dens_ma)[0]), reverse=True)
+    evs_MH = sorted(np.abs(eig(rho_mh)[0]), reverse=True)
+    evs_inv = sorted(np.abs(eig(rho_inv)[0]), reverse=True)
+    x = range(1, len(evs_true) + 1)
+    plt.plot(x, evs_true, "-o", label="true eigenvalues")
+    plt.plot(x, evs_MH, "--o", label="prob-estimator")
+    plt.plot(x, evs_inv, "--o", label="inversion")
+    plt.legend()
+    plt.xticks(x)
+    plt.title(rho_type)
+    plt.xlabel("eigenvalues")
+    plt.savefig(f"{rho_type}.pdf", bbox_inches="tight")
+    plt.show()
 
-def main():
+
+def run_experiment(rho_type):
     
     Pra, sig_b, P_rab = init_matrices()
-    rho_type = "approx-rank2"
+
+    ignore_pkl = True
+    reset_pkl = False
     n_meas = 2000
     dens_ma = get_true_rho(rho_type)
     p_as = compute_measurements(dens_ma, n_meas)
     rho_hat, u_hat = compute_rho_inversion(p_as, P_rab, sig_b)
     n_iter = 500
     n_burnin = 100
-    rho = MH(p_as, Pra, u_hat, n_meas, rho_type, n_iter, n_burnin)
+    if not ignore_pkl:
+        np.random.seed(0)
+    if reset_pkl:
+        for file in glob.glob("rho_*.pkl"):
+            os.remove(file)
+    rho = MH(p_as, Pra, u_hat, n_meas, rho_type, ignore_pkl, n_iter, n_burnin)
     mean_rho = np.real(np.mean((dens_ma - rho) @ np.conj((dens_ma - rho).T)))
     mean_rho_hat = np.real(np.mean((dens_ma - rho_hat) @ np.conj((dens_ma - rho_hat).T)))
-    rho_evs = eig(rho)[0]
-    print(mean_rho)
+    print(f"MSE MH: {mean_rho:.2e} - MSE inversion: {mean_rho_hat:.2e}")
+    plot_evs(dens_ma, rho, rho_hat, rho_type)
+
+def main():
+    rho_types = ["rank1", "rank2", "approx-rank2", "rankd"]
+
+    for rho_type in rho_types:
+        run_experiment(rho_type)
 
 if __name__ == "__main__":
     main()
