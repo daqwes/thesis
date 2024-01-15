@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 import glob
+import pandas as pd
 npa = np.array
 
 sx = np.array([[0, 1], [1, 0]])
@@ -20,7 +21,7 @@ J = 4**n # Matches the number of bases
 I = 6**n # Matches  R*A = 2^n * 3^n = 6^n
 d = R = 2**n # matrix dimension and number of possibilities for R^a_s ({-1, 1}^n)
 A = 3**n # Number of possible measurements
-npa = np.array
+
 b = npa(list(itertools.product(range(4), repeat=n))) # {I, x, y, z}^n
 a = npa(list(itertools.product(range(1, 4), repeat=n))) # {x,y,z}^n
 r = npa(list(itertools.product([-1, 1], repeat=n)))
@@ -77,7 +78,7 @@ def init_matrices() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     # Only used for the calculation of rho_hat, size: 6^n x 4^n
     # Matrix P_{(r,a),b}
     P_rab_path = f"pkled/P_rab_{n}.pkl"
-    if os.path.exists():
+    if os.path.exists(P_rab_path):
         with open(P_rab_path, 'rb') as file:
             P_rab = pickle.load(file) 
     else:
@@ -138,8 +139,19 @@ def get_true_rho(rho_type: str = "rank1") -> np.ndarray:
         raise ValueError("rho_type must be one of the possible types")
     return dens_ma
 
+def read_true_data():
+    """Reads and returns the empirical frequencies from a real world dataset
+    Args:
+        None
+    Returns:
+        np.ndarray[3^n x 2^n]
+    """
+    data_path = "data/W4-Data.dat"
+    p_as = pd.read_table(data_path, header=None).to_numpy()[:, 1:].flatten()
+    return p_as
+
 def compute_measurements(dens_ma, n_meas: int=2000):
-    """Simulate the data measurement process
+    """Simulate the data measurement process for the prob estimator
     Args:
         dens_ma (np.ndarray[d= 2^n, d]): True rho
         n_meas (int): Number of measurements
@@ -207,7 +219,7 @@ def compute_rho_inversion(p_as: np.ndarray, P_rab: np.ndarray, sig_b: np.ndarray
     lamb_hat = lamb_til/lamb_til.sum()
     return rho_hat, u_hat
 
-def MH(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_type: str, ignore_pkl: bool, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
+def MH_prob(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_type: str, ignore_pkl: bool, real: bool = False, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
     """Estimate rho using MH and the prob-estimator likelihood
     Args:
         p_as (np.ndarray[R=2^n * A=3^n]):
@@ -218,8 +230,8 @@ def MH(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_ty
     Returns:
         np.ndarray[d=2^n, d]
     """
-    path = f"pkled/rho_{n}_{rho_type}.pkl"
-    if os.path.exists(path) and not ignore_pkl:
+    path = f"pkled/prob_rho_{n}_{rho_type}.pkl"
+    if os.path.exists(path) and not ignore_pkl and not real:
         with open(path, "rb") as file:
             rho = pickle.load(file)
         return rho
@@ -262,11 +274,71 @@ def MH(p_as: np.ndarray, Pra: np.ndarray, u_hat: np.ndarray, n_meas: int, rho_ty
             rho = U @ np.diag(Lamb) @ np.conj(U.T)/(t - n_burnin) + rho*(1-1/(t-n_burnin)) # approximate rho each time as rho_t = gamma_t * V_t * V_t^T /(t-n_burnin) + rho_t-1 / (1 - 1/(t-n_burnin)) -> the later we are, the more importance we give to prev rho
     end_time = time.time()
     print(f"Took: {end_time - start_time} s")
+    if not real:
+        with open(path, 'wb') as file:
+            pickle.dump(rho, file)  
+    return rho
+
+def MH_dens(rho_hat: np.ndarray, u_hat: np.ndarray, ignore_pkl: bool, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
+    """Estimate rho using MH and the dens-estimator likelihood
+    Args:
+        p_as (np.ndarray[R=2^n * A=3^n]):
+        Pra (np.ndarray[R*A, 16x16=256]):
+        u_hat (np.ndarray[d, d]):
+        n_meas (int): number of measurements
+        rho_type (str):
+    Returns:
+        np.ndarray[d=2^n, d]
+    """
+    path = f"pkled/dens_rho_{n}.pkl"
+    if os.path.exists(path) and not ignore_pkl:
+        with open(path, "rb") as file:
+            rho = pickle.load(file)
+        return rho
+    rho = np.zeros((d, d))
+    Te = np.random.standard_exponential(d) # Initial Y_i^0
+    U = u_hat # eigenvectors of \hat(rho) found using inversion, initial V_i^0
+    Lamb = Te/Te.sum() # gamma^0
+    ro = 1/2
+    be = 1
+    N = 2000
+    gamm = N * A/4 # lambda in paper 
+    start_time = time.time()
+    for t in range(n_iter + n_burnin):
+        for j in range(d): # Loop for Y_i       
+            Te_can = Te.copy() 
+            Te_can[j] = Te[j] * np.exp(be * np.random.uniform(-0.5, 0.5, 1)) # \tilde(Y)_i = exp(y ~ U(-0.5, 0.5)) Y_i^t-1
+            L_can = Te_can/Te_can.sum() # \tilde(gamma)_i = \tilde(Y_i)/sum_j^d(\tilde(Y_j))
+            tem_can = (U @ np.diag(L_can) @ np.conj(U.T)) # gamma * U * U^T (U = V in paper)
+            tem = (U @ np.diag(Lamb) @ np.conj(U.T)) # prev gamma * U * U^T
+            ss1 = (np.abs((tem_can - rho_hat))**2) # l^dens: sum_a sum_s (Tr(v P^a_s) - hat(p^_a,s))^2
+            ss2 = (np.abs((tem - rho_hat))**2)
+            ss = (ss1 - ss2).sum()
+            r_prior = (ro-1) * np.log(Te_can[j]/Te[j]) - Te_can[j] + Te[j] # other part of R acceptance ratio
+            ap = -gamm*np.real(ss) # other part (why use np.real?)
+            if np.log(np.random.uniform(0, 1, 1)) <= ap + r_prior: Te = Te_can # if value above draw from U(0,1), then update
+            Lamb = Te/Te.sum() # gamma
+        for j in range(d): # Loop for V_i
+            U_can = U.copy()
+            U_can[:, j] = norm_complex(U[:,j] + np.random.multivariate_normal(np.zeros(d*2),np.eye(d*2)/100, size=(1)).view(np.complex128)) # Sample U/V from the unit sphere (not sure why we add to previous value)
+            tem_can = (U_can @ np.diag(Lamb) @ np.conj(U_can.T)) # gamma * U * U^T
+            tem = (U @ np.diag(Lamb) @ np.conj(U.T)) # gamma * U_t-1 * U^T_t-1
+            ss1 = np.abs((tem_can - rho_hat))**2
+            ss2 = np.abs((tem - rho_hat))**2
+            ss = (ss1 - ss2).sum()
+            ap = -gamm * np.real(ss) # other part of A accep ratio
+            if np.log(np.random.uniform(0, 1, 1)) <= ap: U = U_can # if value above draw from U(0,1), then update
+
+        if t > n_burnin:
+            rho = U @ np.diag(Lamb) @ np.conj(U.T)/(t - n_burnin) + rho*(1-1/(t-n_burnin)) # approximate rho each time as rho_t = gamma_t * V_t * V_t^T /(t-n_burnin) + rho_t-1 / (1 - 1/(t-n_burnin)) -> the later we are, the more importance we give to prev rho
+    end_time = time.time()
+    print(f"Took: {end_time - start_time} s")
     with open(path, 'wb') as file:
         pickle.dump(rho, file)
     return rho
 
-def plot_evs(dens_ma, rho_mh, rho_inv, rho_type):
+
+def plot_evs_sim(dens_ma, rho_mh, rho_inv, rho_type):
     evs_true = sorted(np.abs(eig(dens_ma)[0]), reverse=True)
     evs_MH = sorted(np.abs(eig(rho_mh)[0]), reverse=True)
     evs_inv = sorted(np.abs(eig(rho_inv)[0]), reverse=True)
@@ -278,11 +350,25 @@ def plot_evs(dens_ma, rho_mh, rho_inv, rho_type):
     plt.xticks(x)
     plt.title(rho_type)
     plt.xlabel("eigenvalues")
-    plt.savefig(f"{rho_type}.pdf", bbox_inches="tight")
+    plt.savefig(f"prob_{rho_type}.pdf", bbox_inches="tight")
     plt.show()
 
+def plot_evs_real(rho_dens,rho_prob,rho_inv):
+    evs_dens = sorted(np.abs(eig(rho_dens)[0]), reverse=True)
+    evs_prob = sorted(np.abs(eig(rho_prob)[0]), reverse=True)
+    evs_inv = sorted(np.abs(eig(rho_inv)[0]), reverse=True)
+    x = range(1, len(evs_dens) + 1)
+    plt.plot(x, evs_dens, "--o", label="dens-estimator")
+    plt.plot(x, evs_prob, "--o", label="prob-estimator")
+    plt.plot(x, evs_inv, "--o", label="inversion")
+    plt.legend()
+    plt.xticks(x)
+    plt.title("True data (n=4)")
+    plt.xlabel("eigenvalues")
+    plt.savefig(f"real_dens_prob_4.pdf", bbox_inches="tight")
+    plt.show()
 
-def run_experiment(rho_type: str):
+def run_experiment_simulated(rho_type: str):
     Pra, sig_b, P_rab = init_matrices()
 
     ignore_pkl = True
@@ -296,19 +382,44 @@ def run_experiment(rho_type: str):
     if not ignore_pkl:
         np.random.seed(0)
     if reset_pkl:
-        for file in glob.glob("pkled/rho_*.pkl"):
+        for file in glob.glob("pkled/prob_rho_*.pkl"):
             os.remove(file)
-    rho = MH(p_as, Pra, u_hat, n_meas, rho_type, ignore_pkl, n_iter, n_burnin)
+    rho = MH_prob(p_as, Pra, u_hat, rho_type, ignore_pkl, n_iter, n_burnin)
     mean_rho = np.real(np.mean((dens_ma - rho) @ np.conj((dens_ma - rho).T)))
     mean_rho_hat = np.real(np.mean((dens_ma - rho_hat) @ np.conj((dens_ma - rho_hat).T)))
     print(f"MSE MH: {mean_rho:.2e} - MSE inversion: {mean_rho_hat:.2e}")
-    plot_evs(dens_ma, rho, rho_hat, rho_type)
+    plot_evs_sim(dens_ma, rho, rho_hat, rho_type)
+
+def run_experiment_real():
+    Pra, sig_b, P_rab = init_matrices()
+    ignore_pkl = True
+    reset_pkl = False
+    p_as = read_true_data()
+    rho_hat, u_hat = compute_rho_inversion(p_as, P_rab, sig_b)
+    n_iter = 500
+    n_burnin = 100
+    if not ignore_pkl:
+        np.random.seed(0)
+    if reset_pkl:
+        for file in glob.glob("pkled/dens_rho_*.pkl"):
+            os.remove(file)
+    rho_dens = MH_dens(rho_hat, u_hat, n_iter, n_burnin)
+    rho_prob = MH_prob(p_as, Pra, u_hat, 2000, "none", ignore_pkl, True, n_iter, n_burnin)
+    mean_rho_dens = np.real(np.mean((rho_dens - rho_hat) @ np.conj((rho_dens - rho_hat).T)))
+    mean_rho_prob = np.real(np.mean((rho_prob - rho_hat) @ np.conj((rho_prob - rho_hat).T)))
+    print(f"MSE MH dens: {mean_rho_dens:.2e}; MSE MH prob: {mean_rho_prob:.2e}")
+    plot_evs_real(rho_dens, rho_prob, rho_hat)
 
 def main():
-    rho_types = ["rank1", "rank2", "approx-rank2", "rankd"]
+    exp = "real"
 
-    for rho_type in rho_types:
-        run_experiment(rho_type)
+    if exp=="sim":
+        rho_types = ["rank1", "rank2", "approx-rank2", "rankd"]
+
+        for rho_type in rho_types:
+            run_experiment_simulated(rho_type)
+    elif exp == "real":
+        run_experiment_real()
 
 if __name__ == "__main__":
     main()
