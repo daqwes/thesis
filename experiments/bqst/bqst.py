@@ -384,9 +384,9 @@ def run_experiment_simulated(rho_type: str):
     if reset_pkl:
         for file in glob.glob("pkled/prob_rho_*.pkl"):
             os.remove(file)
-    rho = MH_prob(p_as, Pra, u_hat, rho_type, ignore_pkl, n_iter, n_burnin)
-    mean_rho = np.real(np.mean((dens_ma - rho) @ np.conj((dens_ma - rho).T)))
-    mean_rho_hat = np.real(np.mean((dens_ma - rho_hat) @ np.conj((dens_ma - rho_hat).T)))
+    rho = MH_prob(p_as, Pra, u_hat, n_meas, rho_type, ignore_pkl, False, n_iter, n_burnin)
+    mean_rho = np.linalg.norm(dens_ma - rho, 'fro')**2 #np.real(np.mean((dens_ma - rho) @ np.conj((dens_ma - rho).T)))
+    mean_rho_hat =   np.linalg.norm(dens_ma - rho, 'fro')**2 #np.real(np.mean((dens_ma - rho_hat) @ np.conj((dens_ma - rho_hat).T)))
     print(f"MSE MH: {mean_rho:.2e} - MSE inversion: {mean_rho_hat:.2e}")
     plot_evs_sim(dens_ma, rho, rho_hat, rho_type)
 
@@ -411,7 +411,7 @@ def run_experiment_real():
     plot_evs_real(rho_dens, rho_prob, rho_hat)
 
 def main():
-    exp = "real"
+    exp = "sim"
 
     if exp=="sim":
         rho_types = ["rank1", "rank2", "approx-rank2", "rankd"]

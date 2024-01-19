@@ -2,5 +2,3 @@ papers/**/*.pdf
 papers/**/*.dat
 **/.Rproj.user
 **/pkled/
-**/proj_langevin_qt
-experiments/bqst/data/
