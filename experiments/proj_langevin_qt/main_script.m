@@ -7,9 +7,9 @@
 % Warning: in the paper, this number is called m, similarly as in Mai and Alquier...
 
 clear all; close all; clc;
-N_rpt = 5;
+N_rpt = 2;
 seed = 1:N_rpt;
-N = 20; 
+N = 5   ; 
 ns = ceil(logspace(1,7,N));    % number of replications of the numerical experiments
 lambda = ns./2;           % parameter scaling the likelihood compared to the prior
 eta = 0.1./ns;             % stepsize (should depend on lambda to avoid exploding gradients)
@@ -46,29 +46,30 @@ for i = 1:N
 
 end
     
-record_param = struct;
-record_param.n = n;
-record_param.d = d;
-record_param.r = r;
-record_param.ns = ns;
-record_param.iter = iter;
-record_param.alpha = alpha;
-record_param.lambda = lambda;
-record_param.theta = theta;
-record_param.beta = beta;
-record_param.eta = eta;
-record_param.seed = seed;
-record_param.err_avg_rec = err_avg_rec;
+% record_param = struct;
+% record_param.n = n;
+% record_param.d = d;
+% record_param.r = r;
+% record_param.ns = ns;
+% record_param.iter = iter;
+% record_param.alpha = alpha;
+% record_param.lambda = lambda;
+% record_param.theta = theta;
+% record_param.beta = beta;
+% record_param.eta = eta;
+% record_param.seed = seed;
+% record_param.err_avg_rec = err_avg_rec;
 
-s = string(datetime);
-indx = strfind(s,' ');
-s{1}(indx) = '_';
-indx = strfind(s,':');
-s{1}(indx) = '_';
-save(strcat('res_sampling_',s,'.mat'),'record_param','-v7.3');
+% s = string(datetime);
+% indx = strfind(s,' ');
+% s{1}(indx) = '_';
+% indx = strfind(s,':');
+% s{1}(indx) = '_';
+% save(strcat('res_sampling_',s,'.mat'),'record_param','-v7.3');
 
-figure;
+% figure;
 err_to_plot = mean(err_avg_rec.^2,2);
-loglog(ns,err_to_plot,'.-b');
-xlabel('$m$','Interpreter','LaTex','Fontsize',15);
-ylabel('$||\hat \rho-\rho_0||^2_F$','Interpreter','LaTex','Fontsize',15);
+err_to_plot
+% loglog(ns,err_to_plot,'.-b');
+% xlabel('$m$','Interpreter','LaTex','Fontsize',15);
+% ylabel('$||\hat \rho-\rho_0||^2_F$','Interpreter','LaTex','Fontsize',15);

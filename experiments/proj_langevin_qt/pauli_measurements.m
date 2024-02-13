@@ -17,9 +17,6 @@ sz = [1 0; 0 -1];
 
 As = zeros(2^n,2^n,4^n);
 
-
-
-% Maps to sig_b in the bqst code??
 %generate each matrix as a Kronecker product, using binary coding
 for j = 1:4^n
     bin = dec2bin(j-1,2*n)=='1';
@@ -36,8 +33,15 @@ for j = 1:4^n
             si = sz;
         end
         A = kron(si,A);
+        % if j == 3
+        %     % disp(si)
+        %     disp(A)
+        % end
     end
+    % disp(A)
     As(:,:,j) = A;
-    
+    % if j == 10
+    %     assert(0==1)
+    % end
 end
 

@@ -15,8 +15,6 @@ function [yhat,As,rho_true,N_exp] = problem_gen(type,n,ns,seed,varargin)
 %   rho_true: true density
 %   N_exp : number of measurements
 
-% import stiefelcomplexfactory
-
 d = 2^n;
 rng(seed);
 

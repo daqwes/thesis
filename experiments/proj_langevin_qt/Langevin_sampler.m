@@ -137,14 +137,19 @@ function G = gradf(Y_rho_r,As_r,yhat,lambda,theta,alpha)
         G = G - 2*sqrt(2)*lambda*(yhat(j)-sqrt(2)*trace(As_r(:,:,j)*(Y_rho_r*Y_rho_r')))*(As_r(:,:,j)+As_r(:,:,j)')*Y_rho_r;
     end
     M = sqrtm(eye(2*r,2*r)+2*(Y_rho_r'*Y_rho_r)/theta^2)\Y_rho_r';
+    % size(Y_rho_r)
     M = M'*M;
     M(1:d,1:d) = (M(1:d,1:d)+M(d+1:2*d,d+1:2*d))/2;
-    M(d+1:2*d,d+1:2*d) = M(1:d,1:d);
+    M(d+1:2*d,d+1:2*d) = M(1:d,1:d); % ok
+
     M(1:d,d+1:2*d) = (M(1:d,d+1:2*d)-M(d+1:2*d,1:d))/2;
     M(d+1:2*d,1:d) = -M(1:d,d+1:2*d);
+
     G = G + alpha*((2*d+r+2)/theta^2*(eye(2*d,2*d)-2*M/theta^2)*Y_rho_r);
+
     G(1:d,1:r) = (G(1:d,1:r)+G(d+1:2*d,r+1:2*r))/2;
     G(d+1:2*d,r+1:2*r) = G(1:d,1:r);
+
     G(1:d,r+1:2*r) = (G(1:d,r+1:2*r)-G(d+1:2*d,1:r))/2;
     G(d+1:2*d,1:r) = -G(1:d,r+1:2*r);
 end    

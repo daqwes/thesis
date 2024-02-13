@@ -42,7 +42,7 @@ elseif strcmp('rank-two',type)
     rho_true = 0.5*V(:,1)*V(:,1)'+0.5*V(:,2)*V(:,2)';
     
 
-elseif strcmp('approx_rank_two',type)
+elseif strcmp('approx-rank-two',type)
     r = 2;
     N_exp = d^2;
 

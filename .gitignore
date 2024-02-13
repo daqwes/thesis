@@ -2,3 +2,4 @@ papers/**/*.pdf
 papers/**/*.dat
 **/.Rproj.user
 **/pkled/
+**/__pycache__

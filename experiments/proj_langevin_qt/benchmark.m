@@ -35,17 +35,17 @@ for i = 1:length(matrix_types)
         alpha = 1;
         theta = 1;              % parameter inside the prior (multiplying the identity, which is added to the density matrix to make it full rank)
         beta = 1e2;               % noise parameter in Langevin
-        r = 1;
+        r = 5;
 
         [yhat,As,rho_true,N_exp] = problem_gen(matrix_type,n,ns_i,seed(j));
-        yhat
-        quit
+        % yhat
+        % quit
         [Y_rho_r_record,t_rec,norm_rec] = Langevin_sampler(yhat,As,r,n,N_exp,iter,alpha,lambda_i,theta,beta,eta_i,seed(j));
 
         M_avg = mean(Y_rho_r_record(:,:,end-100:end),3);
         M_avg = sqrt(2)*(M_avg*M_avg');
         M_avg = (M_avg(1:d,1:d) + 1i*M_avg(1:d,d+1:end))*sqrt(2);
-        err_avg_rec(i,j) = mean((rho_true - M_avg)*(rho_true - M_avg)', "all");
+        err_avg_rec(i,j) = norm(M_avg-rho_true,'fro');
 
     end
 
@@ -73,7 +73,7 @@ end
 % save(strcat('res_sampling_',s,'.mat'),'record_param','-v7.3');
 
 % figure;
-err_to_plot = mean(err_avg_rec,2);
+err_to_plot = mean(err_avg_rec.^2,2);
 err_to_plot
 % loglog(ns,err_to_plot,'.-b');
 % xlabel('$m$','Interpreter','LaTex','Fontsize',15);
