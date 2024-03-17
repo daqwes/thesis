@@ -3,3 +3,4 @@ papers/**/*.dat
 **/.Rproj.user
 **/pkled/
 **/__pycache__
+books/

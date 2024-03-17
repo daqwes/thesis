@@ -415,7 +415,6 @@ def main():
 
     if exp=="sim":
         rho_types = ["rank1", "rank2", "approx-rank2", "rankd"]
-
         for rho_type in rho_types:
             run_experiment_simulated(rho_type)
     elif exp == "real":

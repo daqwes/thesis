@@ -1,3 +1,7 @@
+library(reticulate)
+# use_python("/home/daniel/micromamba/envs/mcmc/bin/python")
+use_condaenv("road_segmentation")
+# normalizePath()
 ##########################
 # code for distance btw probability matrices
 ##########################
@@ -26,7 +30,7 @@ sz = matrix(c(1,0,0,-1),nr=2)
 basis = list(diag(2),sx,sy,sz)
 
 ## #qubits
-n = 4
+n = 3
 J = 4^n
 I = 6^n
 d = R = 2^n
@@ -170,7 +174,9 @@ lamb.hat = lamb.til/sum(lamb.til)
 rho = matrix(0,nr=d,nc=d)
 Te = rexp(d)
 Id = diag(d)
-U <- u.hat
+import(data)
+# U <- u.hat
+U <- rn
 Lamb = c(Te/sum(Te))
 ro = .5
 S = (rho.hat+Conj(t(rho.hat)))/2
@@ -221,13 +227,41 @@ for(t in 1:(Iter+burnin)){
 }
 end_time <- Sys.time()
 end_time - start_time
-mean((dens.ma-rho)%*%Conj(t((dens.ma-rho)))) #0.0002687214
-mean((rho.hat-dens.ma)%*%Conj(t((rho.hat-dens.ma))))
-eigen(rho,only.values = T)
-sum(diag(rho))
-plot(eigen(rho,only.values = T)$values)
-plot(eigen(dens.ma,only.values = T)$values)
-abline(h=0.1)
+# mean((dens.ma-rho)%*%Conj(t((dens.ma-rho)))) #0.0002687214
+tr((rho - dens.ma) %*% Conj(t(rho - dens.ma)))/(d*d) # MSE
+tr((rho - dens.ma) %*% Conj(t(rho - dens.ma))) # SSE = fro^2
+# mean((rho.hat-dens.ma)%*%Conj(t((rho.hat-dens.ma))))
+# eigen(rho,only.values = T)
+# sum(diag(rho))
+# plot(eigen(rho,only.values = T)$values)
+# plot(eigen(dens.ma,only.values = T)$values)
+# abline(h=0.1)
+
+# For n = 3:
+# For 2000 shots:
+# 1e-3
+# 1e-1
+# For 10000 shots:
+# 1e-3
+# 1e-1
+
+
+
+# For n = 4:
+# For 2000 shots:
+# 1e-4 for mean((rho - rho_hat) @ (rho - rho_hat)^H)
+# 1e-4 for MSE tr((rho - rho_hat) @ (rho - rho_hat)^H)/(d*d)
+# 1e-2 for SSE tr((rho - rho_hat) @ (rho - rho_hat)^H)
+
+# For 10000 shots:
+# 1e-4
+# 1e-4
+# 1e-2
+
+# For 100000 shots:
+# 1e-4
+# 1e-2
+# 1e-2
 
 # dump matrix to file 
 # mat = Re(t(do.call("cbind",Pra)))

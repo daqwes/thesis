@@ -4,8 +4,13 @@ from scipy.linalg import solve
 import scipy
 import h5py
 import time
-from data_generation import generate_data, random_complex_ortho
 
+import sys
+parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
+if __name__ == '__main__' or parent_module.__name__ == '__main__':
+    from data_generation import generate_data, random_complex_ortho
+else:
+    from .data_generation import generate_data, random_complex_ortho
 
 def complex_to_real(X: np.ndarray) -> np.ndarray:
     """ """
@@ -19,11 +24,11 @@ def real_to_complex(X: np.ndarray):
     d = int(two_d/2)
     return np.sqrt(2) * (X[:d,:d] + 1j*X[:d, d:])
 
-def gen_init_point(d, r):
+def gen_init_point(d, r, seed=None):
     """
     """
     # Generate initial candidate
-    V = random_complex_ortho(d, r)
+    V = random_complex_ortho(d, r, seed)
     gamma0 = np.random.gamma(1 / r, 1, r)
     D = np.diag(gamma0) / gamma0.sum()
     Y_rho = V @ np.sqrt(D)
@@ -130,7 +135,10 @@ def langevin(
     eta: float,
     seed: int,
 ):
-    """ """
+    """
+    Runs the langevin algorithm. 
+    Expects the observables tensor in the [d, d, n_exp] format.
+    """
     np.random.seed(0)
     d = 2**n
 
@@ -138,14 +146,15 @@ def langevin(
     # Apply change of variable
     Y_rho_r = complex_to_real(Y_rho)
 
-    As_r = np.zeros((2 * d, 2 * d, n_exp))
-    for j in range(n_exp):
+    n_obs = As.shape[-1]
+    As_r = np.zeros((2 * d, 2 * d, n_obs))
+    for j in range(n_obs):
         As_r[:, :, j] = complex_to_real(As[:, :, j])
 
     # As_r is real now, no need to use complex dtypes
     As_r_swap = np.empty(As_r.shape[::-1], dtype=np.float64)
     As_r_sum_swap = np.empty((As_r.shape[::-1]),dtype=np.float64)
-    for j in range(n_exp):
+    for j in range(n_obs):
         As_r_swap[j,:,:] = As_r[:,:,j]
         As_r_sum_swap[j,:,:] = As_r[:, :, j] + np.conj(As_r[:,:,j].T)
 
@@ -180,7 +189,7 @@ def langevin(
     return Y_rho_record, t_rec, n_rec
 
 
-def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100):
+def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed = 0, running_avg: bool = False):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
@@ -195,14 +204,14 @@ def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_ha
     Returns:
         np.ndarray: approximated version of the density matrix
     """
-    seed = 0
     d = 2**n
     r = d # TODO: change, not the most optimal way for the rank of the matrix
-    np.random.seed(0)
-    Y_rho0 = gen_init_point(d, r)
+    if seed is not None:
+        np.random.seed(seed)
+    Y_rho0 = gen_init_point(d, r, seed = None)
 
     lambda_ = n_shots / 2
-    eta = 0.1 / n_shots
+    eta = 0.05 /  n_shots
     alpha = 1
 
     if n == 3:
@@ -220,9 +229,16 @@ def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_ha
 
     # Y_rho_record, t_rec do not contain the samples/values for the burnin phase 
     Y_rho_record, t_rec, norm_rec = langevin(
-        Y_rho0, y_hat, As, r, n, n_exp, n_iter, n_burnin, alpha, lambda_, theta, beta, eta, seed
+        Y_rho0, y_hat, As, r, n, n_exp, n_iter, n_burnin, alpha, lambda_, theta, beta, eta, seed=None
     )
-    M_avg = np.mean(Y_rho_record[n_burnin:,:,:], 0) # 
+    if running_avg:
+        M_avg = np.zeros_like(Y_rho_record[0,:,:])
+        for i in range(n_iter - n_burnin):
+            M_avg = Y_rho_record[n_burnin + i,:,:] * 1/(i + 1) + M_avg  * (1 - 1 /(i+1))
+            # print((M_avg - Y_rho_record[n_burnin + i]).abs().sum())
+            Y_rho_record[n_burnin + i] = M_avg.copy()
+    else:
+        M_avg = np.mean(Y_rho_record[n_burnin:,:,:], 0) # 
     return Y_rho_record, M_avg, t_rec
 
 def main():
@@ -233,9 +249,9 @@ def main():
     n_iter = 2000
     n_burnin = 1000
     seed = 0
-    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type="rank2")
+    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type="rank2", seed= seed)
 
-    rhos_pl, rho_avg_pl, cum_times_pl  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin)
+    rhos_pl, rho_avg_pl, cum_times_pl  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=seed, running_avg=True)
     err = np.linalg.norm(rho_avg_pl - rho_true, "fro")
     print(err**2)
 

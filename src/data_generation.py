@@ -24,14 +24,16 @@ def norm_complex(arr: np.ndarray):
         return arr / np.sqrt((np.abs(arr) ** 2).sum())
 
 
-def random_complex_ortho(n: int, p: int):
-    """Generate a random orthonormal matrix of size n x p
+def random_complex_ortho(n: int, p: int, seed=None):
+    """Generate a random unitary matrix of size n x p
     Args:
         n (int): number of rows
         p (int): number of columns
     Returns:
         np.ndarray[n, p]
     """
+    if seed is not None:
+        np.random.seed(seed)
     M_re = np.random.multivariate_normal(np.zeros(n), np.eye(n), size=(p))
     M_im = np.random.multivariate_normal(np.zeros(n), np.eye(n), size=(p))
     M = M_re + M_im * 1j
@@ -39,19 +41,27 @@ def random_complex_ortho(n: int, p: int):
     return Q
 
 
-def gen_true_rho_PL(n: int, rho_type: str = "rank1") -> np.ndarray:
+def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
     """Sample true rho
     Args:
-        rho_type (str): type of density matrix we want to sample. Possibilities are
+        rho_type (str|int): type of density matrix we want to sample. Possibilities are
             - rank1
             - rank2
             - approx-rank2
             - rankd
+            or an int representing the rank 
     Returns:
         np.ndarray[d, d]: true density matrix
     """
     d = 2**n
-    if rho_type == "rank1":
+    if isinstance(rho_type, (int, np.integer)):
+        r = rho_type
+        V = random_complex_ortho(d, r)
+        gamma = np.random.gamma(1 / r, 1, (r))  # Note: see obs for comment on this
+        D = np.diag(gamma) / gamma.sum()
+        Y = V @ np.sqrt(D)
+        dens_ma = Y @ np.conj(Y.T)
+    elif rho_type == "rank1":
         # Pure state - rank1
         r = 1
         V = random_complex_ortho(d, r)
@@ -85,56 +95,6 @@ def gen_true_rho_PL(n: int, rho_type: str = "rank1") -> np.ndarray:
     else:
         raise ValueError("rho_type must be one of the possible types")
     return dens_ma
-
-
-def gen_true_rho_bqst(n: int, rho_type: str = "rank1") -> np.ndarray:
-    """Sample true rho
-    Args:
-        rho_type (str): type of density matrix we want to sample. Possibilities are
-            - rank1
-            - rank2
-            - approx-rank2
-            - rankd
-    Returns:
-        np.ndarray[d, d]: true density matrix
-    """
-    d = 2**n
-    if rho_type == "rank1":
-        # Pure state - rank1
-        dens_ma = np.zeros((d, d), dtype="complex")
-        dens_ma[0, 0] = 1
-    elif rho_type == "rank2":
-        # Rank2
-        v1 = np.zeros(d, dtype="complex")
-        v1[0 : int(d / 2)] = 1
-        v1 = norm_complex(v1)
-        v2 = np.zeros(d, dtype="complex")
-        v2[int(d / 2) : d] = 1j
-        v2 = norm_complex(v2)
-        dens_ma = 1 / 2 * np.outer(v1, np.conj(v1)) + 1 / 2 * np.outer(v2, np.conj(v2))
-    elif rho_type == "approx-rank2":
-        # Approx rank2
-        v1 = np.zeros(d, dtype="complex")
-        v1[0 : int(d / 2)] = 1
-        v1 = norm_complex(v1)
-        v2 = np.zeros(d, dtype="complex")
-        v2[int(d / 2) : d] = 1j
-        v2 = norm_complex(v2)
-        dens_ma = 1 / 2 * np.outer(v1, np.conj(v1)) + 1 / 2 * np.outer(v2, np.conj(v2))
-        w = 0.98
-        dens_ma = w * dens_ma + (1 - w) * np.eye(d) / d
-    elif rho_type == "rankd":
-        # Maximal mixed state (rankd = 16)
-        u = norm_complex(
-            np.random.multivariate_normal(
-                np.zeros(d * 2), np.eye(d * 2) / 100, size=(d)
-            ).view(np.complex128)
-        )
-        dens_ma = np.conj(u.T) @ u / d
-    else:
-        raise ValueError("rho_type must be one of the possible types")
-    return dens_ma
-
 
 def dec2bin(j: int, n: int):
     bin_j = bin(j)[2:]
@@ -186,16 +146,33 @@ def dump_h5(data: np.ndarray, var_name: str):
         file.create_dataset("data_real", data=real_data_d)
         file.create_dataset("data_imag", data=imag_data_d)
 
+def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_exp: int) -> np.ndarray:
+    """Compute n_shots measurements of the system. 
+       In case n_shots is None, return the true measurements (expectation of the each measurable)
+    """
+    y_hat = np.zeros(n_exp)
+    for j in range(n_exp):
+        y_hat[j] = min(np.real(np.trace(As[:, :, j] @ rho_true)), 1)
+    if n_shots is None:
+        return y_hat
+    p = (y_hat + 1) / 2
+    # TODO make sure this is the correct approach, and if it's correct to obtain
+    # values in the [-1, 1] interval 
+    y_hat = 2 / n_shots * np.random.binomial(n_shots, p) - np.ones(
+        y_hat.shape[0]
+    )
+    return y_hat
 
-def generate_data(n: int, n_exp: int, n_shots: int, rho_type: str):
+def generate_data(n: int, n_exp: int, n_shots: int|None, rho_type: str|int, seed: int):
     """Generate a density matrix, and simulate the measurement process
     Args:
         n (int): number of qubits
-        rho_type (str): Type of density matrix to simulate
+        rho_type (str|int): Type/Rank of density matrix to simulate
     Returns:
 
     """
-    np.random.seed(0)
+    if seed is not None:
+        np.random.seed(seed)
     d = 2**n
     rho_true = gen_true_rho_PL(n, rho_type)
     As = pauli_measurements(n)
@@ -203,15 +180,8 @@ def generate_data(n: int, n_exp: int, n_shots: int, rho_type: str):
 
     samples = np.random.choice(range(d * d), n_exp, replace=False)
     As = As[:, :, samples]
-    y_hat = np.zeros(n_exp)
-    for j in range(n_exp):
-        y_hat[j] = min(np.real(np.trace(As[:, :, j] @ rho_true)), 1)
-    p = (y_hat + 1) / 2
-    # TODO make sure this is the correct approach, and if it's correct to obtain
-    # values in the [-1, 1] interval 
-    y_hat = 2 / n_shots * np.random.binomial(n_shots, p) - np.ones(
-        y_hat.shape[0]
-    )
+
+    y_hat = measure_system(As, rho_true, n_shots, n_exp)
     return rho_true, As, y_hat
 
 
@@ -233,5 +203,5 @@ def main():
     # print(y_hat)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
