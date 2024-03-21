@@ -23,7 +23,6 @@ def run_experiment(savefig=True):
     rho_type = "rank2"
     exps = range(2, d*d+1, 10) #TODO does not work for some reason
 
-    print(f"Exps compare")
     accs_prob = []
     accs_pl = [] 
     for n_exp in exps:

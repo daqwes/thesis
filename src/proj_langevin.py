@@ -2,15 +2,14 @@ import numpy as np
 from scipy.linalg import sqrtm
 from scipy.linalg import solve
 import scipy
-import h5py
 import time
 
 import sys
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
 if __name__ == '__main__' or parent_module.__name__ == '__main__':
-    from data_generation import generate_data, random_complex_ortho
+    from data_generation import generate_data, random_unitary
 else:
-    from .data_generation import generate_data, random_complex_ortho
+    from .data_generation import generate_data, random_unitary
 
 def complex_to_real(X: np.ndarray) -> np.ndarray:
     """ """
@@ -28,7 +27,7 @@ def gen_init_point(d, r, seed=None):
     """
     """
     # Generate initial candidate
-    V = random_complex_ortho(d, r, seed)
+    V = random_unitary(d, r, seed)
     gamma0 = np.random.gamma(1 / r, 1, r)
     D = np.diag(gamma0) / gamma0.sum()
     Y_rho = V @ np.sqrt(D)

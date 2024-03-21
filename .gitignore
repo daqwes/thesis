@@ -4,3 +4,5 @@ papers/**/*.dat
 **/pkled/
 **/__pycache__
 books/
+report/
+experiments/figures/

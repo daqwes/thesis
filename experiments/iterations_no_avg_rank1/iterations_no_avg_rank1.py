@@ -22,7 +22,6 @@ def run_experiment(savefig=True):
     rho_type="rank1"
     n_iter = 10000
     n_burnin = 2000
-    print(f"Iters compare")
 
     rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
     accs_prob = []

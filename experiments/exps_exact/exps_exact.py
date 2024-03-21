@@ -25,7 +25,6 @@ def run_experiment(savefig=True):
     n_iter = 5000
     n_burnin = 1000
     
-    print(f"Exps compare, exact")
     accs_prob = []
     accs_pl = [] 
     for n_exp in exps:

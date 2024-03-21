@@ -8,10 +8,6 @@ def hmc_iter(current_q: np.ndarray, eps: float):
     """
     q = current_q
 
-
-
-
-
 def hmc(
     Y_rho0: np.ndarray,
     y_hat: np.ndarray,
@@ -22,6 +18,8 @@ def hmc(
     n_iter: int,
     n_burnin: int,
 ):
+    """Tentative implementation of HMC for the student-t prior 
+    """
     np.random.seed(0)
     d = 2**n
 

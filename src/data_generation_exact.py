@@ -2,13 +2,7 @@ import numpy as np
 from numpy.linalg import eig
 import itertools
 import functools
-import time
 from typing import *
-import matplotlib.pyplot as plt
-import pickle
-import os
-import glob
-import pandas as pd
 import sys
 
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
@@ -91,7 +85,7 @@ def compute_rho_inversion(n: int, b: np.ndarray, p_as: np.ndarray, P_rab: np.nda
     lamb_hat = lamb_til/lamb_til.sum()
     return rho_hat, u_hat
 
-def get_measurables(n: int):
+def get_observables(n: int):
     A = 3**n
     R = 2**n
     a = np.array(list(itertools.product(range(1, 4), repeat=n))) # {x,y,z}^n
@@ -103,9 +97,9 @@ def get_measurables(n: int):
     Pra = np.array(Pra)
     return Pra
 
-def get_measurables_PL_format(n: int):
+def get_observables_PL_format(n: int):
     """
-    Returns measurables in the [d, d, n_obs: R1 R2 R3..] format
+    Returns observables in the [d, d, n_obs: R1 R2 R3..] format
     """
     d = 2**n
     A = 3**n
@@ -139,23 +133,7 @@ def init_matrices(n: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
             Pra.append(np.array(functools.reduce(np.kron, projectors_py(a[j], r[i]))).flatten("F"))
     Pra = np.array(Pra)
     
-
-    # Pauli basis for n qubit 
-    # sig_b_path = f"pkled/sig_b_{n}.pkl"
-    # if os.path.exists(sig_b_path):
-    #     with open(sig_b_path, 'rb') as file:
-    #         sig_b = pickle.load(file) 
-    # else:
     sig_b = np.array([functools.reduce(np.kron, (basis[b[i,:], :, :])) for i in range(J)])
-        # with open(sig_b_path, 'wb') as file:
-        #     pickle.dump(sig_b, file)
-    # Only used for the calculation of rho_hat, size: 6^n x 4^n
-    # Matrix P_{(r,a),b}
-    # P_rab_path = f"pkled/P_rab_{n}.pkl"
-    # if os.path.exists(P_rab_path):
-    #     with open(P_rab_path, 'rb') as file:
-    #         P_rab = pickle.load(file) 
-    # else:
     P_rab = np.zeros((I, J))
     for j in range(J):
         tmp = np.zeros((R, A))
@@ -165,8 +143,6 @@ def init_matrices(n: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
                     * np.prod(a[l, b[j] != 0] == b[j, b[j]!=0])
                 tmp[s,l] = val
         P_rab[:, j] = tmp.flatten(order="F")
-        # with open(P_rab_path, 'wb') as file:
-        #     pickle.dump(P_rab, file)
 
     return Pra, sig_b, P_rab, b, a, r
 
@@ -283,11 +259,10 @@ def generate_data_exact(n: int, n_exp: int, n_shots: int|None, rho_type: str, se
     # we sample n_exp among A, and then select its R = 2**n associated outcomes, requiring the range select 
     samples = np.random.choice(A, n_exp, replace=False) * R
     samples_ranges = [list(range(i, i+R)) for i in samples]
-    Pra = get_measurables(n)
+    Pra = get_observables(n)
     Pra = Pra[samples_ranges, :].reshape(n_exp * R, -1)
     rho_true = get_true_rho(n, rho_type, seed=None)
-    # u_hat = random_complex_ortho(d, d, seed=seed_init_point)
-    # np.random.seed()
+
     # Return size of 2**n x 3**n, flattened by col ([R1 R2 R3]) 
     y_hat = compute_measurements(n, rho_true, n_shots, seed=None)
     y_hat = y_hat[samples_ranges].reshape(-1)
@@ -295,7 +270,7 @@ def generate_data_exact(n: int, n_exp: int, n_shots: int|None, rho_type: str, se
 
 
 def generate_data_exact_PL(n: int, n_exp: int, n_shots: int|None, rho_type: str, seed: int):
-    """Generate a density matrix, and simulate the measurement process
+    """Generate a density matrix, and simulate the measurement process. Returns the measure
     Args:
         n (int): number of qubits
         rho_type (str): Type of density matrix to simulate
@@ -307,14 +282,13 @@ def generate_data_exact_PL(n: int, n_exp: int, n_shots: int|None, rho_type: str,
     R = 2**n
     if seed is not None:
         np.random.seed(seed)
-    # See explanation above
+    # See explanation above, in generate_data_exact
     samples = np.random.choice(A, n_exp, replace=False) * R
     samples_ranges = [list(range(i, i+R)) for i in samples]
-    Pra = get_measurables_PL_format(n)
+    Pra = get_observables_PL_format(n)
     Pra = Pra[:,:, samples_ranges].reshape(d, d, -1)
     rho_true = get_true_rho(n, rho_type, seed=None)
-    # u_hat = random_complex_ortho(d, d, seed=seed_init_point)
-    # np.random.seed()
+
     y_hat = compute_measurements(n, rho_true, n_shots, seed=None)
     y_hat = y_hat[samples_ranges].reshape(-1)
     return rho_true, Pra, y_hat

@@ -23,7 +23,6 @@ def run_experiment(savefig=True):
     rho_type = "rank1"
     n_iter = 10000
     n_burnin = 2000
-    print(f"Iters compare, exact")
 
     rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
     _, As_PL, _ = generate_data_exact_PL(n, n_exp, n_shots, rho_type=rho_type, seed=seed)

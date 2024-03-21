@@ -70,11 +70,11 @@ for (j in 1:A) {
    for (i in 1:R) {
       count <- count + 1
       # From python
-      aj = as.integer(a_py[j,])
-      ri = as.integer(r[i,])
-      proj <- asplit(projectors_py(aj,ri), MARGIN=1)
-      Pra[[count]] = c(kronecker_list(proj))
-      # Pra[[count]] <- c(kronecker_list(projectors(a = a[j, ], r = r[i, ])))
+      # aj = as.integer(a_py[j,])
+      # ri = as.integer(r[i,])
+      # proj <- asplit(projectors_py(aj,ri), MARGIN=1)
+      # Pra[[count]] = c(kronecker_list(proj))
+      Pra[[count]] <- c(kronecker_list(projectors(a = a[j, ], r = r[i, ])))
    }
 }
 
@@ -93,6 +93,7 @@ dens.ma <- get_true_rho(as.integer(n), "rank2", seed)
 # v1 = norm.complex(rcmvnorm(1,sigma=diag(d)))
 # v2 = norm.complex(rcmvnorm(1,sigma=diag(d)))
 
+# Rank 2
 # v1 = t(rep(0,d))
 # v1[1:(d/2)]=1
 # v1 = norm.complex(v1)
@@ -100,6 +101,8 @@ dens.ma <- get_true_rho(as.integer(n), "rank2", seed)
 # v2[d:(d/2+1)] = 1i
 # v2 = norm.complex(v2)
 # dens.ma <- Conj(t(v1))%*%v1*0.5 + Conj(t(v2))%*%v2*0.5
+
+# Approx-rank2
 # dens.ma = Conj(t(v1))%*%v1*0.4999 + Conj(t(v2))%*%v2*0.4999+(1-2*0.4999)*diag(d)/d
 
 # the probabilities matrix of the P.ar, used to simulate data
@@ -120,13 +123,13 @@ Prob.ar <- Re(Prob.ar)
 # calculate the probability matrix after simulating sample
 n.size <- 2000 ## numbers of repeat the measurements
 
-#  
-p_ra = compute_measurements(as.integer(n), dens.ma, as.integer(n.size), seed)
+# From Python
+# p_ra = compute_measurements(as.integer(n), dens.ma, as.integer(n.size), seed)
 
-# p_ra <- apply(Prob.ar, 1, function(x) {
-#    H <- sample(1:R, n.size, prob = x, replace = TRUE)
-#    return(sapply(1:R, function(s) sum(H == s) / n.size))
-# })
+p_ra <- apply(Prob.ar, 1, function(x) {
+   H <- sample(1:R, n.size, prob = x, replace = TRUE)
+   return(sapply(1:R, function(s) sum(H == s) / n.size))
+})
 
 # transform the matrix to the vector form
 p_ra1 <- c(p_ra)
@@ -135,7 +138,7 @@ p_ra1 <- c(p_ra)
 ####### MAIN CODES: ############################
 ################################################
 # From python
-# Pra = get_measurables(as.integer(n))
+# Pra = get_observables(as.integer(n))
 # Pra = lapply(seq_len(nrow(Pra)), function(i) Pra[i,])
 rho <- matrix(0, nr = d, nc = d)
 
@@ -144,8 +147,8 @@ rho <- matrix(0, nr = d, nc = d)
 Te <- rexp(d)
 
 # From python
-d_int <- as.integer(d)
-U <- random_complex_ortho(d_int, d_int, seed)
+# d_int <- as.integer(d)
+U <- random_unitary(d_int, d_int)
 # U <- u.hat
 # print(U)
 Lamb <- c(Te / sum(Te))

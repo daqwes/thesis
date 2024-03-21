@@ -50,6 +50,8 @@ def sample(
     n_iter: int,
     n_burnin: int,
 ):
+    """Tentative use of blackjax as a sampling library with the student-t prior
+    """
     key = jax.random.key(0)
     d = 2**n
 

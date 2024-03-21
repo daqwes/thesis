@@ -1,5 +1,5 @@
 import numpy as np
-import h5py
+# import h5py
 
 s0 = np.eye(2)
 sx = np.array([[0, 1], [1, 0]])
@@ -24,7 +24,7 @@ def norm_complex(arr: np.ndarray):
         return arr / np.sqrt((np.abs(arr) ** 2).sum())
 
 
-def random_complex_ortho(n: int, p: int, seed=None):
+def random_unitary(n: int, p: int, seed=None):
     """Generate a random unitary matrix of size n x p
     Args:
         n (int): number of rows
@@ -56,7 +56,7 @@ def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
     d = 2**n
     if isinstance(rho_type, (int, np.integer)):
         r = rho_type
-        V = random_complex_ortho(d, r)
+        V = random_unitary(d, r)
         gamma = np.random.gamma(1 / r, 1, (r))  # Note: see obs for comment on this
         D = np.diag(gamma) / gamma.sum()
         Y = V @ np.sqrt(D)
@@ -64,12 +64,12 @@ def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
     elif rho_type == "rank1":
         # Pure state - rank1
         r = 1
-        V = random_complex_ortho(d, r)
+        V = random_unitary(d, r)
         dens_ma = V @ np.conj(V.T)
     elif rho_type == "rank2":
         # Rank2
         r = 2
-        V = random_complex_ortho(d, r)
+        V = random_unitary(d, r)
         v0 = V[:, 0]
         v1 = V[:, 1]
         dens_ma = 1 / 2 * np.outer(v0, np.conj(v0).T) + 1 / 2 * np.outer(
@@ -78,7 +78,7 @@ def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
     elif rho_type == "approx-rank2":
         # Approx rank2
         r = 2
-        V = random_complex_ortho(d, r)
+        V = random_unitary(d, r)
         v0 = V[:, 0]
         v1 = V[:, 1]
         dens_ma = 1 / 2 * np.outer(v0, np.conj(v0)) + 1 / 2 * np.outer(v1, np.conj(v1))
@@ -87,7 +87,7 @@ def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
     elif rho_type == "rankd":
         # Maximal mixed state (rankd = 16)
         r = d
-        V = random_complex_ortho(d, r)
+        V = random_unitary(d, r)
         gamma = np.random.gamma(1 / r, 1, (r))  # Note: see obs for comment on this
         D = np.diag(gamma) / gamma.sum()
         Y = V @ np.sqrt(D)
@@ -124,27 +124,21 @@ def pauli_measurements(n: int):
             else:
                 si = sz
             A = np.kron(si, A)
-            # if j == 2:
-                # print(si)
-        # print(A)
-        # if j == 9:
-        #     exit(1)
-        # print(nnz[1] + A.shape[1]*nnz[0] +1)
         As[:, :, j] = A
     return As
 
 
-def dump_h5(data: np.ndarray, var_name: str):
-    data_d = np.array(data).astype(np.complex128).transpose().copy()#.reshape(*data.shape[::-1]).copy()#  .reshape(*data.shape[::-1])
-    data_d2 = np.array(data).astype(np.complex128).reshape(data.shape[::-1]).copy()
-    imag_data_d = np.where(np.imag(data_d) == 0, 0, np.imag(data_d))
-    real_data_d = np.where(np.real(data_d) == 0, 0, np.real(data_d))
-    # for j in range(data.shape[-1]):
-    #     print(np.real(data[:,:,j]))
+# def dump_h5(data: np.ndarray, var_name: str):
+#     data_d = np.array(data).astype(np.complex128).transpose().copy()#.reshape(*data.shape[::-1]).copy()#  .reshape(*data.shape[::-1])
+#     data_d2 = np.array(data).astype(np.complex128).reshape(data.shape[::-1]).copy()
+#     imag_data_d = np.where(np.imag(data_d) == 0, 0, np.imag(data_d))
+#     real_data_d = np.where(np.real(data_d) == 0, 0, np.real(data_d))
+#     # for j in range(data.shape[-1]):
+#     #     print(np.real(data[:,:,j]))
 
-    with h5py.File(f"{var_name}_py.h5", "w") as file:
-        file.create_dataset("data_real", data=real_data_d)
-        file.create_dataset("data_imag", data=imag_data_d)
+#     with h5py.File(f"{var_name}_py.h5", "w") as file:
+#         file.create_dataset("data_real", data=real_data_d)
+#         file.create_dataset("data_imag", data=imag_data_d)
 
 def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_exp: int) -> np.ndarray:
     """Compute n_shots measurements of the system. 
@@ -156,8 +150,7 @@ def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_ex
     if n_shots is None:
         return y_hat
     p = (y_hat + 1) / 2
-    # TODO make sure this is the correct approach, and if it's correct to obtain
-    # values in the [-1, 1] interval 
+
     y_hat = 2 / n_shots * np.random.binomial(n_shots, p) - np.ones(
         y_hat.shape[0]
     )
@@ -176,7 +169,6 @@ def generate_data(n: int, n_exp: int, n_shots: int|None, rho_type: str|int, seed
     d = 2**n
     rho_true = gen_true_rho_PL(n, rho_type)
     As = pauli_measurements(n)
-    # As = As[:, :, :n_exp]
 
     samples = np.random.choice(range(d * d), n_exp, replace=False)
     As = As[:, :, samples]

@@ -2894,7 +2894,7 @@
 <text  x="616.75" y="687.5" ></text>
 </g>
 <g >
-<title>/home/daniel/Documents/thesis/src/data_generation.py:random_complex_ortho:35 (809 samples, 0.03%)</title><rect x="672.1" y="1093" width="0.4" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
+<title>/home/daniel/Documents/thesis/src/data_generation.py:random_unitary:35 (809 samples, 0.03%)</title><rect x="672.1" y="1093" width="0.4" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
 <text  x="675.14" y="1103.5" ></text>
 </g>
 <g >

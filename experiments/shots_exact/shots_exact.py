@@ -31,7 +31,6 @@ def run_experiment(savefig=True):
     else:
         shots = range(100, 2100, 100)
         ext = ""
-    print(f"Shots compare {ext}, exact")
 
     accs_prob = []
     accs_pl = [] 
