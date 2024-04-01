@@ -23,13 +23,16 @@ def real_to_complex(X: np.ndarray):
     d = int(two_d/2)
     return np.sqrt(2) * (X[:d,:d] + 1j*X[:d, d:])
 
-def gen_init_point(d, r, seed=None):
+def gen_init_point(d, r, seed=None) -> np.ndarray:
     """
     """
-    # Generate initial candidate
+    # Generate initial candidate, VV* = V*V = I (columns are orthonormal wrt to the conj transpose)
     V = random_unitary(d, r, seed)
+    # Generate candidate from the dirichlet distribution with all parameters equal to a same small constant (1/r)
+    # This is equivalent to sampling from a Gamma, and then normalizing
     gamma0 = np.random.gamma(1 / r, 1, r)
     D = np.diag(gamma0) / gamma0.sum()
+    # Multiply our unitary matrix of rank r by sqrt(D) (=singular values) to get a rank 1 (not true in practice, but at least in theory)
     Y_rho = V @ np.sqrt(D)
     return Y_rho
 
@@ -138,7 +141,8 @@ def langevin(
     Runs the langevin algorithm. 
     Expects the observables tensor in the [d, d, n_exp] format.
     """
-    np.random.seed(0)
+    if seed is not None:
+        np.random.seed(seed)
     d = 2**n
 
     Y_rho = Y_rho0
@@ -181,7 +185,7 @@ def langevin(
         Y_rho_r -= eta * G + np.sqrt(2 * eta / beta) * N
         cost[k] = f(Y_rho_r, As_r, y_hat, lambda_, theta, alpha, As_r_swap)
         t_rec[k - 1] = time.perf_counter() - t_start            
-        #Convert back to reals
+        # Convert back to the real domain
         M = np.sqrt(2) * (Y_rho_r @ np.conj(Y_rho_r.T))
         Y_rho_record[k - 1, :, :] = real_to_complex(M)
 
@@ -248,9 +252,10 @@ def main():
     n_iter = 2000
     n_burnin = 1000
     seed = 0
-    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type="rank2", seed= seed)
+    rho_type = "rank2"
+    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type, seed= seed)
 
-    rhos_pl, rho_avg_pl, cum_times_pl  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=seed, running_avg=True)
+    rhos_pl, rho_avg_pl, cum_times_pl  = run_PL(n, n_exp, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=seed, running_avg=True)
     err = np.linalg.norm(rho_avg_pl - rho_true, "fro")
     print(err**2)
 
