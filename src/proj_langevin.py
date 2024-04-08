@@ -187,7 +187,8 @@ def langevin(
         t_rec[k - 1] = time.perf_counter() - t_start            
         # Convert back to the real domain
         M = np.sqrt(2) * (Y_rho_r @ np.conj(Y_rho_r.T))
-        Y_rho_record[k - 1, :, :] = real_to_complex(M)
+        if k < n_iter:
+            Y_rho_record[k, :, :] = real_to_complex(M)
 
     return Y_rho_record, t_rec, n_rec
 
@@ -211,8 +212,7 @@ def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_ha
     r = d # TODO: change, not the most optimal way for the rank of the matrix
     if seed is not None:
         np.random.seed(seed)
-    Y_rho0 = gen_init_point(d, r, seed = None)
-
+    Y_rho0 = gen_init_point(d, r)
     lambda_ = n_shots / 2
     eta = 0.05 /  n_shots
     alpha = 1

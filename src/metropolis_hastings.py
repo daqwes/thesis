@@ -41,6 +41,7 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
     be = 1
     cum_times = [0] * (n_iter) 
     rhos_record = np.zeros((n_iter, d, d), dtype=np.complex128)
+    rhos_record[0,:,:] = u_hat
     start_time = time.perf_counter()
     acc_count_gamma = 0
     acc_count_V = 0
@@ -75,11 +76,12 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
             if np.log(random_uniform(0, 1, 1, seed)) <= ap: 
                 U = U_can # if value above draw from U(0,1), then update
                 acc_count_V += 1
-        if t >= n_burnin:
-            rho = U @ np.diag(Lamb) @ np.conj(U.T)/(t - n_burnin + 1) + rho*(1-1/(t-n_burnin + 1)) # approximate rho each time as rho_t = gamma_t * V_t * V_t^T /(t-n_burnin) + rho_t-1 / (1 - 1/(t-n_burnin)) -> the later we are, the more importance we give to prev rho
-            rhos_record[t, :, :] = rho.copy()
-        else:
-            rhos_record[t, :, :] = U @ np.diag(Lamb) @ np.conj(U.T)
+        if t < n_iter - 1:
+            if t >= n_burnin:
+                rho = U @ np.diag(Lamb) @ np.conj(U.T)/(t - n_burnin + 1) + rho*(1-1/(t-n_burnin + 1)) # approximate rho each time as rho_t = gamma_t * V_t * V_t^T /(t-n_burnin) + rho_t-1 / (1 - 1/(t-n_burnin)) -> the later we are, the more importance we give to prev rho
+                rhos_record[t+1, :, :] = rho.copy()
+            else:
+                rhos_record[t+1, :, :] = U @ np.diag(Lamb) @ np.conj(U.T)
         cum_times[t] = time.perf_counter() - start_time
     ac_rate_gamma = acc_count_gamma / (n_iter * d)
     ac_rate_V = acc_count_V / (n_iter * d)
@@ -102,13 +104,20 @@ def run_MH(n: int, n_exp: int, n_shots: int, rho_true: np.ndarray, As: np.ndarra
     """
     if seed is not None:
         np.random.seed(seed)
-    gamm = n_shots/2 # lambda in paper
+
+    # Note: this changes the behaviour from the Mai/Alquier paper
+    # if n_shots < 1e3:
+    #     gamm = n_shots/2 # lambda in paper
+    # else: 
+    #     gamm = 1e3/2
+    gamm = n_shots/2 
     # TODO There should be a better way (more fair) to create the initial candidate
     # u_hat = random_unitary()
 
     # TODO: this is done in order to have the same initial point in both algos, change later
     d = 2**n
     u_hat = gen_init_point(d, d) 
+    # print(u_hat)
     rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, None, seed = None, n_iter=n_iter, n_burnin=n_burnin)
     return rhos_record, rho_prob, cum_times
 

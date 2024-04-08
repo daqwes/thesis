@@ -72,20 +72,5 @@ def run_experiment(savefig=True):
 
     dump_run_information("run_shots", {"shots": shots, "acc_pl": accs_pl, "acc_prob": accs_prob})  
 
-    # plt.figure()
-    # plt.plot(times_pl, accs_pl, label="langevin")
-    # plt.plot(times_prob, accs_prob, label="prob")
-    # plt.legend()
-    # plt.xlabel("Time [s]")
-    # plt.ylabel("$L_2$ squared error")
-    # plt.title("Comparison of accuracy wrt time, increasing shots")
-    # plt.savefig(FIG_DIR + f"shots_acc_comp_time{ext}.pdf", bbox_inches="tight")
-    # plt.show()
-
-    # len_shots = len(shots)
-    # df = pd.DataFrame({"shots": np.tile(shots, 2),"times": times_pl + times_prob, "acc": accs_pl + accs_prob, "type": ["pl"] * len_shots + ["prob"] *  len_shots})
-    # df.to_csv(DATA_DIR + f"shots{ext}.csv", ",", index=False)
-
-
 if __name__ == "__main__":
-    run_experiment()
+    run_experiment(False)

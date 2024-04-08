@@ -73,8 +73,8 @@ def run_experiment(savefig=True):
         plt.savefig(f"iters_acc_comp_iters_no_avg_rankd.pdf", bbox_inches="tight")
     plt.show()
     plt.close()
-
-    dump_run_information("run_iterations_no_avg_rankd", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob})  
+    if savefig:
+        dump_run_information("run_iterations_no_avg_rankd", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob})  
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ def run_experiment(savefig=True):
     n_iter = 5000
     n_burnin = 1000
     rho_type = "rank2"
-    exps = range(2, d*d+1, 10) #TODO does not work for some reason
+    exps = range(2, d*d+1, 5) #TODO does not work for some reason
 
     accs_prob = []
     accs_pl = [] 
@@ -39,14 +39,25 @@ def run_experiment(savefig=True):
         accs_pl.append(compute_error(rho_avg_pl, rho_true))
 
     plt.figure()
-    plt.semilogy(exps, accs_pl, label="langevin")
-    plt.semilogy(exps, accs_prob, label="prob")
+    plt.plot(exps, accs_pl, label="langevin")
+    plt.plot(exps, accs_prob, label="prob")
     plt.legend()
     plt.xlabel("Number of experiments [#]")
     plt.ylabel("$L_2$ squared error")
     plt.title("Accuracy wrt n_exp")
     if savefig:
         plt.savefig(f"exps_acc_comp_exps.pdf", bbox_inches="tight")
+    plt.show()
+
+    plt.figure()
+    plt.semilogy(exps, accs_pl, label="langevin")
+    plt.semilogy(exps, accs_prob, label="prob")
+    plt.legend()
+    plt.xlabel("Number of experiments [#]")
+    plt.ylabel("$L_2$ squared error")
+    plt.title("Accuracy wrt n_exp, semilogy")
+    if savefig:
+        plt.savefig(f"exps_acc_comp_exps_semilogy.pdf", bbox_inches="tight")
     plt.show()
 
     dump_run_information("run_exps", {"exps": exps, "acc_pl": accs_pl, "acc_prob": accs_prob})
