@@ -42,6 +42,8 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
     cum_times = [0] * (n_iter) 
     rhos_record = np.zeros((n_iter, d, d), dtype=np.complex128)
     start_time = time.perf_counter()
+    acc_count_gamma = 0
+    acc_count_V = 0
     for t in range(n_iter):
         for j in range(d): # Loop for Y_i
             Te_can = Te.copy()
@@ -56,7 +58,9 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
             ss = (ss1 - ss2).sum()
             r_prior = (ro-1) * np.log(Te_can[j]/Te[j]) - Te_can[j] + Te[j] # other part of R acceptance ratio
             ap = -gamm*np.real(ss) # other part (why use np.real?)
-            if np.log(random_uniform(0, 1, 1, seed=seed)) <= ap + r_prior: Te = Te_can # if value above draw from U(0,1), then update
+            if np.log(random_uniform(0, 1, 1, seed=seed)) <= ap + r_prior: 
+                Te = Te_can # if value above draw from U(0,1), then update
+                acc_count_gamma +=1
             Lamb = Te/Te.sum() # gamma
         for j in range(d): # Loop for V_i
             U_can = U.copy()
@@ -68,14 +72,18 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
             ss2 = (Pra_m @ tem - p_as)**2
             ss = (ss1 - ss2).sum()
             ap = -gamm * np.real(ss) # other part of A accep ratio
-            if np.log(random_uniform(0, 1, 1, seed)) <= ap: U = U_can # if value above draw from U(0,1), then update
-
+            if np.log(random_uniform(0, 1, 1, seed)) <= ap: 
+                U = U_can # if value above draw from U(0,1), then update
+                acc_count_V += 1
         if t >= n_burnin:
             rho = U @ np.diag(Lamb) @ np.conj(U.T)/(t - n_burnin + 1) + rho*(1-1/(t-n_burnin + 1)) # approximate rho each time as rho_t = gamma_t * V_t * V_t^T /(t-n_burnin) + rho_t-1 / (1 - 1/(t-n_burnin)) -> the later we are, the more importance we give to prev rho
             rhos_record[t, :, :] = rho.copy()
         else:
             rhos_record[t, :, :] = U @ np.diag(Lamb) @ np.conj(U.T)
         cum_times[t] = time.perf_counter() - start_time
+    ac_rate_gamma = acc_count_gamma / (n_iter * d)
+    ac_rate_V = acc_count_V / (n_iter * d)
+    # print(ac_rate_gamma, ac_rate_V) 
     return rhos_record, rho, cum_times
 
 def run_MH(n: int, n_exp: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = 0):
