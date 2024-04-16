@@ -5,13 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.metropolis_hastings import run_MH
-from src.proj_langevin import run_PL
+from src.proj_langevin import run_PL, gen_init_point
 from src.data_generation import generate_data
 from src.utils import dump_run_information
 
 """
 Plots a phase transition, with n_exp/d on the x axis, and the rank of rho on y. Each point corresponds to the error for that combination.
-Here, d is kept constant.
+Here, d is kept constant. In this situation, we assume to know the true rank of rho, hence adapting r.
 """
 def run_experiment(savefig=True):
     seed = 0
@@ -22,7 +22,8 @@ def run_experiment(savefig=True):
     n_shots = 2000
     n_iter = 2000
     n_burnin = 500
-    
+
+    eta_shots_indep_PL = 0.005
     accs_prob = np.zeros((len(n_exps), len(rho_ranks)))
     accs_pl = np.zeros((len(n_exps), len(rho_ranks)))
 
@@ -34,8 +35,12 @@ def run_experiment(savefig=True):
                 # TODO: it is not clear why this works better than `flatten(order="F")`
                 # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
-            _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin)
-            _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin)
+            
+            init_point_MH = gen_init_point(d, d)
+            init_point_PL = gen_init_point(d, rho_rank)
+            
+            _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_MH)
+            _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_PL, eta_shots_indep=eta_shots_indep_PL)
             
             accs_prob[i,j] = np.log(compute_error(rho_last_prob, rho_true))
             accs_pl[i,j] = np.log(compute_error(rho_avg_pl, rho_true))
@@ -43,7 +48,7 @@ def run_experiment(savefig=True):
     
     xv, yv = np.meshgrid(n_exps/d, rho_ranks, indexing="ij")
     fig, axs = plt.subplots(1, 2)
-    fig.suptitle("Phase transition of rank wrt n_exp/d")
+    fig.suptitle("Phase transition of rank wrt n_exp/d, with rank knowledge")
     c1 = axs[0].contourf(xv, yv, accs_prob, cmap=plt.cm.rainbow,
                   vmin=accs_prob.min(), vmax=accs_prob.max())
     c2 = axs[1].contourf(xv, yv, accs_pl, cmap=plt.cm.rainbow,
@@ -60,11 +65,11 @@ def run_experiment(savefig=True):
     plt.colorbar(mappable=c2, ax=axs[1])
 
     if savefig:
-        plt.savefig(f"phase_transition_exps.pdf", bbox_inches="tight")
+        plt.savefig(f"phase_transition_exps_with_knowledge.pdf", bbox_inches="tight")
     plt.show()
 
     if savefig:
-        dump_run_information("phase_transition_exps", {"exps": np.repeat(n_exps, len(rho_ranks)), "ranks": np.tile(rho_ranks, len(n_exps)), "acc_pl": accs_pl.flatten(), "acc_prob": accs_prob.flatten()})
+        dump_run_information("phase_transition_exps_with_knowledge", {"exps": np.repeat(n_exps, len(rho_ranks)), "ranks": np.tile(rho_ranks, len(n_exps)), "acc_pl": accs_pl.flatten(), "acc_prob": accs_prob.flatten()})
 
     plt.show()
 if __name__ == "__main__":

@@ -88,7 +88,7 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
     # print(ac_rate_gamma, ac_rate_V) 
     return rhos_record, rho, cum_times
 
-def run_MH(n: int, n_exp: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = 0):
+def run_MH(n: int, n_exp: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = 0, init_point: np.ndarray|None = None, gamma: float|None = None):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
@@ -110,13 +110,19 @@ def run_MH(n: int, n_exp: int, n_shots: int, rho_true: np.ndarray, As: np.ndarra
     #     gamm = n_shots/2 # lambda in paper
     # else: 
     #     gamm = 1e3/2
-    gamm = n_shots/2 
+    if gamma is not None:
+        gamm = gamma
+    else:
+        gamm = n_shots/2 
     # TODO There should be a better way (more fair) to create the initial candidate
     # u_hat = random_unitary()
 
     # TODO: this is done in order to have the same initial point in both algos, change later
     d = 2**n
-    u_hat = gen_init_point(d, d) 
+    if init_point is not None:
+        u_hat = init_point
+    else:
+        u_hat = gen_init_point(d, d) 
     # print(u_hat)
     rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, None, seed = None, n_iter=n_iter, n_burnin=n_burnin)
     return rhos_record, rho_prob, cum_times

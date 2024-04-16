@@ -9,22 +9,21 @@ from src.mh_studentt_prior import run_MH_studentt
 from src.data_generation_exact import generate_data_exact_PL
 from src.proj_langevin import gen_init_point
 """
-Compare and evaluate the different proposals we could use for MH used with a student-t prior, with various scaling coefs.
+Compare and evaluate the different proposals we could use for MH used with a student-t prior, with various scaling coefs. With running average.
 """
 def run_experiment(savefig=True):
     seed = 0
     n = 3
-    d= 2**n
+    d = 2**n
     n_exp = 3**n
     n_shots = 2000
     n_iter = 5000
     n_burnin = 1000
-    run_avg = False
+    run_avg = True
     use_prop_in_ratio = False
     log_transform = True
     rho_true, As, y_hat = generate_data_exact_PL(n, n_exp, n_shots, rho_type="rank2", seed= seed)
     init_point = gen_init_point(d, d)
-
     proposals = ["normal_dep", "exp_dep", "normal"]
     scaling_coefs_prop = [0.001, 0.01, 0.05, 0.1, 0.5, 1, 10]
     reps = 3
@@ -45,7 +44,7 @@ def run_experiment(savefig=True):
 
     results_df = pd.DataFrame.from_records(results)
     results_df.sort_values(by="err")
-    results_df.to_csv("prop_search_mh_studentt.csv", sep=',')
+    results_df.to_csv("prop_search_mh_studentt_run_avg.csv", sep=',')
 
 if __name__ == "__main__":
     run_experiment()

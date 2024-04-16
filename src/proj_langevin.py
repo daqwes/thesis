@@ -170,7 +170,7 @@ def langevin(
     t_rec = np.zeros(n_iter)
     cost[0] = f(Y_rho_r, As_r, y_hat, lambda_, theta, alpha, As_r_swap)
     k = 0
-    Y_rho_record[0, :, :] = Y_rho0
+    Y_rho_record[0, :, :] = (Y_rho0 @ np.conj(Y_rho0.T))
     t_start = time.perf_counter()
     for k in range(1, n_iter + 1):
         G = gradf(Y_rho_r, As_r, y_hat, lambda_, theta, alpha, As_r_swap, As_r_sum_swap)
@@ -193,7 +193,7 @@ def langevin(
     return Y_rho_record, t_rec, n_rec
 
 
-def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed = 0, running_avg: bool = False):
+def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int = 0, running_avg: bool = False, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
@@ -209,12 +209,20 @@ def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_ha
         np.ndarray: approximated version of the density matrix
     """
     d = 2**n
-    r = d # TODO: change, not the most optimal way for the rank of the matrix
     if seed is not None:
         np.random.seed(seed)
-    Y_rho0 = gen_init_point(d, r)
+
+    if init_point is not None:
+        _, r = init_point.shape
+        Y_rho0 = init_point
+    else:
+        r = d # TODO: change, not the most optimal way for the rank of the matrix
+        Y_rho0 = gen_init_point(d, r)
     lambda_ = n_shots / 2
-    eta = 0.05 /  n_shots
+    if eta_shots_indep is not None:
+        eta = eta_shots_indep / n_shots
+    else:
+        eta = 0.05 / n_shots
     alpha = 1
 
     if n == 3:

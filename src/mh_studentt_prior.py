@@ -181,13 +181,17 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
     return rhos_record, rho_iter, cum_times, acc_rate 
 
 
-def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = None, run_avg: bool = False, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True):
+def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = None, run_avg: bool = False, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None):
     if seed is not None:
         np.random.seed(seed)
     d = 2**n
-    r = d # TODO: change as not the most optimal approach
-    Y0 = gen_init_point(d, r)
-    np.random.random()
+    if init_point is not None:
+        _, r = init_point.shape
+        Y0 = init_point
+    else:
+        r = d # TODO: change as not the most optimal approach
+        Y0 = gen_init_point(d, r)
+    
     lambda_ = n_shots / 2
     if n == 3:
         theta = 0.1
@@ -219,8 +223,8 @@ def main():
     n_burnin = 1000
     run_avg = True
     log_transform = True
-    proposal = "exp_dep"
-    scaling_coef_prop = 0.1
+    proposal = "unitary_rank1"
+    scaling_coef_prop = 1
     use_prop_in_ratio = False
     rho_true, As, y_hat = generate_data_exact_PL(n, n_exp, n_shots, rho_type="rank2", seed=seed)
     np.random.seed()
