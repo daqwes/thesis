@@ -52,10 +52,8 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
             L_can = Te_can/Te_can.sum() # \tilde(gamma)_i = \tilde(Y_i)/sum_j^d(\tilde(Y_j))
             tem_can = (U @ np.diag(L_can) @ np.conj(U.T)).flatten(order="F") # gamma * U * U^T (U = V in paper)
             tem = (U @ np.diag(Lamb) @ np.conj(U.T)).flatten(order="F") # prev gamma * U * U^T
-            # ------------------
             ss1 = (Pra_m @ tem_can - p_as)**2  # l^prob: sum_a sum_s (Tr(v P^a_s) - hat(p^_a,s))^2
             ss2 = (Pra_m @ tem - p_as)**2
-            # ------------------
             ss = (ss1 - ss2).sum()
             r_prior = (ro-1) * np.log(Te_can[j]/Te[j]) - Te_can[j] + Te[j] # other part of R acceptance ratio
             ap = -gamm*np.real(ss) # other part (why use np.real?)
@@ -105,25 +103,16 @@ def run_MH(n: int, n_exp: int, n_shots: int, rho_true: np.ndarray, As: np.ndarra
     if seed is not None:
         np.random.seed(seed)
 
-    # Note: this changes the behaviour from the Mai/Alquier paper
-    # if n_shots < 1e3:
-    #     gamm = n_shots/2 # lambda in paper
-    # else: 
-    #     gamm = 1e3/2
     if gamma is not None:
         gamm = gamma
     else:
         gamm = n_shots/2 
-    # TODO There should be a better way (more fair) to create the initial candidate
-    # u_hat = random_unitary()
 
-    # TODO: this is done in order to have the same initial point in both algos, change later
     d = 2**n
     if init_point is not None:
         u_hat = init_point
     else:
         u_hat = gen_init_point(d, d) 
-    # print(u_hat)
     rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, None, seed = None, n_iter=n_iter, n_burnin=n_burnin)
     return rhos_record, rho_prob, cum_times
 
@@ -163,18 +152,17 @@ def main_exact_data_gen():
     n_iter = 600
     n_burnin = 100
     n_shots = 2000
-    if n_shots is None:
-        gamm = 1e7/2
-    else:
-        gamm = n_shots/2
-    # Pra, sig_b, P_rab, b, a, r = init_matrices(n)
+    gamm = n_shots/2
+
     rho_type = "rank2" 
-    rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
+
     # Pra = get_observables(n)
     # rho_true = get_true_rho(n, rho_type, seed=seed)
     # u_hat = random_unitary(d, d, seed=seed)
-    
     # y_hat = compute_measurements(n, rho_true, n_shots, seed=None)
+
+    rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
+
     prob_seed = None
     u_hat = random_unitary(d, d, seed)
     np.random.seed()

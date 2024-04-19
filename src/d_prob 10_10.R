@@ -78,6 +78,11 @@ for (j in 1:A) {
    }
 }
 
+### True rho generation ###
+
+# From python
+# dens.ma <- get_true_rho(as.integer(n), "rank2", seed)
+
 # The "true-test" dens.ma matrix
 ## pure state
 # dens.ma = matrix(0,nr=d,nc=d)
@@ -86,21 +91,19 @@ for (j in 1:A) {
 # u = sapply(1:d, function(i)norm.complex(rcmvnorm(1,sigma=diag(d)/100)))
 # dens.ma = Conj(t(u))%*%u/d
 
-# From python
-dens.ma <- get_true_rho(as.integer(n), "rank2", seed)
 
 # print(dens.ma)
 # v1 = norm.complex(rcmvnorm(1,sigma=diag(d)))
 # v2 = norm.complex(rcmvnorm(1,sigma=diag(d)))
 
 # Rank 2
-# v1 = t(rep(0,d))
-# v1[1:(d/2)]=1
-# v1 = norm.complex(v1)
-# v2 = t(rep(0,d))
-# v2[d:(d/2+1)] = 1i
-# v2 = norm.complex(v2)
-# dens.ma <- Conj(t(v1))%*%v1*0.5 + Conj(t(v2))%*%v2*0.5
+v1 = t(rep(0,d))
+v1[1:(d/2)]=1
+v1 = norm.complex(v1)
+v2 = t(rep(0,d))
+v2[d:(d/2+1)] = 1i
+v2 = norm.complex(v2)
+dens.ma <- Conj(t(v1))%*%v1*0.5 + Conj(t(v2))%*%v2*0.5
 
 # Approx-rank2
 # dens.ma = Conj(t(v1))%*%v1*0.4999 + Conj(t(v2))%*%v2*0.4999+(1-2*0.4999)*diag(d)/d
@@ -134,12 +137,11 @@ p_ra <- apply(Prob.ar, 1, function(x) {
 # transform the matrix to the vector form
 p_ra1 <- c(p_ra)
 # print(p_ra1)
+
 ################################################
 ####### MAIN CODES: ############################
 ################################################
-# From python
-# Pra = get_observables(as.integer(n))
-# Pra = lapply(seq_len(nrow(Pra)), function(i) Pra[i,])
+
 rho <- matrix(0, nr = d, nc = d)
 
 # From python
@@ -147,7 +149,7 @@ rho <- matrix(0, nr = d, nc = d)
 Te <- rexp(d)
 
 # From python
-# d_int <- as.integer(d)
+d_int <- as.integer(d)
 U <- random_unitary(d_int, d_int)
 # U <- u.hat
 # print(U)
@@ -185,7 +187,6 @@ for (t in 1:(Iter + burnin)) {
       }
       Lamb <- c(Te / sum(Te))
    }
-   # random_multivariate_complex(rep(0, d), diag(d), 1, seed)
    # update U
    for (j in 1:d) {
       U.can <- U

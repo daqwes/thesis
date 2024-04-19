@@ -129,8 +129,7 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap:
 
 
 def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True) -> np.ndarray:
-    """ TODO: try to implement with prior of the form:
-        C_theta * det(theta^2*I_d + YY*)^-(2d+r+2)/2    
+    """ Metropolis-Hastings algorithm with a student-t prior   
     """
     if seed is not None:
         np.random.seed(seed)
@@ -168,14 +167,10 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
         if rd < ratio:
             Y_r_prev = Y_r_next
             acc_count+=1
-        # if t >= n_burnin and run_avg:
-        #     rho = prev/(t - n_burnin + 1) + rho*(1-1/(t-n_burnin + 1)) # approximate rho each time as rho_t = gamma_t * V_t * V_t^T /(t-n_burnin) + rho_t-1 / (1 - 1/(t-n_burnin)) -> the later we are, the more importance we give to prev rho
-        #     rhos_record[t, :, :] = rho.copy()
-        # else:
         rho_iter = np.sqrt(2) * (Y_r_prev @ np.conj(Y_r_prev.T))
         rhos_record[t, :, :] = real_to_complex(rho_iter)
         cum_times[t] = time.perf_counter() - start_time
-        # exit(0)
+
     acc_rate = acc_count / n_iter
     print(f"Acceptance rate: {acc_rate}")
     return rhos_record, rho_iter, cum_times, acc_rate 
