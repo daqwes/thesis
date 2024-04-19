@@ -9,6 +9,9 @@ from src.proj_langevin import run_PL
 from src.data_generation import generate_data
 from src.utils import dump_run_information
 
+"""
+Evolution of the accuracy wrt the number of shots
+"""
 def run_experiment(savefig=True):
     n = 3
     d = 2**n

@@ -13,7 +13,7 @@ from src.utils import dump_run_information
 
 """
 Plot the accuracy of langevin vs prob vs mh with student-t wrt to the number of iterations, 
-no running average, exact data generation
+no running average for langevin, exact data generation
 """
 def run_experiment(savefig=True):
     seed = 0

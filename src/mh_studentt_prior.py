@@ -181,7 +181,7 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
     return rhos_record, rho_iter, cum_times, acc_rate 
 
 
-def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = None, run_avg: bool = False, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None):
+def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = None, run_avg: bool = True, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None):
     if seed is not None:
         np.random.seed(seed)
     d = 2**n
