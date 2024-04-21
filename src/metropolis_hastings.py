@@ -86,11 +86,11 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
     # print(ac_rate_gamma, ac_rate_V) 
     return rhos_record, rho, cum_times
 
-def run_MH(n: int, n_exp: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = 0, init_point: np.ndarray|None = None, gamma: float|None = None):
+def run_MH(n: int, n_meas: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = 0, init_point: np.ndarray|None = None, gamma: float|None = None):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
-        n_exp (int): number of experiments
+        n_meas (int): number of experiments
         n_shots (int): number of measurements
         rho_true (np.ndarray): true denstiy matrix, if available
         As (np.ndarray): measurement matrices
@@ -120,10 +120,10 @@ def main():
     seed = 0
     n = 3
     d = 2**n
-    n_exp = d * d
+    n_meas = d * d
     n_shots = 100000
     rho_type = "rank2"
-    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_type)
+    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type)
 
     As_flat = np.zeros((4**n, 2**n * 2**n), dtype = np.complex128)
     for i in range(4**n):
@@ -148,7 +148,7 @@ def main_exact_data_gen():
     seed = 0
     n = 3
     d = 2**n
-    n_exp = 3**n
+    n_meas = 3**n
     n_iter = 600
     n_burnin = 100
     n_shots = 2000
@@ -161,7 +161,7 @@ def main_exact_data_gen():
     # u_hat = random_unitary(d, d, seed=seed)
     # y_hat = compute_measurements(n, rho_true, n_shots, seed=None)
 
-    rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
 
     prob_seed = None
     u_hat = random_unitary(d, d, seed)

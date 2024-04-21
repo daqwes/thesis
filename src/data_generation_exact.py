@@ -241,7 +241,7 @@ def compute_measurements(n: int, dens_ma, n_shots: int | None=2000, seed=None):
     return p_ra.flatten(order="F")
 
 
-def generate_data_exact(n: int, n_exp: int, n_shots: int|None, rho_type: str, seed: int):
+def generate_data_exact(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
     """Generate a density matrix, and simulate the measurement process
     Args:
         n (int): number of qubits
@@ -256,11 +256,11 @@ def generate_data_exact(n: int, n_exp: int, n_shots: int|None, rho_type: str, se
     R = 2**n
     # Here we need to select the observables randomly, based on samples.
     # Because the maximum number of pauli matrices combinations is A = 3**n (for which we then select the 2**n possible combinations of possible output)
-    # we sample n_exp among A, and then select its R = 2**n associated outcomes, requiring the range select 
-    samples = np.random.choice(A, n_exp, replace=False) * R
+    # we sample n_meas among A, and then select its R = 2**n associated outcomes, requiring the range select 
+    samples = np.random.choice(A, n_meas, replace=False) * R
     samples_ranges = [list(range(i, i+R)) for i in samples]
     Pra = get_observables(n)
-    Pra = Pra[samples_ranges, :].reshape(n_exp * R, -1)
+    Pra = Pra[samples_ranges, :].reshape(n_meas * R, -1)
     rho_true = get_true_rho(n, rho_type, seed=None)
 
     # Return size of 2**n x 3**n, flattened by col ([R1 R2 R3]) 
@@ -269,7 +269,7 @@ def generate_data_exact(n: int, n_exp: int, n_shots: int|None, rho_type: str, se
     return rho_true, Pra, y_hat
 
 
-def generate_data_exact_PL(n: int, n_exp: int, n_shots: int|None, rho_type: str, seed: int):
+def generate_data_exact_PL(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
     """Generate a density matrix, and simulate the measurement process. Returns the measure
     Args:
         n (int): number of qubits
@@ -283,7 +283,7 @@ def generate_data_exact_PL(n: int, n_exp: int, n_shots: int|None, rho_type: str,
     if seed is not None:
         np.random.seed(seed)
     # See explanation above, in generate_data_exact
-    samples = np.random.choice(A, n_exp, replace=False) * R
+    samples = np.random.choice(A, n_meas, replace=False) * R
     samples_ranges = [list(range(i, i+R)) for i in samples]
     Pra = get_observables_PL_format(n)
     Pra = Pra[:,:, samples_ranges].reshape(d, d, -1)

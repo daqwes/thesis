@@ -37,10 +37,10 @@ for i = 1:length(matrix_types)
         beta = 1e2;               % noise parameter in Langevin
         r = 5;
 
-        [yhat,As,rho_true,N_exp] = problem_gen(matrix_type,n,ns_i,seed(j));
+        [yhat,As,rho_true,n_meas] = problem_gen(matrix_type,n,ns_i,seed(j));
         % yhat
         % quit
-        [Y_rho_r_record,t_rec,norm_rec] = Langevin_sampler(yhat,As,r,n,N_exp,iter,alpha,lambda_i,theta,beta,eta_i,seed(j));
+        [Y_rho_r_record,t_rec,norm_rec] = Langevin_sampler(yhat,As,r,n,n_meas,iter,alpha,lambda_i,theta,beta,eta_i,seed(j));
 
         M_avg = mean(Y_rho_r_record(:,:,end-100:end),3);
         M_avg = sqrt(2)*(M_avg*M_avg');

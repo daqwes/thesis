@@ -15,14 +15,14 @@ def run_experiment(savefig=True):
     seed = 0
     n = 3
     d= 2**n
-    n_exp = 3**n
+    n_meas = 3**n
     n_shots = 2000
     n_iter = 5000
     n_burnin = 1000
     run_avg = False
     use_prop_in_ratio = False
     log_transform = True
-    rho_true, As, y_hat = generate_data_exact_PL(n, n_exp, n_shots, rho_type="rank2", seed= seed)
+    rho_true, As, y_hat = generate_data_exact_PL(n, n_meas, n_shots, rho_type="rank2", seed= seed)
     init_point = gen_init_point(d, d)
 
     proposals = ["normal_dep", "exp_dep", "normal"]

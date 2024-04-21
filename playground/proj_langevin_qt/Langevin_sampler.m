@@ -1,4 +1,4 @@
-function [Y_rho_r_record,t_rec,n_rec] = Langevin_sampler(yhat,As,r,n,N_exp,iter,alpha,lambda,theta,beta,eta,seed)
+function [Y_rho_r_record,t_rec,n_rec] = Langevin_sampler(yhat,As,r,n,n_meas,iter,alpha,lambda,theta,beta,eta,seed)
 %
 %Tests a projected Langevin algorithm for noisy Quantum Tomography reconstruction 
 %
@@ -12,7 +12,7 @@ function [Y_rho_r_record,t_rec,n_rec] = Langevin_sampler(yhat,As,r,n,N_exp,iter,
 % yhat, As: synthetic data
 % r : estimated rank
 % n: number of qubits
-% N_exp : number of experiments 
+% n_meas : number of experiments 
 % iter: number of gradient iterations
 % alpha: weighting parameter of the prior (should be set to 1)
 % lambda : weighting parameter for the data fit term: according to theory,
@@ -35,8 +35,8 @@ Y_rho = V*sqrt(D);
 
 % apply the changes of variables described below
 Y_rho_r = complextoreal(Y_rho);
-As_r = zeros(2*d,2*d,N_exp);
-for j = 1:N_exp
+As_r = zeros(2*d,2*d,n_meas);
+for j = 1:n_meas
     As_r(:,:,j) = complextoreal(As(:,:,j));
 end
 
@@ -102,10 +102,10 @@ end
 function obj = f_complex(Y_rho,As,yhat,lambda,theta,alpha)
     % f (we are aiming to sample the distribution mu = exp(-f(x))
     % expressed in terms of complex variables
-    N_exp = length(yhat);
+    n_meas = length(yhat);
     [d,r] = size(Y_rho);
-    y = zeros(N_exp,1);
-    for j = 1:N_exp
+    y = zeros(n_meas,1);
+    for j = 1:n_meas
         y(j,1) = trace(As(:,:,j)*(Y_rho*Y_rho'));
     end
     obj = lambda*norm(yhat-y)^2 + alpha*(2*d+r+2)*log(det(theta^2*eye(d,d)+Y_rho*Y_rho'))/2;
@@ -115,11 +115,11 @@ end
 function obj = f(Y_rho_r,As_r,yhat,lambda,theta,alpha)
     % f (we are aiming to sample the distribution mu = exp(-f(x))
     % check in which format we receive the matrix
-    N_exp = length(yhat);
+    n_meas = length(yhat);
     [s1,s2] = size(Y_rho_r);
     d = s1/2; r = s2/2;
-    y = zeros(N_exp,1);
-    for j = 1:N_exp
+    y = zeros(n_meas,1);
+    for j = 1:n_meas
         y(j,1) = trace(As_r(:,:,j)*(Y_rho_r*Y_rho_r'));
     end
     obj = lambda*norm(yhat-sqrt(2)*y)^2 + alpha*((2*d+r+2)*log(det(theta^2*eye(2*d,2*d)/sqrt(2)+sqrt(2)*(Y_rho_r*Y_rho_r')))/4 + (2*d+r+2)*d*log(2)/4);
@@ -129,11 +129,11 @@ end
 % gradient of f
 function G = gradf(Y_rho_r,As_r,yhat,lambda,theta,alpha)
     % gradient of f 
-    N_exp = length(yhat);
+    n_meas = length(yhat);
     [s1,s2] = size(Y_rho_r);
     d = s1/2; r = s2/2;
     G = zeros(size(Y_rho_r));
-    for j = 1:N_exp
+    for j = 1:n_meas
         G = G - 2*sqrt(2)*lambda*(yhat(j)-sqrt(2)*trace(As_r(:,:,j)*(Y_rho_r*Y_rho_r')))*(As_r(:,:,j)+As_r(:,:,j)')*Y_rho_r;
     end
     M = sqrtm(eye(2*r,2*r)+2*(Y_rho_r'*Y_rho_r)/theta^2)\Y_rho_r';

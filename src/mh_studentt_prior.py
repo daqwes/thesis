@@ -212,7 +212,7 @@ def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_i
 def main():
     seed = 0
     n = 3
-    n_exp = 3**n
+    n_meas = 3**n
     n_shots = 2000
     n_iter = 5000
     n_burnin = 1000
@@ -221,7 +221,7 @@ def main():
     proposal = "unitary_rank1"
     scaling_coef_prop = 1
     use_prop_in_ratio = False
-    rho_true, As, y_hat = generate_data_exact_PL(n, n_exp, n_shots, rho_type="rank2", seed=seed)
+    rho_true, As, y_hat = generate_data_exact_PL(n, n_meas, n_shots, rho_type="rank2", seed=seed)
     np.random.seed()
     rhos_mh_stt, rho_mh_stt, cum_times_mh_stt, acc_rate  = run_MH_studentt(n, n_shots, As, y_hat, n_iter, n_burnin, seed = None, run_avg=run_avg, proposal_dist=proposal, scaling_coef_prop = scaling_coef_prop, use_prop_in_ratio = use_prop_in_ratio, log_transform=log_transform)
     # print(rho_true)

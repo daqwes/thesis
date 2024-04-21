@@ -17,7 +17,7 @@ def run_experiment(savefig=True):
     
     n = 3
     d = 2**n
-    n_exp = 3**n
+    n_meas = 3**n
     n_iter = 5000
     n_burnin = 1000
     rho_type = "rank2"
@@ -42,11 +42,11 @@ def run_experiment(savefig=True):
 
     for n_shots in shots:
         seed = 0
-        rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
-        _, As_PL, _ = generate_data_exact_PL(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
+        rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+        _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
         init_point = gen_init_point(d,d)
-        _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
-        _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+        _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
         _, rho_avg_mhs, _, _ = run_MH_studentt(
             n, n_shots, As_PL, y_hat, n_iter, n_burnin, seed = None, proposal_dist="exp_dep", run_avg=True, scaling_coef_prop=0.1,  init_point=init_point
         )

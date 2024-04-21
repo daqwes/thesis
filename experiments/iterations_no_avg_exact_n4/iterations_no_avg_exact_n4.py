@@ -19,22 +19,22 @@ def run_experiment(savefig=True):
     seed = 0
     n = 4
     d = 2**n
-    n_exp = 3**n
+    n_meas = 3**n
     n_shots = 2000
     n_iter = 10000
     n_burnin = 2000
     rho_type = "rank2"
 
-    rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
-    _, As_PL, _ = generate_data_exact_PL(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
     accs_prob = []
     accs_pl = []
 
     rhos_prob, _, cum_times_prob = run_MH(
-        n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None
+        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_exp, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None
+        n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None
     )
 
     accs_prob = [0] * (n_iter)

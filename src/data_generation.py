@@ -140,12 +140,12 @@ def pauli_measurements(n: int):
 #         file.create_dataset("data_real", data=real_data_d)
 #         file.create_dataset("data_imag", data=imag_data_d)
 
-def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_exp: int) -> np.ndarray:
+def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_meas: int) -> np.ndarray:
     """Compute n_shots measurements of the system. 
        In case n_shots is None, return the true measurements (expectation of the each measurable)
     """
-    y_hat = np.zeros(n_exp)
-    for j in range(n_exp):
+    y_hat = np.zeros(n_meas)
+    for j in range(n_meas):
         y_hat[j] = min(np.real(np.trace(As[:, :, j] @ rho_true)), 1)
     if n_shots is None:
         return y_hat
@@ -156,7 +156,7 @@ def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_ex
     )
     return y_hat
 
-def generate_data(n: int, n_exp: int, n_shots: int|None, rho_type: str|int, seed: int):
+def generate_data(n: int, n_meas: int, n_shots: int|None, rho_type: str|int, seed: int):
     """Generate a density matrix, and simulate the measurement process
     Args:
         n (int): number of qubits
@@ -170,10 +170,10 @@ def generate_data(n: int, n_exp: int, n_shots: int|None, rho_type: str|int, seed
     rho_true = gen_true_rho_PL(n, rho_type)
     As = pauli_measurements(n)
 
-    samples = np.random.choice(range(d * d), n_exp, replace=False)
+    samples = np.random.choice(range(d * d), n_meas, replace=False)
     As = As[:, :, samples]
 
-    y_hat = measure_system(As, rho_true, n_shots, n_exp)
+    y_hat = measure_system(As, rho_true, n_shots, n_meas)
     return rho_true, As, y_hat
 
 
@@ -181,10 +181,10 @@ def generate_data(n: int, n_exp: int, n_shots: int|None, rho_type: str|int, seed
 def main():
     n = 3
     d = 2**n
-    n_exp = d * d
+    n_meas = d * d
     n_shots = 2000
     seed = 0
-    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type="rank2")
+    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type="rank2")
     # dump_h5(As, "As")
     # a = np.array(range(1,25)).reshape(4, 2, 3)
     # print(a)

@@ -19,23 +19,23 @@ def run_experiment(savefig=True):
     seed = 0
     n = 3
     d = 2**n
-    n_exp = 3**n
+    n_meas = 3**n
     n_shots = 2000
     n_iter = 10000
     n_burnin = 2000
     rho_type = "rank2"
 
-    rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
-    _, As_PL, _ = generate_data_exact_PL(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
 
     # seed has be set above
     init_point = gen_init_point(d, d)
     # np.random.seed()
     rhos_prob, _, cum_times_prob = run_MH(
-        n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
+        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_exp, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
+        n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
 
     rhos_mhs, _, cum_times_mh, acc_rate_mhs = run_MH_studentt(

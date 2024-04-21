@@ -33,9 +33,9 @@ for i = 1:N
         beta = 1e2;               % noise parameter in Langevin
         r = 5;
 
-        [yhat,As,rho_true,N_exp] = problem_gen('rank-two',n,ns(i),seed(j));
+        [yhat,As,rho_true,n_meas] = problem_gen('rank-two',n,ns(i),seed(j));
 
-        [Y_rho_r_record,t_rec,norm_rec] = Langevin_sampler(yhat,As,r,n,N_exp,iter,alpha,lambda(i),theta,beta,eta(i),seed(j));
+        [Y_rho_r_record,t_rec,norm_rec] = Langevin_sampler(yhat,As,r,n,n_meas,iter,alpha,lambda(i),theta,beta,eta(i),seed(j));
 
         M_avg = mean(Y_rho_r_record(:,:,end-100:end),3);
         M_avg = sqrt(2)*(M_avg*M_avg');

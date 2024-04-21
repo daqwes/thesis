@@ -17,7 +17,7 @@ def run_experiment(savefig=True):
     seed = 0
     n = 3
     d = 2**n
-    n_exp = d*d
+    n_meas = d*d
     rho_ranks = np.array(list(range(1, d+1)), dtype=int)
     shots = np.logspace(2, 7, 20, True, 10, dtype=np.int64)
     n_iter = 2000
@@ -28,14 +28,14 @@ def run_experiment(savefig=True):
 
     for i, n_shots in enumerate(shots):
         for j, rho_rank in enumerate(rho_ranks):
-            rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_rank, seed=seed)
-            As_flat = np.zeros((n_exp, 2**n * 2**n), dtype = np.complex128)
-            for k in range(n_exp):
+            rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_rank, seed=seed)
+            As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
+            for k in range(n_meas):
                 # TODO: it is not clear why this works better than `flatten(order="F")`
                 # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
-            _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin)
-            _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin)
+            _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin)
+            _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin)
             
             accs_prob[i,j] = np.log(compute_error(rho_last_prob, rho_true))
             accs_pl[i,j] = np.log(compute_error(rho_avg_pl, rho_true))

@@ -15,7 +15,7 @@ Evolution of the accuracy wrt the number of shots
 def run_experiment(savefig=True):
     n = 3
     d = 2**n
-    n_exp = d * d
+    n_meas = d * d
     n_iter = 5000
     n_burnin = 1000
     rho_type="rank2"
@@ -39,14 +39,14 @@ def run_experiment(savefig=True):
     accs_pl = [] 
     for n_shots in shots:
         seed = 0
-        rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_type, seed = seed)
-        As_flat = np.zeros((n_exp, 2**n * 2**n), dtype = np.complex128)
-        for i in range(n_exp):
+        rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
+        As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
+        for i in range(n_meas):
             # TODO: it is not clear why this works better than `flatten(order="F")`
             # as it is more correct to use the latter (similar to what is done in R)
             As_flat[i,:] = As[:,:,i].flatten(order="C")
-        _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin)
-        _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin)
+        _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin)
+        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin)
         
         accs_prob.append(compute_error(rho_last_prob, rho_true))
         accs_pl.append(compute_error(rho_avg_pl, rho_true))

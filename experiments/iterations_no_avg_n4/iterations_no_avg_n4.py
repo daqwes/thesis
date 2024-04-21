@@ -19,25 +19,25 @@ def run_experiment(savefig=True):
     seed = 0
     n = 4
     d = 2**n
-    n_exp = d * d
+    n_meas = d * d
     n_shots = 2000
     n_iter = 10000
     n_burnin = 2000
     rho_type = "rank2"
 
-    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_type, seed = seed)
+    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
     accs_prob = []
     accs_pl = []
-    As_flat = np.zeros((n_exp, 2**n * 2**n), dtype = np.complex128)
-    for i in range(n_exp):
+    As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
+    for i in range(n_meas):
         # TODO: it is not clear why this works better than `flatten(order="F")`
         # as it is more correct to use the latter (similar to what is done in R)
         As_flat[i,:] = As[:,:,i].flatten(order="C")
     rhos_prob, _, cum_times_prob = run_MH(
-        n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin
+        n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin
+        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin
     )
 
     accs_prob = [0] * (n_iter)

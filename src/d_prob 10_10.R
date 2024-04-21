@@ -124,7 +124,7 @@ for (i in 1:A) {
 Prob.ar <- Re(Prob.ar)
 
 # calculate the probability matrix after simulating sample
-n.size <- 2000 ## numbers of repeat the measurements
+n.size <- 20000000 ## numbers of repeat the measurements
 
 # From Python
 # p_ra = compute_measurements(as.integer(n), dens.ma, as.integer(n.size), seed)

@@ -15,7 +15,7 @@ Compare the accuracy of the methods given different burnin periods. No running a
 def run_experiment(savefig=True):
     n = 3
     d = 2**n
-    n_exp = 3**n
+    n_meas = 3**n
     n_iter = 10000
     n_shots = 2000
     rho_type="rank2"
@@ -25,14 +25,14 @@ def run_experiment(savefig=True):
     accs_prob = []
     accs_pl = [] 
     seed = 0
-    rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
-    _, As_PL, _ = generate_data_exact_PL(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
     init_point = gen_init_point(d, d)
     # np.random.seed(seed + 1)
     for n_burnin in burnin_range:
         np.random.seed(seed + 1)
-        _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
-        _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+        _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
         
         accs_prob.append(compute_error(rho_last_prob, rho_true))
         accs_pl.append(compute_error(rho_avg_pl, rho_true))

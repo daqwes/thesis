@@ -10,7 +10,7 @@ from src.data_generation import generate_data
 from src.utils import dump_run_information
 
 """
-Plots a phase transition, with n_exp/d on the x axis, and the rank of rho on y. Each point corresponds to the error for that combination.
+Plots a phase transition, with n_meas/d on the x axis, and the rank of rho on y. Each point corresponds to the error for that combination.
 Here, d is kept constant. In this situation, we assume to know the true rank of rho, hence adapting r.
 """
 def run_experiment(savefig=True):
@@ -27,11 +27,11 @@ def run_experiment(savefig=True):
     accs_prob = np.zeros((len(n_exps), len(rho_ranks)))
     accs_pl = np.zeros((len(n_exps), len(rho_ranks)))
 
-    for i, n_exp in enumerate(n_exps):
+    for i, n_meas in enumerate(n_exps):
         for j, rho_rank in enumerate(rho_ranks):
-            rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_rank, seed=seed)
-            As_flat = np.zeros((n_exp, 2**n * 2**n), dtype = np.complex128)
-            for k in range(n_exp):
+            rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_rank, seed=seed)
+            As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
+            for k in range(n_meas):
                 # TODO: it is not clear why this works better than `flatten(order="F")`
                 # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
@@ -39,8 +39,8 @@ def run_experiment(savefig=True):
             init_point_MH = gen_init_point(d, d)
             init_point_PL = gen_init_point(d, rho_rank)
             
-            _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_MH)
-            _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_PL, eta_shots_indep=eta_shots_indep_PL)
+            _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_MH)
+            _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_PL, eta_shots_indep=eta_shots_indep_PL)
             
             accs_prob[i,j] = np.log(compute_error(rho_last_prob, rho_true))
             accs_pl[i,j] = np.log(compute_error(rho_avg_pl, rho_true))
@@ -48,7 +48,7 @@ def run_experiment(savefig=True):
     
     xv, yv = np.meshgrid(n_exps/d, rho_ranks, indexing="ij")
     fig, axs = plt.subplots(1, 2)
-    fig.suptitle("Phase transition of rank wrt n_exp/d, with rank knowledge")
+    fig.suptitle("Phase transition of rank wrt n_meas/d, with rank knowledge")
     c1 = axs[0].contourf(xv, yv, accs_prob, cmap=plt.cm.rainbow,
                   vmin=accs_prob.min(), vmax=accs_prob.max())
     c2 = axs[1].contourf(xv, yv, accs_pl, cmap=plt.cm.rainbow,

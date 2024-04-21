@@ -45,13 +45,13 @@ def f(
     alpha: float,
     As_r_swap: np.ndarray
 ):
-    n_exp = y_hat.shape[0]
+    n_meas = y_hat.shape[0]
     s1, s2 = Y_rho_r.shape
     d, r = int(s1 / 2), int(s2 / 2)
     Y_rho_r_outer = Y_rho_r @ np.conj(Y_rho_r.T)
     y = np.trace(As_r_swap @ Y_rho_r_outer, axis1=1, axis2=2)
-    # y = np.zeros(n_exp)
-    # for j in range(n_exp):
+    # y = np.zeros(n_meas)
+    # for j in range(n_meas):
     #     y[j] = np.trace(As_r[:, :, j] @ (Y_rho_r @ np.conj(Y_rho_r.T)))
     # print(np.allclose(y, y_vec))
     return lambda_ * np.linalg.norm(y_hat - np.sqrt(2) * y) ** 2 + alpha * (
@@ -90,7 +90,7 @@ def gradf(
     p2 = As_r_sum_swap @ Y_rho_r
     # print(p1.shape, p2.shape)
     G = -np.sum(np.expand_dims(p1, (1, 2)) * p2, 0)
-    # for j in range(n_exp):
+    # for j in range(n_meas):
     #     G -= (2 * np.sqrt(2) * lambda_ * 
     #             (y_hat[j] - np.sqrt(2) * np.trace(As_r[:, :, j] @ Y_rho_r_outer))
     #             * (As_r[:, :, j] + np.conj(As_r[:,:,j].T)) @ Y_rho_r)
@@ -127,7 +127,7 @@ def langevin(
     As: np.ndarray,
     r: int,
     n: int,
-    n_exp: int,
+    n_meas: int,
     n_iter: int,
     n_burnin: int,
     alpha: float,
@@ -139,7 +139,7 @@ def langevin(
 ):
     """
     Runs the langevin algorithm. 
-    Expects the observables tensor in the [d, d, n_exp] format.
+    Expects the observables tensor in the [d, d, n_meas] format.
     """
     if seed is not None:
         np.random.seed(seed)
@@ -193,11 +193,11 @@ def langevin(
     return Y_rho_record, t_rec, n_rec
 
 
-def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int = 0, running_avg: bool = False, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None):
+def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int = 0, running_avg: bool = False, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
-        n_exp (int): number of experiments, corresponds to the number of measurement matrices 
+        n_meas (int): number of experiments, corresponds to the number of measurement matrices 
                     (usually d*d for the full case)
         n_shots (int): number of measurements
         rho_type (str): type of true density matrix
@@ -240,7 +240,7 @@ def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_ha
 
     # Y_rho_record, t_rec do not contain the samples/values for the burnin phase 
     Y_rho_record, t_rec, norm_rec = langevin(
-        Y_rho0, y_hat, As, r, n, n_exp, n_iter, n_burnin, alpha, lambda_, theta, beta, eta, seed=None
+        Y_rho0, y_hat, As, r, n, n_meas, n_iter, n_burnin, alpha, lambda_, theta, beta, eta, seed=None
     )
     if running_avg:
         M_avg = np.zeros_like(Y_rho_record[0,:,:])
@@ -255,15 +255,15 @@ def run_PL(n: int, n_exp: int, n_shots: int, rho_type: str, As: np.ndarray, y_ha
 def main():
     n = 3
     d = 2**n
-    n_exp = d * d
+    n_meas = d * d
     n_shots = 2000
     n_iter = 2000
     n_burnin = 1000
     seed = 0
     rho_type = "rank2"
-    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type, seed= seed)
+    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type, seed= seed)
 
-    rhos_pl, rho_avg_pl, cum_times_pl  = run_PL(n, n_exp, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=seed, running_avg=True)
+    rhos_pl, rho_avg_pl, cum_times_pl  = run_PL(n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=seed, running_avg=True)
     err = np.linalg.norm(rho_avg_pl - rho_true, "fro")
     print(err**2)
 

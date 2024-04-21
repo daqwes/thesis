@@ -18,7 +18,7 @@ def run_experiment(savefig=True):
     seed = 0
     n = 4
     d = 2**n
-    n_exp = d * d
+    n_meas = d * d
     n_shots = 2000
     n_iter = 5000
     n_burnin = 1000
@@ -31,19 +31,19 @@ def run_experiment(savefig=True):
     for i, rho_rank in enumerate(rho_ranks):
         for j in range(n_samples):
             curr_seed = seed + i*n_samples + j
-            rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_rank, seed=curr_seed)
+            rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_rank, seed=curr_seed)
             # We don't know the rank of rho, hence we use r = d
             init_point = gen_init_point(d,d)
-            As_flat = np.zeros((n_exp, 2**n * 2**n), dtype = np.complex128)
-            for k in range(n_exp):
+            As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
+            for k in range(n_meas):
                 # TODO: it is not clear why this works better than `flatten(order="F")`
                 # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             _, rho_approx_prob, _ = run_MH(
-                n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed = None, init_point=init_point
+                n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed = None, init_point=init_point
             )
             _, rho_approx_pl, _ = run_PL(
-                n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None, init_point=init_point, eta_shots_indep=eta_shots_indep
+                n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None, init_point=init_point, eta_shots_indep=eta_shots_indep
             )
             
             err_prob = compute_error(rho_approx_prob, rho_true)

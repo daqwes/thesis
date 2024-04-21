@@ -15,7 +15,7 @@ Compare the accuracy of the methods given different burnin periods. No running a
 def run_experiment(savefig=True):
     n = 3
     d = 2**n
-    n_exp = d * d
+    n_meas = d * d
     n_iter = 10000
     n_shots = 2000
     rho_type="rank2"
@@ -25,17 +25,17 @@ def run_experiment(savefig=True):
     accs_prob = []
     accs_pl = []
     seed = 0
-    rho_true, As, y_hat = generate_data(n, n_exp, n_shots, rho_type=rho_type, seed = seed)
-    As_flat = np.zeros((n_exp, 2**n * 2**n), dtype = np.complex128)
-    for i in range(n_exp):
+    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
+    As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
+    for i in range(n_meas):
         # TODO: it is not clear why this works better than `flatten(order="F")`
         # as it is more correct to use the latter (similar to what is done in R)
         As_flat[i,:] = As[:,:,i].flatten(order="C")
     init_point = gen_init_point(d, d)
     for n_burnin in burnin_range:
         np.random.seed(seed + 1)
-        _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
-        _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+        _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
         
         accs_prob.append(compute_error(rho_last_prob, rho_true))
         accs_pl.append(compute_error(rho_avg_pl, rho_true))

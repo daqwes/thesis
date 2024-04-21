@@ -16,7 +16,7 @@ def run_experiment(savefig=True):
     
     n = 3
     d = 2**n
-    n_exp = 3**n
+    n_meas = 3**n
     n_iter = 5000
     n_burnin = 1000
     rho_type = "rank2"
@@ -39,10 +39,10 @@ def run_experiment(savefig=True):
     accs_pl = [] 
     for n_shots in shots:
         seed = 0
-        rho_true, As, y_hat = generate_data_exact(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
-        _, As_PL, _ = generate_data_exact_PL(n, n_exp, n_shots, rho_type=rho_type, seed=seed)
-        _, rho_last_prob, _ = run_MH(n, n_exp, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None)
-        _, rho_avg_pl, _  = run_PL(n, n_exp, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None)
+        rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+        _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+        _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None)
+        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None)
         
         accs_prob.append(compute_error(rho_last_prob, rho_true))
         accs_pl.append(compute_error(rho_avg_pl, rho_true))
