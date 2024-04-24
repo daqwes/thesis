@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.metropolis_hastings import run_MH
-from src.proj_langevin import run_PL
+from src.proj_langevin import run_PL, gen_init_point
 from src.data_generation import generate_data
 from src.utils import dump_run_information
 
@@ -22,7 +22,8 @@ def run_experiment(savefig=True):
     rho_type="rankd"
     n_iter = 10000
     n_burnin = 2000
-
+    eta_shots_indep = None
+    
     rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
     accs_prob = []
     accs_pl = []
@@ -32,11 +33,13 @@ def run_experiment(savefig=True):
         # as it is more correct to use the latter (similar to what is done in R)
         As_flat[i,:] = As[:,:,i].flatten(order="C")
     
+    init_point = gen_init_point(d,d)
+
     rhos_prob, _, cum_times_prob = run_MH(
-        n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin
+        n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin
+        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
 
     accs_prob = [0] * (n_iter)

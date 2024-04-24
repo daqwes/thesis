@@ -32,3 +32,28 @@ def compute_error(rho_hat: np.ndarray, rho_true: np.ndarray, err_type: str = "fr
 def dump_run_information(path: str, d: dict[str, Iterable]):
     df = pd.DataFrame.from_dict(d)
     df.to_csv(path + ".csv")
+
+def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.ndarray, cols: dict[str, list[float]], map_colidx_colname: dict[int, str], path: str):
+    """We assume the following structure:
+    tensor_prob: np.ndarray with accuracy for prob
+    tensor_pl: np.ndarray with accuracy for pl
+    cols:  dict[str, list[float]] which maps the name of each dimension to its range of values
+    We then combine them to create an output in the format:
+    col1 | col2 | col3 | acc_prob | acc_pl
+    1      1     1       0.2        0.3
+    1      1     2       0.1        0.4
+    ...
+    """
+    df_list = []
+    for ((idx_prob, val_prob), (idx_pl, val_pl)) in zip(np.ndenumerate(tensor_prob), np.ndenumerate(tensor_pl)):
+            cols_values_except_acc = []
+            for k, idx_in_col in enumerate(idx_prob):
+                col = map_colidx_colname[k]
+                col_value = cols[col][idx_in_col]
+                cols_values_except_acc.append(col_value)
+            print(cols_values_except_acc + [val_prob, val_pl])
+            df_list.append(cols_values_except_acc + [val_prob, val_pl])
+            # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
+            # print(df)
+    df = pd.DataFrame(df_list, columns=list(cols.keys()) + ["acc_prob", "acc_pl"])
+    df.to_csv(path + ".csv")

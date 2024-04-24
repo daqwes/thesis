@@ -10,7 +10,7 @@ from src.data_generation import generate_data
 from src.utils import dump_run_information
 
 """
-Plot the accuracy of langevin vs prob wrt to the number of experiments 
+Plot the accuracy of langevin vs prob wrt to the number of measurements/observables (previously exp)
 """
 def run_experiment(savefig=True):
     seed = 0

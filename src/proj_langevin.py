@@ -170,7 +170,7 @@ def langevin(
     t_rec = np.zeros(n_iter)
     cost[0] = f(Y_rho_r, As_r, y_hat, lambda_, theta, alpha, As_r_swap)
     k = 0
-    Y_rho_record[0, :, :] = (Y_rho0 @ np.conj(Y_rho0.T))
+    Y_rho_record[0, :, :] = Y_rho0 #(Y_rho0 @ np.conj(Y_rho0.T))
     t_start = time.perf_counter()
     for k in range(1, n_iter + 1):
         G = gradf(Y_rho_r, As_r, y_hat, lambda_, theta, alpha, As_r_swap, As_r_sum_swap)
@@ -193,7 +193,7 @@ def langevin(
     return Y_rho_record, t_rec, n_rec
 
 
-def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int = 0, running_avg: bool = False, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None):
+def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int = 0, running_avg: bool = True, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits

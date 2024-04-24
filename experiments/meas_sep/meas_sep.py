@@ -11,7 +11,7 @@ from src.utils import dump_run_information
 
 
 """
-Plot the accuracy of langevin vs prob wrt to the number of experiments
+Plot the accuracy of langevin vs prob wrt to the number of measurements/observables (previously exp),
 exact data generation
 """
 def run_experiment(savefig=True):
@@ -44,9 +44,9 @@ def run_experiment(savefig=True):
     plt.legend()
     plt.xlabel("Number of experiments [#]")
     plt.ylabel("$L_2$ squared error")
-    plt.title("Accuracy wrt n_meas, exact data")
+    plt.title("Accuracy wrt n_meas, separate DG")
     if savefig:
-        plt.savefig(f"exps_acc_comp_exps_exact.pdf", bbox_inches="tight")
+        plt.savefig(f"exps_acc_comp_meas_sep.pdf", bbox_inches="tight")
 
     plt.figure()
     plt.semilogy(exps, accs_pl, label="langevin")
@@ -54,9 +54,9 @@ def run_experiment(savefig=True):
     plt.legend()
     plt.xlabel("Number of experiments [#]")
     plt.ylabel("$L_2$ squared error")
-    plt.title("Accuracy wrt n_meas, exact data, semilogy ")
+    plt.title("Accuracy wrt n_meas, separate DG, semilogy ")
     if savefig:
-        plt.savefig(f"exps_acc_comp_exps_exact_semilogy.pdf", bbox_inches="tight")
+        plt.savefig(f"exps_acc_comp_meas_sep_semilogy.pdf", bbox_inches="tight")
     plt.show()
 
     dump_run_information("run_exps_exact", {"exps": exps, "acc_pl": accs_pl, "acc_prob": accs_prob})

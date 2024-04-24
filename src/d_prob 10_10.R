@@ -3,8 +3,11 @@ use_condaenv("road_segmentation")
 setwd("/home/daniel/Documents/thesis/src")
 source_python("data_generation.py")
 source_python("data_generation_exact.py")
+source_python("utils.py")
+
 seed <- as.integer(0)
 
+library(matrixcalc)
 # normalizePath()
 ##########################
 # code for distance btw probability matrices
@@ -81,7 +84,7 @@ for (j in 1:A) {
 ### True rho generation ###
 
 # From python
-# dens.ma <- get_true_rho(as.integer(n), "rank2", seed)
+dens.ma <- get_true_rho(as.integer(n), "rank2", seed)
 
 # The "true-test" dens.ma matrix
 ## pure state
@@ -97,13 +100,13 @@ for (j in 1:A) {
 # v2 = norm.complex(rcmvnorm(1,sigma=diag(d)))
 
 # Rank 2
-v1 = t(rep(0,d))
-v1[1:(d/2)]=1
-v1 = norm.complex(v1)
-v2 = t(rep(0,d))
-v2[d:(d/2+1)] = 1i
-v2 = norm.complex(v2)
-dens.ma <- Conj(t(v1))%*%v1*0.5 + Conj(t(v2))%*%v2*0.5
+# v1 = t(rep(0,d))
+# v1[1:(d/2)]=1
+# v1 = norm.complex(v1)
+# v2 = t(rep(0,d))
+# v2[d:(d/2+1)] = 1i
+# v2 = norm.complex(v2)
+# dens.ma <- Conj(t(v1))%*%v1*0.5 + Conj(t(v2))%*%v2*0.5
 
 # Approx-rank2
 # dens.ma = Conj(t(v1))%*%v1*0.4999 + Conj(t(v2))%*%v2*0.4999+(1-2*0.4999)*diag(d)/d
