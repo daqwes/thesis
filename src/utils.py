@@ -33,7 +33,7 @@ def dump_run_information(path: str, d: dict[str, Iterable]):
     df = pd.DataFrame.from_dict(d)
     df.to_csv(path + ".csv")
 
-def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.ndarray, cols: dict[str, list[float]], map_colidx_colname: dict[int, str], path: str):
+def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.ndarray, cols: dict[str, list[float]], path: str, map_colidx_colname: dict[int, str]=None):
     """We assume the following structure:
     tensor_prob: np.ndarray with accuracy for prob
     tensor_pl: np.ndarray with accuracy for pl
@@ -44,6 +44,8 @@ def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.nda
     1      1     2       0.1        0.4
     ...
     """
+    if map_colidx_colname is None:
+        map_colidx_colname = {i: col for i, col in enumerate(cols.keys())}
     df_list = []
     for ((idx_prob, val_prob), (idx_pl, val_pl)) in zip(np.ndenumerate(tensor_prob), np.ndenumerate(tensor_pl)):
             cols_values_except_acc = []
@@ -51,7 +53,7 @@ def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.nda
                 col = map_colidx_colname[k]
                 col_value = cols[col][idx_in_col]
                 cols_values_except_acc.append(col_value)
-            print(cols_values_except_acc + [val_prob, val_pl])
+            # print(cols_values_except_acc + [val_prob, val_pl])
             df_list.append(cols_values_except_acc + [val_prob, val_pl])
             # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
             # print(df)

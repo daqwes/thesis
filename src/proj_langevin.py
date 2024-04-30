@@ -197,7 +197,7 @@ def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str, As: np.ndarray, y_h
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
-        n_meas (int): number of experiments, corresponds to the number of measurement matrices 
+        n_meas (int): number of measurements, corresponds to the number of measurement matrices 
                     (usually d*d for the full case)
         n_shots (int): number of measurements
         rho_type (str): type of true density matrix

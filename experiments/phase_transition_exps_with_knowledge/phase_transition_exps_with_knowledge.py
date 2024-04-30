@@ -54,11 +54,11 @@ def run_experiment(savefig=True):
     c2 = axs[1].contourf(xv, yv, accs_pl, cmap=plt.cm.rainbow,
                   vmin=accs_pl.min(), vmax=accs_pl.max())
     axs[0].set_title("prob")
-    axs[0].set_xlabel("# of experiments / d")
+    axs[0].set_xlabel("# of measurements / d")
     axs[0].set_ylabel(r"Rank of $\rho$")
 
     axs[1].set_title("langevin")
-    axs[1].set_xlabel("# of experiments / d")
+    axs[1].set_xlabel("# of measurements / d")
 
     
     plt.colorbar(mappable=c1, ax=axs[0])

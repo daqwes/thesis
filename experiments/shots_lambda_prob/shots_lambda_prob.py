@@ -109,7 +109,7 @@ def run_experiment(savefig=True):
 
     # 
     if savefig:
-        dump_run_information_from_tensors(accs_prob, accs_pl, {"lambda": lambdas, "shots": shots, "sample": list(range(n_samples))}, {0: "lambda", 1: "shots", 2: "sample"}, "run_shots_lambda_prob")
+        dump_run_information_from_tensors(accs_prob, accs_pl, {"lambda": lambdas, "shots": shots, "sample": list(range(n_samples))}, "run_shots_lambda_prob")
         # dump_run_information("run_shots_lambda_prob", {"shots": shots, "acc_pl": accs_pl, "acc_prob": accs_prob})  
 
 if __name__ == "__main__":

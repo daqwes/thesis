@@ -90,7 +90,7 @@ def run_MH(n: int, n_meas: int, n_shots: int, rho_true: np.ndarray, As: np.ndarr
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
-        n_meas (int): number of experiments
+        n_meas (int): number of measurements
         n_shots (int): number of measurements
         rho_true (np.ndarray): true denstiy matrix, if available
         As (np.ndarray): measurement matrices
