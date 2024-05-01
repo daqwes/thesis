@@ -170,7 +170,8 @@ def langevin(
     t_rec = np.zeros(n_iter)
     cost[0] = f(Y_rho_r, As_r, y_hat, lambda_, theta, alpha, As_r_swap)
     k = 0
-    Y_rho_record[0, :, :] = Y_rho0 #(Y_rho0 @ np.conj(Y_rho0.T))
+    # The first sample will always differ between prob and langevin, however this is by construction, as the first provided sample is Y (hence of shape (d, r)), not rho
+    Y_rho_record[0, :, :] = Y_rho0 @ np.conj(Y_rho0.T)
     t_start = time.perf_counter()
     for k in range(1, n_iter + 1):
         G = gradf(Y_rho_r, As_r, y_hat, lambda_, theta, alpha, As_r_swap, As_r_sum_swap)

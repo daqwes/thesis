@@ -7,7 +7,7 @@ from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
 from src.data_generation import generate_data
-from src.utils import dump_run_information
+from src.utils import dump_run_information, dump_run_information_from_tensors
 
 
 """
@@ -24,7 +24,7 @@ def run_experiment(savefig=True):
     n_burnin = 1000
     eta_shots_indep = 0.005
     rho_ranks = range(1, d+1)
-    n_samples = 4
+    n_samples = 8
     accs_prob = np.zeros((d, n_samples))
     accs_pl = np.zeros((d, n_samples))
     for i, rho_rank in enumerate(rho_ranks):
@@ -68,7 +68,8 @@ def run_experiment(savefig=True):
     plt.show()
     plt.close()
     if savefig:
-        dump_run_information("rank_known", {"rank": list(rho_ranks),  "acc_pl": accs_pl_avg, "acc_prob": accs_prob_avg})
+        dump_run_information_from_tensors(accs_prob, accs_pl, {"d": list(rho_ranks), "samples": list(range(n_samples))}, "rank_known")
+        # dump_run_information("rank_known", {"rank": list(rho_ranks),  "acc_pl": accs_pl_avg, "acc_prob": accs_prob_avg})
 
 if __name__ == "__main__":
     run_experiment()
