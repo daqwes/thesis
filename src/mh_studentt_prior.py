@@ -8,10 +8,12 @@ if __name__ == '__main__' or parent_module.__name__ == '__main__':
     from data_generation_exact import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_exact_PL
     from data_generation import norm_complex
     from proj_langevin import gen_init_point, complex_to_real, real_to_complex
+    from utils import compute_error
 else:
     from .data_generation_exact import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_exact_PL
     from .data_generation import norm_complex
     from .proj_langevin import gen_init_point, complex_to_real, real_to_complex
+    from .utils import compute_error
 
 def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, log_transform: bool):
     s1, s2 = Y_r.shape
@@ -172,11 +174,11 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
         cum_times[t] = time.perf_counter() - start_time
 
     acc_rate = acc_count / n_iter
-    print(f"Acceptance rate: {acc_rate}")
+    # print(f"Acceptance rate: {acc_rate}")
     return rhos_record, rho_iter, cum_times, acc_rate 
 
 
-def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = None, run_avg: bool = True, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None):
+def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = None, run_avg: bool = True, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None, lambda_: float|None = None, theta: float|None = None):
     if seed is not None:
         np.random.seed(seed)
     d = 2**n
@@ -186,16 +188,17 @@ def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_i
     else:
         r = d # TODO: change as not the most optimal approach
         Y0 = gen_init_point(d, r)
-    
-    lambda_ = n_shots / 2
-    if n == 3:
-        theta = 0.1
-        # r = 6
-    elif n == 4:
-        theta = 1
-        # r = 2
-    else:
-        theta = 1
+    if lambda_ is None:
+        lambda_ = n_shots / 2
+    if theta is None:
+        if n == 3:
+            theta = 0.1
+            # r = 6
+        elif n == 4:
+            theta = 1
+            # r = 2
+        else:
+            theta = 1
     rhos_record, rho_mh_stt, cum_times, acc_rate = MH_studentt(n, y_hat, As, Y0, lambda_, theta, seed, n_iter, n_burnin, proposal_dist, scaling_coef_prop, use_prop_in_ratio, log_transform)
     
     if run_avg:
@@ -212,22 +215,35 @@ def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_i
 def main():
     seed = 0
     n = 3
+    d = 2**n
     n_meas = 3**n
     n_shots = 2000
     n_iter = 5000
     n_burnin = 1000
     run_avg = True
     log_transform = True
-    proposal = "unitary_rank1"
-    scaling_coef_prop = 1
+    proposal = "exp_dep"
+    scaling_coef_prop = 0.1
     use_prop_in_ratio = False
-    rho_true, As, y_hat = generate_data_exact_PL(n, n_meas, n_shots, rho_type="rank2", seed=seed)
-    np.random.seed()
-    rhos_mh_stt, rho_mh_stt, cum_times_mh_stt, acc_rate  = run_MH_studentt(n, n_shots, As, y_hat, n_iter, n_burnin, seed = None, run_avg=run_avg, proposal_dist=proposal, scaling_coef_prop = scaling_coef_prop, use_prop_in_ratio = use_prop_in_ratio, log_transform=log_transform)
-    # print(rho_true)
-    # print(rho_mh_stt)
-    err = np.linalg.norm(rho_mh_stt - rho_true, "fro")
-    print(err**2)
+    lambda_ = 1000.0 # = n_shots/2
+    theta = 0.0001
+    rho_type ="rank2"
+    
+    rho_true, As, y_hat = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    init_point = gen_init_point(d,d)
+    n_samples = 10
+    avg_err = 0
+    avg_mse = 0
+    for i in range(n_samples):
+        rhos_mhs, rho_mhs, cum_times_mhs, acc_rate  = run_MH_studentt(n, n_shots, As, y_hat, n_iter, n_burnin, seed = None, run_avg=run_avg, proposal_dist=proposal, scaling_coef_prop = scaling_coef_prop, use_prop_in_ratio = use_prop_in_ratio, log_transform=log_transform, init_point=init_point, lambda_=lambda_, theta=theta)
+        err = compute_error(rho_mhs, rho_true, "fro_sq")
+        err_mse = np.real(compute_error(rho_mhs, rho_true, "MSE"))
+        avg_err += err
+        avg_mse += err_mse
+        print(err_mse, err)
+    avg_err /= n_samples
+    avg_mse /= n_samples
+    print(avg_mse, avg_err)
 
 if __name__ == "__main__":
     main()

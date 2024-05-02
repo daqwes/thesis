@@ -63,7 +63,9 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
             Lamb = Te/Te.sum() # gamma
         for j in range(d): # Loop for V_i
             U_can = U.copy()
-            rd_U = U[:,j] + random_multivariate_complex(np.zeros(d), np.eye(d), 1, seed)/100#np.random.multivariate_normal(np.zeros(d*2),np.eye(d*2)/100, size=(1)).view(np.complex128)
+            # Removed: replace RW by IMH
+            # rd_U = U[:,j] + random_multivariate_complex(np.zeros(d), np.eye(d), 1, seed)/100#np.random.multivariate_normal(np.zeros(d*2),np.eye(d*2)/100, size=(1)).view(np.complex128)
+            rd_U = random_multivariate_complex(np.zeros(d), np.eye(d), 1, seed)/100
             U_can[:, j] = norm_complex(rd_U) # Sample U/V from the unit sphere (not sure why we add to previous value)
             tem_can = (U_can @ np.diag(Lamb) @ np.conj(U_can.T)).flatten(order="F") # gamma * U * U^T
             tem = (U @ np.diag(Lamb) @ np.conj(U.T)).flatten(order="F") # gamma * U_t-1 * U^T_t-1
@@ -81,6 +83,7 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
             else:
                 rhos_record[t+1, :, :] = U @ np.diag(Lamb) @ np.conj(U.T)
         cum_times[t] = time.perf_counter() - start_time
+
     ac_rate_gamma = acc_count_gamma / (n_iter * d)
     ac_rate_V = acc_count_V / (n_iter * d)
     # print(ac_rate_gamma, ac_rate_V) 
@@ -145,7 +148,7 @@ def main():
     # print(y_hat.shape)
 
 def main_exact_data_gen():
-    seed = 0
+    seed = 1
     n = 3
     d = 2**n
     n_meas = 3**n
@@ -163,17 +166,22 @@ def main_exact_data_gen():
 
     rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
 
-    prob_seed = None
-    u_hat = random_unitary(d, d, seed)
-    np.random.seed()
+    init_point = random_unitary(d,d)# gen_init_point(d, d)
 
-    # rho_hat, u_hat = compute_rho_inversion(n, b, y_hat, P_rab, sig_b)
-    rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, None, seed=prob_seed, n_iter=n_iter, n_burnin=n_burnin)
-
-    err_mse = compute_error(rho_prob, rho_true, "MSE")
-    err_fro_sq = compute_error(rho_prob, rho_true, "fro_sq")
-    # print(f"MSE: {err_mse}")
-    print(f"Fro^2: {err_fro_sq}")
+    n_samples = 10
+    avg_err = 0
+    avg_err_mse = 0
+    for i in range(n_samples):
+        rhos_record, rho_prob, cum_times = run_MH(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point, gamma=gamm)#MH_prob(n, y_hat, As, u_hat, gamm, None, seed=prob_seed, n_iter=n_iter, n_burnin=n_burnin)
+        err_mse = np.real(compute_error(rho_prob, rho_true, "MSE"))
+        err_fro_sq = compute_error(rho_prob, rho_true, "fro_sq")
+        avg_err += err_fro_sq
+        avg_err_mse += err_mse 
+        print(err_mse, err_fro_sq)
+    avg_err /= n_samples
+    avg_err_mse /= n_samples
+    print(f"MSE: {err_mse}")
+    print(f"Fro^2: {avg_err}")
 
     
 if __name__ == "__main__":
