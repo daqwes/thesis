@@ -7,13 +7,13 @@ from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
 from src.mh_studentt_prior import run_MH_studentt
-from src.data_generation_exact import generate_data_exact, generate_data_exact_PL 
+from src.data_generation_sep import generate_data_exact, generate_data_exact_PL 
 from src.utils import dump_run_information
 
 
 """
 Plot the accuracy of langevin vs prob vs mh with student-t wrt to the number of iterations, 
-no running average for langevin, exact data generation
+no running average for langevin, separate qubit DG
 """
 def run_experiment(savefig=True):
     seed = 0
@@ -60,7 +60,7 @@ def run_experiment(savefig=True):
     # plt.legend()
     # plt.xlabel("Time [s]")
     # plt.ylabel("$L_2$ squared error")
-    # plt.title("Accuracy wrt time, with burnin, exact data")
+    # plt.title("Accuracy wrt time, with burnin, sep DG")
     # if savefig:
     #     plt.savefig(f"iters_acc_comp_time_no_avg_exact.pdf", bbox_inches="tight")
     # plt.show()
@@ -74,7 +74,7 @@ def run_experiment(savefig=True):
     plt.legend()
     plt.xlabel("Iterations [#]")
     plt.ylabel("$L_2$ squared error")
-    plt.title("Accuracy wrt iters, with burnin, exact data, with mhs")
+    plt.title("Accuracy wrt iters, with burnin, sep DG, with mhs")
     if savefig:    
         plt.savefig(f"iters_acc_comp_iters_no_avg_exact_mh_studentt.pdf", bbox_inches="tight")
     plt.show()

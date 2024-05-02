@@ -2,7 +2,7 @@ library(reticulate)
 use_condaenv("road_segmentation")
 setwd("/home/daniel/Documents/thesis/src")
 source_python("data_generation.py")
-source_python("data_generation_exact.py")
+source_python("data_generation_sep.py")
 source_python("utils.py")
 
 seed <- as.integer(0)

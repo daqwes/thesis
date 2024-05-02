@@ -5,12 +5,12 @@ from scipy.special import binom
 
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
 if __name__ == '__main__' or parent_module.__name__ == '__main__':
-    from data_generation_exact import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_exact_PL
+    from data_generation_sep import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_exact_PL
     from data_generation import norm_complex
     from proj_langevin import gen_init_point, complex_to_real, real_to_complex
     from utils import compute_error
 else:
-    from .data_generation_exact import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_exact_PL
+    from .data_generation_sep import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_exact_PL
     from .data_generation import norm_complex
     from .proj_langevin import gen_init_point, complex_to_real, real_to_complex
     from .utils import compute_error

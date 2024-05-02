@@ -5,12 +5,12 @@ import sys
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
 if __name__ == '__main__' or parent_module.__name__ == '__main__':
     from data_generation import generate_data, random_unitary
-    from data_generation_exact import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_exact
+    from data_generation_sep import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_exact
     from proj_langevin import gen_init_point
     from utils import compute_error
 else:
     from .data_generation import generate_data, random_unitary
-    from .data_generation_exact import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_exact
+    from .data_generation_sep import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_exact
     from .proj_langevin import gen_init_point
 def norm_complex(arr: np.ndarray):
     """Normalizes complex vector or matrix, in which case it normalizes it row by row

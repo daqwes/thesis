@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
-from src.data_generation_exact import generate_data_exact, generate_data_exact_PL
+from src.data_generation_sep import generate_data_exact, generate_data_exact_PL
 from src.utils import dump_run_information
 
 """
-Compare the accuracy of the methods given different burnin periods. No running average for langevin. Exact data generation.
+Compare the accuracy of the methods given different burnin periods. No running average for langevin. separate qubit DG.
 """
 def run_experiment(savefig=True):
     n = 3

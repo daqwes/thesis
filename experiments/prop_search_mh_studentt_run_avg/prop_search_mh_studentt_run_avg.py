@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.mh_studentt_prior import run_MH_studentt
-from src.data_generation_exact import generate_data_exact_PL
+from src.data_generation_sep import generate_data_exact_PL
 from src.proj_langevin import gen_init_point
 """
 Compare and evaluate the different proposals we could use for MH used with a student-t prior, with various scaling coefs. With running average.

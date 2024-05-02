@@ -5,40 +5,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.metropolis_hastings import run_MH
-from src.proj_langevin import run_PL, gen_init_point
-from src.data_generation_exact import generate_data_exact, generate_data_exact_PL 
+from src.proj_langevin import run_PL
+from src.data_generation_sep import generate_data_exact, generate_data_exact_PL 
 from src.utils import dump_run_information
 
 
 """
 Plot the accuracy of langevin vs prob wrt to the number of iterations, 
-no running average, exact data generation, rho of rankd
+no running average, separate qubit DG, number of qubits = 4
+Note: for more accurate results with langevin, set the lr lower, even up to 10-4
 """
 def run_experiment(savefig=True):
     seed = 0
-    n = 3
+    n = 4
     d = 2**n
     n_meas = 3**n
     n_shots = 2000
-    rho_type = "rankd"
     n_iter = 10000
     n_burnin = 2000
+    rho_type = "rank2"
 
     rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
     _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
-    
     accs_prob = []
     accs_pl = []
 
-    init_point = gen_init_point(d, d)
-
-    eta_shots_indep_PL = 1e-3
-
     rhos_prob, _, cum_times_prob = run_MH(
-        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None, init_point = init_point
+        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point = init_point, eta_shots_indep=eta_shots_indep_PL
+        n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None
     )
 
     accs_prob = [0] * (n_iter)
@@ -57,9 +53,9 @@ def run_experiment(savefig=True):
     plt.legend()
     plt.xlabel("Time [s]")
     plt.ylabel("$L_2$ squared error")
-    plt.title("Accuracy wrt time, with burnin, exact data, rho of rankd")
+    plt.title("Accuracy wrt time, with burnin, sep DG, n=4")
     if savefig:
-        plt.savefig(f"iters_acc_comp_time_no_avg_exact_rankd.pdf", bbox_inches="tight")
+        plt.savefig(f"iters_acc_comp_time_no_avg_exact_n4.pdf", bbox_inches="tight")
     plt.show()
     plt.close()
 
@@ -70,14 +66,13 @@ def run_experiment(savefig=True):
     plt.legend()
     plt.xlabel("Iterations [#]")
     plt.ylabel("$L_2$ squared error")
-    plt.title("Accuracy wrt iters, with burnin, exact data, rho of rankd")
+    plt.title("Accuracy wrt iters, with burnin, sep DG, n=4")
     if savefig:    
-        plt.savefig(f"iters_acc_comp_iters_no_avg_exact_rankd.pdf", bbox_inches="tight")
+        plt.savefig(f"iters_acc_comp_iters_no_avg_exact_n4.pdf", bbox_inches="tight")
     plt.show()
     plt.close()
-    if savefig:
-        dump_run_information("run_iterations_no_avg_exact_rankd", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob})
 
+    dump_run_information("run_iterations_no_avg_exact_n4", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob})
 
 if __name__ == "__main__":
-    run_experiment(False)
+    run_experiment()
