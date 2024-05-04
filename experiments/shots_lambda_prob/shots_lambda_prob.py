@@ -78,17 +78,7 @@ def run_experiment(savefig=True):
                 accs_prob[k,i,j] = err_prob
                 accs_pl[k,i,j] = err_pl
 
-    # plt.figure()
-    # plt.semilogy(shots, accs_pl, label="langevin")
-    # plt.semilogy(shots, accs_prob, label="prob")
-    # plt.legend()
-    # plt.xlabel("Number of shots [#]")
-    # plt.ylabel("$L_2$ squared error")
-    # plt.title("Comparison of accuracy wrt shots, semilogy")
-    # if savefig:    
-    #     plt.savefig(f"shots_acc_comp_shots{ext}.pdf", bbox_inches="tight")
-    # plt.show()
-
+    
 
     # (len(lambdas), len(shots), n_samples)
     avg_accs_prob = accs_prob.mean(axis=2)
