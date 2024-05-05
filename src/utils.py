@@ -61,6 +61,62 @@ def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.nda
     df.to_csv(path + ".csv")
 
 
+def dump_run_information_from_tensors3(tensor_prob: np.ndarray, tensor_pl: np.ndarray, tensor3: np.ndarray, algo3_name: str, cols: dict[str, list[float]], path: str, map_colidx_colname: dict[int, str]=None):
+    """We assume the following structure:
+    tensor_prob: np.ndarray with accuracy for prob
+    tensor_pl: np.ndarray with accuracy for pl
+    cols:  dict[str, list[float]] which maps the name of each dimension to its range of values
+    We then combine them to create an output in the format:
+    col1 | col2 | col3 | acc_prob | acc_pl
+    1      1     1       0.2        0.3
+    1      1     2       0.1        0.4
+    ...
+    """
+    if map_colidx_colname is None:
+        map_colidx_colname = {i: col for i, col in enumerate(cols.keys())}
+    df_list = []
+    for ((idx_prob, val_prob), (idx_pl, val_pl), (idx3, val3)) in zip(np.ndenumerate(tensor_prob), np.ndenumerate(tensor_pl), np.ndenumerate(tensor3)):
+            cols_values_except_acc = []
+            for k, idx_in_col in enumerate(idx_prob):
+                col = map_colidx_colname[k]
+                col_value = cols[col][idx_in_col]
+                cols_values_except_acc.append(col_value)
+            # print(cols_values_except_acc + [val_prob, val_pl])
+            df_list.append(cols_values_except_acc + [val_prob, val_pl, val3])
+            # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
+            # print(df)
+    df = pd.DataFrame(df_list, columns=list(cols.keys()) + ["acc_prob", "acc_pl", "acc_" + algo3_name])
+    df.to_csv(path + ".csv")
+
+def dump_run_information_from_tensors4(tensor_prob: np.ndarray, tensor_pl: np.ndarray, tensor3: np.ndarray, tensor4: np.ndarray, algo3_name: str, algo4_name: str, cols: dict[str, list[float]], path: str, map_colidx_colname: dict[int, str]=None):
+    """We assume the following structure:
+    tensor_prob: np.ndarray with accuracy for prob
+    tensor_pl: np.ndarray with accuracy for pl
+    cols:  dict[str, list[float]] which maps the name of each dimension to its range of values
+    We then combine them to create an output in the format:
+    col1 | col2 | col3 | acc_prob | acc_pl
+    1      1     1       0.2        0.3
+    1      1     2       0.1        0.4
+    ...
+    """
+    if map_colidx_colname is None:
+        map_colidx_colname = {i: col for i, col in enumerate(cols.keys())}
+    df_list = []
+    for ((idx_prob, val_prob), (idx_pl, val_pl), (idx3, val3), (idx4, val4)) in zip(np.ndenumerate(tensor_prob), np.ndenumerate(tensor_pl), np.ndenumerate(tensor3), np.ndenumerate(tensor4)):
+            cols_values_except_acc = []
+            for k, idx_in_col in enumerate(idx_prob):
+                col = map_colidx_colname[k]
+                col_value = cols[col][idx_in_col]
+                cols_values_except_acc.append(col_value)
+            # print(cols_values_except_acc + [val_prob, val_pl])
+            df_list.append(cols_values_except_acc + [val_prob, val_pl, val3, val4])
+            # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
+            # print(df)
+    df = pd.DataFrame(df_list, columns=list(cols.keys()) + ["acc_prob", "acc_pl", "acc_" + algo3_name, "acc_" + algo4_name])
+    df.to_csv(path + ".csv")
+
+
+
 def dump_run_information_from_tensor(algo_name: str, tensor: np.ndarray, cols: dict[str, list[float]], path: str, avgs: list|None = None, map_colidx_colname: dict[int, str]=None):
     """We assume the following structure:
     tensor_prob: np.ndarray with accuracy for prob

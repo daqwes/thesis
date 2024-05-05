@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
-from src.data_generation_sep import generate_data_exact, generate_data_exact_PL
+from src.data_generation_sep import generate_data_sep, generate_data_sep_PL
 from src.utils import dump_run_information, dump_run_information_from_tensors
 
 """
@@ -30,8 +30,8 @@ def run_experiment(savefig=True):
     for j, n_meas in enumerate(meas):
         for k in range(n_samples):
             seed = k + n_samples * j
-            rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
-            _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed =seed)
+            rho_true, As, y_hat = generate_data_sep(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
+            _, As_PL, _ = generate_data_sep_PL(n, n_meas, n_shots, rho_type=rho_type, seed =seed)
             init_point = gen_init_point(d,d)
             if not test_run:
                 _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)

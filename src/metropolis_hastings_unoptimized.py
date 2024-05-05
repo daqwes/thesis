@@ -5,12 +5,12 @@ import sys
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
 if __name__ == '__main__' or parent_module.__name__ == '__main__':
     from data_generation import generate_data, random_unitary
-    from data_generation_sep import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_exact
+    from data_generation_sep import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_sep
     from proj_langevin import gen_init_point
     from utils import compute_error
 else:
     from .data_generation import generate_data, random_unitary
-    from .data_generation_sep import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_exact
+    from .data_generation_sep import init_matrices, get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_sep
     from .proj_langevin import gen_init_point
 def norm_complex(arr: np.ndarray):
     """Normalizes complex vector or matrix, in which case it normalizes it row by row
@@ -147,7 +147,7 @@ def main():
     # print(rho_prob[:4, :4])
     # print(y_hat.shape)
 
-def main_exact_data_gen():
+def main_sep_data_gen():
     seed = 1
     n = 3
     d = 2**n
@@ -164,7 +164,7 @@ def main_exact_data_gen():
     # u_hat = random_unitary(d, d, seed=seed)
     # y_hat = compute_measurements(n, rho_true, n_shots, seed=None)
 
-    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_sep(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
 
     init_point = random_unitary(d,d)# gen_init_point(d, d)
 
@@ -185,4 +185,4 @@ def main_exact_data_gen():
 
     
 if __name__ == "__main__":
-    main_exact_data_gen()
+    main_sep_data_gen()

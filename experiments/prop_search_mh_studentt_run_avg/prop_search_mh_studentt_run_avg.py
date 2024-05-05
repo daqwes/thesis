@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.mh_studentt_prior import run_MH_studentt
-from src.data_generation_sep import generate_data_exact_PL
+from src.data_generation_sep import generate_data_sep_PL
 from src.proj_langevin import gen_init_point
 """
 Compare and evaluate the different proposals we could use for MH used with a student-t prior, with various scaling coefs. With running average.
@@ -22,7 +22,7 @@ def run_experiment(savefig=True):
     run_avg = True
     use_prop_in_ratio = False
     log_transform = True
-    rho_true, As, y_hat = generate_data_exact_PL(n, n_meas, n_shots, rho_type="rank2", seed= seed)
+    rho_true, As, y_hat = generate_data_sep_PL(n, n_meas, n_shots, rho_type="rank2", seed= seed)
     init_point = gen_init_point(d, d)
     proposals = ["normal_dep", "exp_dep", "normal"]
     scaling_coefs_prop = [0.001, 0.01, 0.05, 0.1, 0.5, 1, 10]

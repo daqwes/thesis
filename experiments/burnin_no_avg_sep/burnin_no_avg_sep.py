@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
-from src.data_generation_sep import generate_data_exact, generate_data_exact_PL
+from src.data_generation_sep import generate_data_sep, generate_data_sep_PL
 from src.utils import dump_run_information
 
 """
@@ -25,8 +25,8 @@ def run_experiment(savefig=True):
     accs_prob = []
     accs_pl = [] 
     seed = 0
-    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
-    _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_sep(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    _, As_PL, _ = generate_data_sep_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
     init_point = gen_init_point(d, d)
     # np.random.seed(seed + 1)
     for n_burnin in burnin_range:
@@ -43,9 +43,9 @@ def run_experiment(savefig=True):
     plt.legend()
     plt.xlabel("Length of burnin period [#]")
     plt.ylabel("$L_2$ squared error")
-    plt.title("Comparison of accuracy wrt burnin length, exact, semilogy")
+    plt.title("Comparison of accuracy wrt burnin length, sep, semilogy")
     if savefig:    
-        plt.savefig(f"burnin_acc_comp_burnin_exact.pdf", bbox_inches="tight")
+        plt.savefig(f"burnin_acc_comp_burnin_sep.pdf", bbox_inches="tight")
     plt.show()
 
     # plt.figure()
@@ -60,7 +60,7 @@ def run_experiment(savefig=True):
     # plt.show()
 
     if savefig:
-        dump_run_information("run_burnin_no_avg_exact", {"n_burnin": burnin_range, "acc_pl": accs_pl, "acc_prob": accs_prob})  
+        dump_run_information("run_burnin_no_avg_sep", {"n_burnin": burnin_range, "acc_pl": accs_pl, "acc_prob": accs_prob})  
 
 
 if __name__ == "__main__":

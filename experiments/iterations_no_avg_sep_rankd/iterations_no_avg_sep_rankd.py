@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
-from src.data_generation_sep import generate_data_exact, generate_data_exact_PL 
+from src.data_generation_sep import generate_data_sep, generate_data_sep_PL 
 from src.utils import dump_run_information
 
 
@@ -24,8 +24,8 @@ def run_experiment(savefig=True):
     n_iter = 10000
     n_burnin = 2000
 
-    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
-    _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_sep(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    _, As_PL, _ = generate_data_sep_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
     
     accs_prob = []
     accs_pl = []
@@ -59,7 +59,7 @@ def run_experiment(savefig=True):
     plt.ylabel("$L_2$ squared error")
     plt.title("Accuracy wrt time, with burnin, sep DG, rho of rankd")
     if savefig:
-        plt.savefig(f"iters_acc_comp_time_no_avg_exact_rankd.pdf", bbox_inches="tight")
+        plt.savefig(f"iters_acc_comp_time_no_avg_sep_rankd.pdf", bbox_inches="tight")
     plt.show()
     plt.close()
 
@@ -72,11 +72,11 @@ def run_experiment(savefig=True):
     plt.ylabel("$L_2$ squared error")
     plt.title("Accuracy wrt iters, with burnin, sep DG, rho of rankd")
     if savefig:    
-        plt.savefig(f"iters_acc_comp_iters_no_avg_exact_rankd.pdf", bbox_inches="tight")
+        plt.savefig(f"iters_acc_comp_iters_no_avg_sep_rankd.pdf", bbox_inches="tight")
     plt.show()
     plt.close()
     if savefig:
-        dump_run_information("run_iterations_no_avg_exact_rankd", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob})
+        dump_run_information("run_iterations_no_avg_sep_rankd", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob})
 
 
 if __name__ == "__main__":

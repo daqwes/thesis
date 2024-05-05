@@ -241,7 +241,7 @@ def compute_measurements(n: int, dens_ma, n_shots: int | None=2000, seed=None):
     return p_ra.flatten(order="F")
 
 
-def generate_data_exact(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
+def generate_data_sep(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
     """Generate a density matrix, and simulate the measurement process
     Args:
         n (int): number of qubits
@@ -269,7 +269,7 @@ def generate_data_exact(n: int, n_meas: int, n_shots: int|None, rho_type: str, s
     return rho_true, Pra, y_hat
 
 
-def generate_data_exact_PL(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
+def generate_data_sep_PL(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
     """Generate a density matrix, and simulate the measurement process. Returns the measure
     Args:
         n (int): number of qubits
@@ -282,7 +282,7 @@ def generate_data_exact_PL(n: int, n_meas: int, n_shots: int|None, rho_type: str
     R = 2**n
     if seed is not None:
         np.random.seed(seed)
-    # See explanation above, in generate_data_exact
+    # See explanation above, in generate_data_sep
     samples = np.random.choice(A, n_meas, replace=False) * R
     samples_ranges = [list(range(i, i+R)) for i in samples]
     Pra = get_observables_PL_format(n)

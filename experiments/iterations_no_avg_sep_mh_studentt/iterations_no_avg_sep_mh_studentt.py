@@ -7,7 +7,7 @@ from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
 from src.mh_studentt_prior import run_MH_studentt
-from src.data_generation_sep import generate_data_exact, generate_data_exact_PL 
+from src.data_generation_sep import generate_data_sep, generate_data_sep_PL 
 from src.utils import dump_run_information
 
 
@@ -25,8 +25,8 @@ def run_experiment(savefig=True):
     n_burnin = 2000
     rho_type = "rank2"
 
-    rho_true, As, y_hat = generate_data_exact(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
-    _, As_PL, _ = generate_data_exact_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    rho_true, As, y_hat = generate_data_sep(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
+    _, As_PL, _ = generate_data_sep_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
 
     # seed has be set above
     init_point = gen_init_point(d, d)
@@ -62,7 +62,7 @@ def run_experiment(savefig=True):
     # plt.ylabel("$L_2$ squared error")
     # plt.title("Accuracy wrt time, with burnin, sep DG")
     # if savefig:
-    #     plt.savefig(f"iters_acc_comp_time_no_avg_exact.pdf", bbox_inches="tight")
+    #     plt.savefig(f"iters_acc_comp_time_no_avg_sep.pdf", bbox_inches="tight")
     # plt.show()
     # plt.close()
 
@@ -76,11 +76,11 @@ def run_experiment(savefig=True):
     plt.ylabel("$L_2$ squared error")
     plt.title("Accuracy wrt iters, with burnin, sep DG, with mhs")
     if savefig:    
-        plt.savefig(f"iters_acc_comp_iters_no_avg_exact_mh_studentt.pdf", bbox_inches="tight")
+        plt.savefig(f"iters_acc_comp_iters_no_avg_sep_mh_studentt.pdf", bbox_inches="tight")
     plt.show()
     plt.close()
     if savefig:
-        dump_run_information("run_iterations_no_avg_exact_mh_studentt", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob, "acc_mhs": accs_mhs})
+        dump_run_information("run_iterations_no_avg_sep_mh_studentt", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob, "acc_mhs": accs_mhs})
 
 if __name__ == "__main__":
     run_experiment()
