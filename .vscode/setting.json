@@ -1,6 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "$HOME/mambaforge/envs/",
-        "$HOME/micromamba/envs/"
-    ]
-}

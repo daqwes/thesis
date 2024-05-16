@@ -156,7 +156,7 @@ def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_me
     )
     return y_hat
 
-def generate_data(n: int, n_meas: int, n_shots: int|None, rho_type: str|int, seed: int):
+def generate_data(n: int, n_meas: int, n_shots: int|None, rho_type: str|int, seed: int|None):
     """Generate a density matrix, and simulate the measurement process
     Args:
         n (int): number of qubits

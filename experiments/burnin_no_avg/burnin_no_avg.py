@@ -35,7 +35,7 @@ def run_experiment(savefig=True):
     for n_burnin in burnin_range:
         np.random.seed(seed + 1)
         _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
-        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
         
         accs_prob.append(compute_error(rho_last_prob, rho_true))
         accs_pl.append(compute_error(rho_avg_pl, rho_true))

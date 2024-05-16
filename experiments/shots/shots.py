@@ -49,7 +49,7 @@ def run_experiment(savefig=True):
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             init_point = gen_init_point(d,d)
             _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
-            _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point, eta_shots_indep=eta_shots_indep)
+            _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point, eta_shots_indep=eta_shots_indep)
             
             accs_prob[i,j] = compute_error(rho_last_prob, rho_true)
             accs_pl[i,j] = compute_error(rho_avg_pl, rho_true)

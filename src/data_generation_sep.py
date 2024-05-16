@@ -29,7 +29,7 @@ def projectors_py(idx_list, r_):
     ret = np.array([np.outer(np.conj(ev), ev) for ev in selected_evs])
     return ret
 
-def random_uniform(low: float, high: float, size: tuple[int, ...], seed: int = None) -> np.ndarray:
+def random_uniform(low: float, high: float, size: tuple[int, ...], seed: int|None = None) -> np.ndarray:
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -37,7 +37,7 @@ def random_uniform(low: float, high: float, size: tuple[int, ...], seed: int = N
     else:
         return np.random.uniform(low, high, size)
 
-def random_multivariate_complex(mean: np.ndarray, cov: np.ndarray, size: tuple[int, ...], seed: int = None) -> np.ndarray:
+def random_multivariate_complex(mean: np.ndarray, cov: np.ndarray, size: tuple[int, ...], seed: int|None = None) -> np.ndarray:
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -45,7 +45,7 @@ def random_multivariate_complex(mean: np.ndarray, cov: np.ndarray, size: tuple[i
     else:
         return np.random.multivariate_normal(mean, cov, size) + 1j * np.random.multivariate_normal(mean, cov, size)
 
-def random_standard_exponential(size: tuple[int, ...], seed: int = None) -> np.ndarray:
+def random_standard_exponential(size: tuple[int, ...], seed: int|None = None) -> np.ndarray:
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -241,7 +241,7 @@ def compute_measurements(n: int, dens_ma, n_shots: int | None=2000, seed=None):
     return p_ra.flatten(order="F")
 
 
-def generate_data_sep(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
+def generate_data_sep(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int|None):
     """Generate a density matrix, and simulate the measurement process
     Args:
         n (int): number of qubits
@@ -269,7 +269,7 @@ def generate_data_sep(n: int, n_meas: int, n_shots: int|None, rho_type: str, see
     return rho_true, Pra, y_hat
 
 
-def generate_data_sep_PL(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int):
+def generate_data_sep_PL(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int|None):
     """Generate a density matrix, and simulate the measurement process. Returns the measure
     Args:
         n (int): number of qubits

@@ -42,7 +42,7 @@ def run_experiment(savefig=True):
         rho_true, As, y_hat = generate_data_sep(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
         _, As_PL, _ = generate_data_sep_PL(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
         _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None)
-        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None)
+        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_type, As_PL, y_hat, n_iter, n_burnin, seed=None)
         
         accs_prob.append(compute_error(rho_last_prob, rho_true))
         accs_pl.append(compute_error(rho_avg_pl, rho_true))

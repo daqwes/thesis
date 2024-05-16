@@ -4,6 +4,7 @@ papers/**/*.dat
 **/pkled/
 **/__pycache__
 books/
-report/
+report/main*
+!report/main.tex
 experiments/figures/
 code_thesis_DM/

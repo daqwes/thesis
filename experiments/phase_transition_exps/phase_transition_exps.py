@@ -35,7 +35,7 @@ def run_experiment(savefig=True):
                 # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin)
-            _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin)
+            _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_rank, As, y_hat, n_iter, n_burnin)
             
             accs_prob[i,j] = np.log(compute_error(rho_last_prob, rho_true))
             accs_pl[i,j] = np.log(compute_error(rho_avg_pl, rho_true))
@@ -44,9 +44,9 @@ def run_experiment(savefig=True):
     xv, yv = np.meshgrid(n_exps/d, rho_ranks, indexing="ij")
     fig, axs = plt.subplots(1, 2)
     fig.suptitle("Phase transition of rank wrt n_meas/d")
-    c1 = axs[0].contourf(xv, yv, accs_prob, cmap=plt.cm.rainbow,
+    c1 = axs[0].contourf(xv, yv, accs_prob, cmap=plt.cm.rainbow,# type: ignore
                   vmin=accs_prob.min(), vmax=accs_prob.max())
-    c2 = axs[1].contourf(xv, yv, accs_pl, cmap=plt.cm.rainbow,
+    c2 = axs[1].contourf(xv, yv, accs_pl, cmap=plt.cm.rainbow,# type: ignore
                   vmin=accs_pl.min(), vmax=accs_pl.max())
     axs[0].set_title("prob")
     axs[0].set_xlabel("# of measurements / d")

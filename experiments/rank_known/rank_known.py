@@ -7,7 +7,7 @@ from src.utils import compute_error
 from src.metropolis_hastings import run_MH
 from src.proj_langevin import run_PL, gen_init_point
 from src.data_generation import generate_data
-from src.utils import dump_run_information, dump_run_information_from_tensors
+from src.utils import dump_run_information_from_tensors
 
 
 """
@@ -44,9 +44,9 @@ def run_experiment(savefig=True):
                 n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_MH
             )
             _, rho_approx_pl, _ = run_PL(
-                n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_PL, eta_shots_indep=eta_shots_indep
+                n, n_meas, n_shots, rho_rank, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_PL, eta_shots_indep=eta_shots_indep
             )
-            
+
             err_prob = compute_error(rho_approx_prob, rho_true)
             err_pl = compute_error(rho_approx_pl, rho_true)
 

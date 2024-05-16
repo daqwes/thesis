@@ -135,7 +135,7 @@ def langevin(
     theta: float,
     beta: float,
     eta: float,
-    seed: int,
+    seed: int|None,
 ):
     """
     Runs the langevin algorithm. 
@@ -194,7 +194,7 @@ def langevin(
     return Y_rho_record, t_rec, n_rec
 
 
-def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int = 0, running_avg: bool = True, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None):
+def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str|int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int|None|None = 0, running_avg: bool = True, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None, beta: float|None = None, theta: float|None = None):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits
@@ -226,19 +226,21 @@ def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str, As: np.ndarray, y_h
         eta = 0.05 / n_shots
     alpha = 1
 
-    if n == 3:
-        theta = 0.1
-        beta = 1e2
-        # r = 6
-    elif n == 4:
-        theta = 1
-        beta = 1e3
-        # r = 2
-    else:
-        theta = 1
-        beta = 1e3
-        # r = 5
-
+    if theta is None:
+        if n == 3:
+            theta = 0.1
+        elif n == 4:
+            theta = 1
+        else:
+            theta = 1
+    if beta is None:
+        if n == 3:
+            beta = 1e2
+        elif n == 4:
+            beta = 1e3
+        else:
+            beta = 1e3
+            
     # Y_rho_record, t_rec do not contain the samples/values for the burnin phase 
     Y_rho_record, t_rec, norm_rec = langevin(
         Y_rho0, y_hat, As, r, n, n_meas, n_iter, n_burnin, alpha, lambda_, theta, beta, eta, seed=None

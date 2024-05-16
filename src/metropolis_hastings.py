@@ -27,7 +27,7 @@ def norm_complex(arr: np.ndarray):
     else:
         return arr/np.sqrt((np.abs(arr)**2).sum())
 
-def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm: float, pkl: str|None, seed: int, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
+def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm: float, pkl: str|None, seed: int|None, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
     """
     """
     if seed is not None:
@@ -86,7 +86,7 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
     # print(ac_rate_gamma, ac_rate_V) 
     return rhos_record, rho, cum_times
 
-def run_MH(n: int, n_meas: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = 0, init_point: np.ndarray|None = None, gamma: float|None = None):
+def run_MH(n: int, n_meas: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int|None|None = 0, init_point: np.ndarray|None = None, gamma: float|None = None):
     """Runner function for the prob-estimator
     Args:
         n (int): number of qubits

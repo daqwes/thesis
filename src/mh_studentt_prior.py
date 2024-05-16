@@ -57,7 +57,7 @@ def eval_proposal(Y_next: np.ndarray, Y_prev: np.ndarray, dist: str = "normal", 
         return 1 # unsure on how to compute it here
     else:
         raise ValueError("dist is not a valid type")
-def sample_proposal(d: int, r: int, Y_curr: np.ndarray, seed: int, dist: str = "normal", scaling_coef: float = 1.0):
+def sample_proposal(d: int, r: int, Y_curr: np.ndarray, seed: int|None, dist: str = "normal", scaling_coef: float = 1.0):
     """
     TODO
     In order for the sample to be valid, it needs to respect the physical constraints of the system.
@@ -130,7 +130,7 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap:
     return min(1, ratio)
 
 
-def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True) -> np.ndarray:
+def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int|None, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True) -> np.ndarray:
     """ Metropolis-Hastings algorithm with a student-t prior   
     """
     if seed is not None:
@@ -178,7 +178,7 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
     return rhos_record, rho_iter, cum_times, acc_rate 
 
 
-def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int = None, run_avg: bool = True, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None, lambda_: float|None = None, theta: float|None = None):
+def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int|None = None, run_avg: bool = True, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None, lambda_: float|None = None, theta: float|None = None):
     if seed is not None:
         np.random.seed(seed)
     d = 2**n

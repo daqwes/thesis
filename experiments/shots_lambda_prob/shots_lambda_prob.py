@@ -68,7 +68,7 @@ def run_experiment(savefig=True):
                     err_prob = seed
                 if k == 0:
                     if not test_run:
-                        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
+                        _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point)
                         err_pl = compute_error(rho_avg_pl, rho_true)
                     else:
                         err_pl = seed + 1
