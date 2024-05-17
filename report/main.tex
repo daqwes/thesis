@@ -25,6 +25,16 @@ sorting=ynt
 %\usepackage[cal=boondoxo]{mathalfa}
 \usepackage{amsmath}
 \usepackage{empheq}
+\usepackage{thmtools}
+\usepackage{mathtools}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+
+\declaretheorem[sibling=definition, shaded={rulecolor=black, rulewidth=0.6pt, bgcolor={rgb}{1,1,1}},name=Definition]{boxeddef}
+\declaretheorem[sibling=theorem, shaded={rulecolor=black, rulewidth=0.6pt, bgcolor={rgb}{1,1,1}},name=Theorem]{boxedthm}
+
+
+
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
@@ -83,11 +93,13 @@ sorting=ynt
 \tb{QM} & Quantum Mechanics\\
 \tb{prob} & prob-estimator\\
 \tb{PL}& Projective Langevin  \\
-$\mathcal{A}$ & Set of all observables\\
+$\ket{{\psi}}$ & Quantum state $\psi$ in the \ti{bra-ket} formulation\\
 $\mb{M^\dagger}$ & Conjugate transponse of matrix $M$\\
 $\braket{\mb M}$ & Expected value of a matrix/operator $M$\\
 \tb {POVM} & Positive Operator-Valued Measure\\
-$\mb{M\otimes N}$ & Kronecker product between matrices $M$ and $N$
+$\mb{M\otimes N}$ & Kronecker product between matrices $M$ and $N$\\
+${U}(a,b)$ & Uniform distribution defined on the open interval $(a,b)$\\
+$N(\mu, \sigma^2)$ & Normal distribution with mean $\mu$ and standard derivation $\sigma$
 \end{tabular}
 
 \chapter{Introduction}
@@ -99,7 +111,7 @@ A fundamental problem in physics is the reconstruction of the state of a system 
 
 \textit{Quantum Tomography} (QT) or \textit{Quantum State Tomography} (QST) is a process that allows to reconstruct the state of the system in the context of QM. It tackles the previously described issues by replicating the initial state of the system multiple times, and then measuring once each replica. Note that there is a subtle difference between copying the system and preparing multiple systems with the same steps, as the latter does \textit{not} require any knowledge about the state, only the \textit{steps} necessary to produce it.\medskip
 
-The term ``tomography" means ``to describe an object based on sections, slices" \cite{wiki:tomography}. Many types of tomographies exist and are used in very diverse environments, with notable examples in medical applications, such as Computed Tomography (CT) or Magnetic Resonance Imaging (MRI). QT works in a similar way: we use a set of slices (observables), each of them probing a particular aspect of that state, to reconstruct the quantum state through a tomographic process. An intuitive analogy is the process of shining light on each side of a 3D object, and reconstructing that object from the obtained shadows. This results in an inverse problem, whereby starting from noisy data, we can obtain the true state of the system.
+The term ``tomography" means ``to describe an object based on sections, slices" \cite{wiki:tomography}. Many types of tomographies exist and are used in very diverse environments, with notable examples in medical applications, such as Computed Tomography (CT) or Magnetic Resonance Imaging (MRI). QT works in a similar way: we use a set of slices (observables), each of them probing a particular aspect of that state, to reconstruct the quantum state through a tomographic process. An intuitive analogy is the process of shining light on each side of a 3D object, and reconstructing that object from the obtained shadows. This results in an inverse problem, whereby starting from partial and noisy data, we can obtain the true state of the system.
 
 \subsection*{Historical context}
 TODO: not sure if this section is needed, if yes then expand\medbreak
@@ -136,7 +148,7 @@ We provide first a table summarising existing methods with the papers using them
     \end{tabular}
 \end{center}
 
-Well-established methods exist to approximate $\rho$. We can split the existing methods into 5 main categories: inversion, Pauli basis expansion, Maximum Likelihood, Compressed sensing and finally Bayesian methods, which are mostly sampling algorithms.\medbreak
+Well-established methods exist to approximate $\rho$. We can split the existing methods into 5 main categories: inversion, Pauli basis expansion, Maximum Likelihood, Compressed sensing and finally Bayesian methods, which are mostly sampling-based algorithms.\medbreak
 
 Inversion methods are very simple, as they directly rely on the Born rule: $\hat \rho$ is computed by solving the linear system of equations defined by 
 \begin{equation*} \label{eq:inversion-method}
@@ -189,7 +201,7 @@ Bayesian methods rely on \ti{Bayes} theorem, which states that given data $\mb{D
 \begin{equation}
     \pi(\rho|\mb{D}) \propto \pi(\mb{D}|\rho) \pi(\rho)
 \end{equation}
-where $Pr(\mb{D}|\rho)$ is the likelihood of $\mb{D}$ given $\rho$ and $\pi(\rho)$ the prior distribution over it. There is also a normalizing term, however it normally omitted as it does not modify the result. Obtaining samples from this posterior is what allows the approximation, and the algorithm used for sampling is the key part in the various approaches. The most common estimator then used is the sample mean, also sometimes called the \ti{Bayesian Mean Estimation} (BME) or the Gibbs estimator:
+where $Pr(\mb{D}|\rho)$ is the likelihood of $\mb{D}$ given $\rho$ and $\pi(\rho)$ the prior distribution over it. There is also a normalizing term, however it normally omitted as it does not modify the result. Obtaining samples from this posterior is what allows the approximation, and the algorithm used for sampling is the key part in the various approaches. The most common estimator then used is the sample mean, also sometimes called the \ti{Bayesian Mean Estimator} (BME) or the Gibbs estimator:
 \begin{equation}
     \hat \rho_{\text{BME}} = \int \hat \rho \pi(\hat \rho|\mathcal D) d\hat \rho
 \end{equation}
@@ -304,9 +316,9 @@ It can be seen that in case we have a pure state, \ref{eq:POVM} reduces to \ref{
 
 An even more specific quantum measurement is the projective measurement. It differs from POVM by forcing the values to be orthogonal projections: if $P_m$ is a projection matrix, then $P_mP_{m'}=\delta_{mm'}P_m$. \medbreak 
 
-The set $\{P_m\}$ relates to an \textit{observable} $M$, which a physical property of a quantum system that can be measured. It can for example be the position, momentum or the spin of a particle. The matrix $M$ is a Hermitian operator, which allows for a simple spectral decomposition:
+The set $\{P_m\}$ relates to an \textit{observable} $O$, which a physical property of a quantum system that can be measured. It can for example be the position, momentum or the spin of a particle. The matrix $O$ is a Hermitian operator, which allows for a simple spectral decomposition:
 \begin{equation}
-    M = \sum_m m P_m
+    O = \sum_m m P_m
 \end{equation}
 where we see that $P_m$ is the projection onto the eigenspace of the eigenvalue $m$  \cite{book:Nielsen-Chuang-2010,wiki:born-rule}. In the context of QT, the most relevant aspect to measure is the spin: in each direction $\{x,y,z\}$, we use a Pauli matrix to probe whether a qubit is spin up $1$ or down (eigenvalue of $1$ or $-1$).
 % \begin{equation}
@@ -322,11 +334,11 @@ where we see that $P_m$ is the projection onto the eigenspace of the eigenvalue 
 \subsubsection*{Pure states, mixed states and density matrix}
 A pure state is a quantum state that can be represented using a finite or infinite complex vector $\ket \psi$, element of a Hilbert space and of norm 1. Equivalently, it is a state that can not be expressed as a convex combination of other quantum sates \cite{wiki:density-matrix}.\medbreak
 
-A mixed state $\ket \phi$, on the other hand, is a linear combination of pure states $\ket \psi_j$. We write 
+A mixed state $\ket \phi$, on the other hand, is a linear combination of pure states $\ket {\psi_j}$. We write 
 \begin{equation}
-    \ket \phi = \sum_j p_j \ket \psi_j 
+    \ket \phi = \sum_j p_j \ket {\psi_j} 
 \end{equation}
-where the coefficient $p_j$ is the probability of occurence of $\ket \psi_j$. Mixed states usually arise in situations when we do not know from which states our system state is constituted from. This means that we can not anymore represent our system state as a vector, and must resort to a more general form: the density matrix.\medbreak
+where the coefficient $p_j$ is the probability of occurence of $\ket {\psi_j}$. Mixed states usually arise in situations when we do not know from which states our system state is constituted from. This means that we can not anymore represent our system state as a vector, and must resort to a more general form: the density matrix.\medbreak
 
 A \textit{density matrix} $\rho \in \mathbb{C}^{d \times d}$, with $d = 2^n$ and $n$ the number of qubits, is a matrix that represents a general quantum system.
 %Such a way to describe a quantum state is only possible when we have a \textit{pure state}, as one ket $\ket \phi$ is enough. In a situation when we do not know from which states our system state is constituted, we must resort to using a matrix formulation. We also know the probabilities $p_j$ associated to these states, describing the mixed state as $\ket \phi = \sum_j p_j \psi_j$.
@@ -350,13 +362,29 @@ When using synthetic data generation, 2 main options are usually considered: sep
 \subsubsection*{Separate qubit data generation}
 Separate qubit generation (also called the ``Pauli basis measurements" in \cite{Guta20}) is a process through which we can find the probability associated with an outcome $\mb s = (s_1, s_2 \dots, s_n) \in \mathcal{R}^n := \{-1, 1\}^n $ for an observable $\mb a = (a_1, a_2 \dots, a_n) \in \{x,y,z\}^n$ (we adopt the same notation as in \cite{MA17} here).\medskip
 
-The observable $\sigma_{a_i}$ for a qubit can be in $\{\sigma_x, \sigma_y, \sigma_z\}$, where $\sigma_i \in \mathbb{C}^{2 \times 2}$ is one of the Pauli matrices. We thus have a total of $3^n$ possible experimental observables and $2^n$ possible outcomes for each observable. Based on the observable and outcome, we can create the operator $P^\mb a_{\mb s} = P^{a_1}_{s_1} \otimes \dots \otimes P^{a_n}_{s_n}$, which corresponds to the projector for this $(\mb a,\mb s)$ pair. The term $P^{a_i}_{s_i}$ corresponds to the orthogonal projection associated to the eigenvalue $s_i$ in the diagonalization of $\sigma_{a_i}$, which in turn can be rewritten as $\sigma_{a_i} = -1P^{a_i}_{-1} + 1P^{a_i}_1$ due to its Hermitian property. Note that under this notation, $\mb a$ and $\mb s$ are both vectors \ti{and} indices. Reminding ourselves of the POVM and Born's rule we saw in \ref{background:qt:math}, we can formulate the main equation as
+The observable $\sigma_{a_i}$ for a qubit can be in $\{\sigma_x, \sigma_y, \sigma_z\}$, where $\sigma_i \in \mathbb{C}^{2 \times 2}$ is one of the Pauli matrices. These matrices are written as follows:
+\begin{equation}
+    \sigma_x  = \begin{pmatrix}
+        0 & 1\\
+        1 & 0
+    \end{pmatrix}\quad
+    \sigma_y = \begin{pmatrix}
+        0 & -i\\
+        i & 0
+    \end{pmatrix}\quad
+    \sigma_z = \begin{pmatrix}
+        1 & 0\\
+        0 & -1
+    \end{pmatrix}
+\end{equation}
+They distinguish themselves by being Hermitian, unitary and having eigenvalues $\{-1, 1\}$. They correspond to measuring the spin of qubit, an intrinsic property of a particle analogous to angular momentum, along a particular dimension \cite{wiki:pauli-matrices}.
+We thus have a total of $3^n$ possible experimental observables and $2^n$ possible outcomes for each observable. Based on the observable and outcome, we can create the operator $P^\mb a_{\mb s} = P^{a_1}_{s_1} \otimes \dots \otimes P^{a_n}_{s_n}$, which corresponds to the projector for this $(\mb a,\mb s)$ pair. The term $P^{a_i}_{s_i}$ corresponds to the orthogonal projection associated to the eigenvalue $s_i$ in the diagonalization of $\sigma_{a_i}$, which in turn can be rewritten as $\sigma_{a_i} = -1P^{a_i}_{-1} + 1P^{a_i}_1$ due to its Hermitian property. Note that under this notation, $\mb a$ and $\mb s$ are both vectors \ti{and} indices. Reminding ourselves of the POVM and Born's rule we saw in \ref{background:qt:math}, we can formulate the main equation as
 
 
 \begin{equation}
-    \forall \mb s \in \mathcal{R}^n, p_{a,s} = \pi(R^a = \mb s) = \tr(\rho P^a_s)
+    \forall \mb s \in \mathcal{R}^n, p_{\mb a,\mb s} = \Pr(R^{\mb a} = \mb s) = \tr(\rho P^{\mb a}_{\mb s})
 \end{equation}
-where $R^a \in \mathcal{R}^n$ is the random vector outcome of the experiment $\mb a$ and $p_{a,s}$ the probability linked to that pair. We can see that we recover the projective measurement (or more generally the POVM), only extended to the multi-qubit case by the Kronecker product applied to the projectors $P^{\mb a}_\mb{ s}$.\medbreak
+where $R^\mb{a} \in \mathcal{R}^n$ is the random vector outcome of the experiment $\mb a$ and $p_{\mb a,\mb s}$ the probability linked to that pair. We can see that we recover the projective measurement (or more generally the POVM), only extended to the multi-qubit case by the Kronecker product applied to the projectors $P^{\mb a}_\mb{ s}$.\medbreak
 
 An important element to take into account when working with this method in practice is that, while it the theoretically correct approach, it requires on the order of $6^n = 2^n 3^n$ operations, making it costly.
 
@@ -365,7 +393,7 @@ An important element to take into account when working with this method in pract
 
 \subsubsection*{Mixed qubit data generation}
 
-Mixed qubit data generation (also called "Pauli observables" in \cite{Guta20}) is an alternative approach, where instead of calculating the probability for each observable/outcome pair, we will directly approximate the expected value linked to this observable. Its calculation is much more straightforward: if we call $A_m$ the observable of which we calculate the expected value, then $A_m = \sigma_{m_1} \otimes \sigma_{m_2} \dots \otimes \sigma_{m_n}$ with $n$ the number of qubits and $m_i$ identifying the Pauli matrix for qubit $i$ for combination $m$. This results in a total of $4^n$ combinations ($\sigma_{m_i} \in \{I, \sigma_x, \sigma_y, \sigma_z\}$), hence less costly than the separate qubit process.
+Mixed qubit data generation (also called ``Pauli observables" in \cite{Guta20}) is an alternative approach, where instead of calculating the probability for each observable/outcome pair, we will directly approximate the expected value linked to this observable. Its calculation is much more straightforward: if we call $A_m$ the observable of which we calculate the expected value, then $A_m = \sigma_{m_1} \otimes \sigma_{m_2} \dots \otimes \sigma_{m_n}$ with $n$ the number of qubits and $m_i$ identifying the Pauli matrix for qubit $i$ for combination $m$ (the notation is the same as in \cite{meth:bayesian:Langevin:ACMT2024}). This results in a total of $4^n$ combinations ($\sigma_{m_i} \in \{I, \sigma_x, \sigma_y, \sigma_z\}$), hence less costly than the separate qubit process.
 
 %\section{Pointwise estimation methods}
 \newpage
@@ -375,17 +403,19 @@ Markov Chain Monte Carlo (MCMC) methods are a class of sampling algorithms. Samp
 
 Various methods exist for sampling from simple distributions, the most famous being the inverse transform method, rejection sampling, or importance sampling. All these methods however have drawbacks: inverse transform requires an analytical solution for the cumulative density function (CDF), which is usually not possible to obtain for complex PDFs as it requires a proper integral; rejection sampling and importance sampling do not have this problem, but they suffer from the curse of dimensionality - once your dimension grows, the sampling becomes very inefficient.\medskip
 
-\subsection*{Bayesian inference}
+We will now cover several aspects which make up MCMC: Bayesian inference, the theoretical guarantees behind the MCMC methods and finally the 2 main algorithms we will be concerned about in this thesis, Metropolis-Hastings and Langevin sampling.
+
+\subsection{Bayesian inference}\label{section:background:mcmc:bayesian-inference}
 As its name suggests, Bayesian inference relies on Bayes theorem. In the context of algorithms, it states that given data $\mb{D}$ and parameters $\boldsymbol{\theta}$, the \textit{posterior} distribution $\pi(\theta|\mb{D})$ is calculated as 
-\begin{equation}
-    \pi(\boldsymbol{\theta}|\mb{D}) = \frac{\pi(\mb{D}|\boldsymbol{\theta})\pi(\boldsymbol{\theta})}{\int_{\boldsymbol{\theta}} \pi(\mb{D}|\boldsymbol{\theta}) \pi(\boldsymbol{\theta})d\boldsymbol{\theta}}
+\begin{equation} \label{eq:posterior-with-marginal}
+    \pi(\boldsymbol{\theta}|\mb{D}) = \frac{\pi(\mb{D}|\boldsymbol{\theta})\pi(\boldsymbol{\theta})}{\pi(\tb D)} = \frac{\pi(\mb{D}|\boldsymbol{\theta})\pi(\boldsymbol{\theta})}{\int_{\boldsymbol{\theta}} \pi(\mb{D}|\boldsymbol{\theta}) \pi(\boldsymbol{\theta})d\boldsymbol{\theta}}
 \end{equation}
 where $\pi(\mb{D}|\pi(\boldsymbol{\theta}))$ is the \ti{likelihood} of data given the parameters and $\pi(\theta)$ the \ti{prior} distribution we put on the parameters. The denominator
 \begin{equation}
     \pi(\mb{D}) = {\int_{\boldsymbol{\theta}} \pi(\mb{D}|\boldsymbol{\theta}) \pi(\boldsymbol{\theta})d\boldsymbol{\theta}}
 \end{equation} 
 is called the \ti{marginal}, and corresponds to a normalizing constant. It is in practice intractable to calculate as it involves performing a very high dimensional integral numerically, which is unstable. The good news is that in the context of MCMC methods, the normalizing factor is not important and we can safely remove it. This gives the following posterior:
-\begin{equation}
+\begin{equation} \label{eq:posterior-without-marginal}
     \pi(\boldsymbol{\theta}|\mb{D}) \propto {\pi(\mb{D}|\boldsymbol{\theta}) \pi(\boldsymbol{\theta})}
 \end{equation}
 Getting samples from $\pi(\boldsymbol{\theta}|\mb{D})$ allows us to compute integrals, a technique called Monte Carlo integration. For example, if we have a function $g$ defined on $\mathbb{R}^m$ and we want to approximate its integral on a subset $\Omega \subseteq \mathbb R^m$, we can sample $N$ values uniformly $\{x_i\}_{i=1}^N \in \Omega$ and calculate 
@@ -400,7 +430,7 @@ In statistics, integrals are of particular interest to us as they correspond to 
 \end{equation}
 where $\{\boldsymbol{\theta}_i\}^N_{i=1}$ are samples from $\pi(\btheta|\mb{D})$. This allows us to compute estimates for a random variable (with $f(\btheta) = \btheta$), vector or matrix, the last one being the most relevant in QT. In that case, the parameters correspond to the density matrix $\rho$, and the data to the empirical probabilities $\hat p_{a,s}$. By first putting a prior on $\rho$, we can obtain a sample estimate of $\rho$, balanced by the data we have. This is where the term \ti{inference} comes from, as we infer $\rho$ from the data and prior.
 
-\subsection*{Theory behind MCMC}
+\subsection{Theoretical guarantees}\label{section:background:mcmc:theory}
 In contrast to Monte Carlo methods where the samples are independent, MCMC builds a \ti{Markov chain} of samples $\btheta^{(1)} \dots \btheta^{(R)}$, which are dependent. As a reminder, a sequence $\mb X^{(1)}, \mb X^{(2)} \dots \mb X^{(R)}$ of random variables is a Markov chain if
 \begin{equation}
     \Pr(\mb X^{(r+1)} \in A|\mb x^{(1)}, \dots, \mb x^{(r)}) = \Pr(\mb X^{(r+1)}|\mb x^{(r)})
@@ -411,53 +441,125 @@ A \ti{transition kernel} $k$ is a function that that fully characterizes a Marko
 \begin{equation}
     \pi(\mb x^*) = \int k(\mb x^*|x) \pi(\mb x)d\mb x
 \end{equation}
-This corresponds to saying that our chain admits a \ti{stationary} distribution, or equivalently that the \ti{marginal} distributions of $\mb X^{(r)}$ and $\mb X^{(r+1)}$ are the same. The distribution $\pi(\mb x)$, called the \ti{target} density, corresponds to the distribution we want to sample from in the context of MCMC. It is important to note that not all chains admit a stationary distribution, a few properties must be respected:
+This corresponds to saying that our chain admits a \ti{stationary} distribution, or equivalently that the \ti{marginal} distributions of $\mb X^{(r)}$ and $\mb X^{(r+1)}$ are the same. The distribution $\pi(\mb x)$, called the \ti{target} density, corresponds to the distribution we want to sample from in the context of MCMC. It is important to note that not all chains admit a stationary distribution, and a few properties must be respected. We will cover the discrete case for brevity reasons, but this of course extends to the continuous one \cite{mcmc:slides:Rigon2024Mar,wiki:markov-chain}.
 \begin{itemize}
-    \item \tb{Irreducibility}: a Markov chain is \ti{irreducible} if it explores the entire sample space, and does not get stuck in local regions. Formally, in the discrete case with $\mb X^{(r)}\in \mathbb{N}$, this corresponds to the condition 
+    \item \tb{Irreducibility}: a Markov chain is \ti{irreducible} if it explores the entire sample space, and does not get stuck in local regions. Formally, if $\mb X^{(r)}\in \mathbb{N}$, this corresponds to the condition 
     \begin{equation}
         \Pr(\tau_j < \infty | \mb x^{(0)} = j') > 0\quad \forall j,j' \in \mathbb{N}
     \end{equation} 
     where $\tau_j = \inf\{r\geq 1: \mb X^{(r)} = j\}$ is the first passage time for which the chain is equal to $j$ (defined as $\infty$ if $\mb X^{(r)} \neq j$ for every $r\geq 1$) and $\Pr(\tau_j < \infty | \mb x^{(0)} = j')$ the probability of return to $j$ in a finite number of steps.
-    \item \tb{Aperiodicity}: a Markov chain is \ti{aperiodic} if it does not have any deterministic cycles. Formally, we say that a discrete state $j$ is aperiodic if the set $\{r\geq1: [P^r]_{jj} > 0\}$ has no common divisor other than 1 (the matrix $P$ is the ) A chain is aperiodic if all of its states are aperiodic.
+    \item \tb{Aperiodicity}: a Markov chain is \ti{aperiodic} if it does not have any deterministic cycles. Formally, we say that a state $j$ is aperiodic if the set $\{r\geq1: [P^r]_{jj} > 0\}$ has no common divisor other than 1 (the matrix $P$ is the ) A chain is aperiodic if all of its states are aperiodic.
     \item \tb{Harris recurrence}:  a Markov chain is \ti{recurrent} if it visits any region of the sample space sufficiently often. Formally, a state $j$ of a discrete irreducible Markov chain is recurrent if and only if
     \begin{equation}
         \Pr(\tau_j < \infty |\mb x^{(0)} = j) = \Pr(\mb X^{(r)} = j \text{ for infinitely many } r | \mb x^{(0)}=j) = 1
     \end{equation}
     In other words, it means that this state is visited infinitely often. If we have all the states that are recurrent, then the chain is called recurrent. If additionally this chain admits an invariant PDF, then it is Harris positive (also called positive recurrent).
-    \item \tb{Reversibility}: a Markov chain $(\mb X^{(r)})_{r\geq1}$ is \ti{reversible} if
-    \begin{equation}
-        \Pr(\mb X^{(r)} | \mb X^{(r+1)}) = \Pr(\mb X^{(r+1)} | \mb X^{(r)})
-    \end{equation}
-    Equivalently, the probability of transitioning between 2 states is the same. 
-    \item \tb{Detailed balance}: a Markov chain with transition kernel $k$ satisfies the detailed balance if there exists a function $f$ such that  
-    \begin{equation}
-        k(\mb x|\mb x^*)f(\mb x) = k(\mb x^*|\mb x) f(\mb x^*)
-    \end{equation}
-    A very related therem states that if the chain $(\mb X^{(r)})_{r\geq1}$ satisfies the detailed balance with a PDF $\pi$, then $\pi$ is the invariant distribution for this chain and it is reversible. 
-    \item \tb{Ergodicity}: a Markov chain in \ti{ergodic} if every state is ergodic. A state $j$ is ergodic if is aperiodic and recurrent. Intuitively, this property means that we can reach every state with a probability greater than 0.
+    \item \tb{Ergodicity}: a Markov chain in \ti{ergodic} if every state is ergodic. A state $j$ is ergodic if is aperiodic and positive recurrent. Intuitively, this property means that we can reach every state with a probability greater than 0.
 \end{itemize}
+We can finally state the main result that allows us to use Markov chains for MCMC \cite{mcmc:RobertCasella2004}:
+\begin{boxedthm}
+    A Markov chain Monte Carlo (MCMC) method converges to a distribution $\pi(\mb x)$ if the underlying Markov chain is ergodic with an equilibrium distribution $f(\mb x) = \pi (\mb x)$.
+\end{boxedthm}
+
+A very related theorem that provides a similar guarantee than the law of large number but for Markov chains is the \ti{Ergodic} theorem \cite{mcmc:slides:Rigon2024Mar}:
+
+\begin{boxedthm}
+    Let the Markov chain $(\mb X^{(r)})_{r\geq 1}$ be Harris positive with stationary distribution $\pi$, and $g$ be integrable with respect to $\pi$. Then,
+    \begin{equation}
+        \frac{1}{R}\sum_{r=1}^{R}g(\mb X^{(r)}) \rightarrow \int g(\mb x) \pi(\mb x) d \mb x \quad \text{when } R \rightarrow \infty
+    \end{equation} 
+    almost surely.
+\end{boxedthm}
+
+% \subsection*{MCMC}
+% Markov Chain Monte Carlo (MCMC) methods are another class of algorithms to sample from probability distributions.
+% %While we can easily sample from standard distributions using methods such as inverse transform sampling, and rejection sampling, we often have no way of sampling from more complex ones, especially those involving a high number of dimensions. 
+% MCMC works by constructing a chain of random samples (which are Markovian in nature by being dependent only on the previous one) which at some point are guaranteed to converge to the stationary distribution of the density function of interest. \\\\
+% In the usual setting, not all samples are accepted. The probability of acceptance of the next one $x'$ given the current $x$ depends on the ratio $\cfrac{p(x')}{p(x)}$. If the new one is more probable, it is then accepted, otherwise the probability is proportional to the ratio. The class of algorithms that involve this acceptance step are called \textit{adjusted}.\\\\
+% In the usual case, MCMC is applied in the context of Bayesian inference. Given the Bayes equation 
+% $$
+% p(\theta|x) \propto p(x|\theta) p(\theta)
+% $$
+% we want to obtain samples from the posterior distribution $p(\theta|x)$. This corresponds to getting a distribution for the parameters $\theta$ of our model, given a prior that we have placed over them (our a priori knowledge of how they are distributed) and a likelihood that balances out the prior with data $x$ we have. The Bayes equation in its full form involves a term called the marginal $p(x)$ in the denominator, however as it does depend on the parameters, we do not have to include it.
+
+% %\section{MCMC for Quantum Tomography}
+% The samples obtained after MCMC methods are usually used to approximate the distribution of the parameters. In the case of matrix estimation, there are many ways to use these samples. One example is to proceed as in \cite{MA17}, where they construct rank 1 matrices with each sample and then weight them in such a way that only one of the matrices contributes to $\rho$:
+% $$
+% \hat \rho = \sum_{i=1}^d \gamma_i V_i V_i^{\dagger}
+% $$
+% The $\gamma_i$ are distributed according to a $\mb{D}ir(\alpha, \dots, \alpha)$ which promotes sparsity among them.
 
 
-Markov Chain Monte Carlo (MCMC) methods are another class of algorithms to sample from probability distributions.
-%While we can easily sample from standard distributions using methods such as inverse transform sampling, and rejection sampling, we often have no way of sampling from more complex ones, especially those involving a high number of dimensions. 
-MCMC works by constructing a chain of random samples (which are Markovian in nature by being dependent only on the previous one) which at some point are guaranteed to converge to the stationary distribution of the density function of interest. \\\\
-In the usual setting, not all samples are accepted. The probability of acceptance of the next one $x'$ given the current $x$ depends on the ratio $\cfrac{p(x')}{p(x)}$. If the new one is more probable, it is then accepted, otherwise the probability is proportional to the ratio. The class of algorithms that involve this acceptance step are called \textit{adjusted}.\\\\
-In the usual case, MCMC is applied in the context of Bayesian inference. Given the Bayes equation 
-$$
-p(\theta|x) \propto p(x|\theta) p(\theta)
-$$
-we want to obtain samples from the posterior distribution $p(\theta|x)$. This corresponds to getting a distribution for the parameters $\theta$ of our model, given a prior that we have placed over them (our a priori knowledge of how they are distributed) and a likelihood that balances out the prior with data $x$ we have. The Bayes equation in its full form involves a term called the marginal $p(x)$ in the denominator, however as it does depend on the parameters, we do not have to include it.
-
-%\section{MCMC for Quantum Tomography}
-The samples obtained after MCMC methods are usually used to approximate the distribution of the parameters. In the case of matrix estimation, there are many ways to use these samples. One example is to proceed as in \cite{MA17}, where they construct rank 1 matrices with each sample and then weight them in such a way that only one of the matrices contributes to $\rho$:
-$$
-\hat \rho = \sum_{i=1}^d \gamma_i V_i V_i^{\dagger}
-$$
-The $\gamma_i$ are distributed according to a $\mb{D}ir(\alpha, \dots, \alpha)$ which promotes sparsity among them.
-
-
-More formally, given a target distribution $f(x|\theta)$ we can evaluate and proposal distribution  TODO
+% More formally, given a target distribution $f(x|\theta)$ we can evaluate and proposal distribution  TODO
 \subsection{Metropolis-Hastings algorithm}
+The \ti{Metropolis-Hastings} (MH) algorithm is the most well-known and used MCMC algorithm. The Markov chain of samples is built by doing a random walk, with an acceptance/rejection step. It works as follows: given that we are currently located at $\mb x$, we will sample a potential candidate $\mb x^*$ from $q(\mb x^*|\mb x)$ where $q$ is called the \ti{proposal} (or \ti{jumping}) distribution. This $q$ is analogous to the kernel we saw in \ref{section:background:mcmc:theory}, although not exactly as we will come back to it later. Next, we will compute the \ti{acceptance} probability of this sample:
+
+\begin{equation}
+    \alpha(\mb x^*, \mb x) = \min\left(1, \frac{\pi(\mb x^*) q(\mb x|\mb x^*)}{\pi(\mb x) q(\mb x^*|\mb x)}\right)
+\end{equation}
+where $\pi(\mb x)$ is the posterior distribution we would like to sample from. Note that we can simplify this criterion in case the proposal density is symmetric ($q(\mb x^*|\mb x) = q(\mb x|\mb x^*)$):
+\begin{equation}
+    \alpha(\mb x^*, \mb x) = \min\left(1, \frac{\pi(\mb x^*)}{\pi(\mb x)}\right)
+\end{equation}
+This happens often in practice, as the Gaussian distribution is a common choice of proposal.
+A second comment is that, as mentioned in section \ref{section:background:mcmc:bayesian-inference}, the normalizing constant of the posterior does not matter: it gets simplified in the numerator and denominator as it does not depend on $\mb x$, nor $\mb x^*$ (only the data \tb D, see equation \ref{eq:posterior-with-marginal}). \medbreak
+
+After this computation, we will accept $\mb x^*$ with probability $\alpha$. In practice, this involves for example sampling a value $u \sim U(0,1)$, and accepting if $ u \leq \alpha$. This procedure is repeated until the desired number of samples is obtained, with some part of samples that we discard at the beginning. This period is called the \ti{burnin} period and corresponds to the duration when the samples we obtain are not part of the equilibrium distribution.
+We usually talk about convergence when the samples we get seem to come from $\pi$, based on a error-with-respect-to-iterations plot for example. A pseudocode for the algorithm could be:
+
+\begin{algorithm}[H]
+    \DontPrintSemicolon
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    %\underline{Prob-estimator}\;
+    \Input{$\mb x_0, T, B$}
+    \Output{$\mb x_{B+1}, \mb x_{B+2}, \dots, \mb x_{T}$}
+    \For{$t\gets 1:T$}{ 
+        Sample $\mb x^* \sim q(\mb x^*|\mb x_{t-1})$\;
+        $\alpha = \min\left(1, \frac{\pi(\mb x^*) q(\mb x_{t-1}|\mb x^*)}{\pi(\mb x_{t-1}) q(\mb x^*|\mb x_{t-1})}\right)$\;
+        Sample $\mb x^* \sim U(-0.5, 0.5)$\;
+        \eIf{$u \leq \alpha$}{
+            \tcp*[l]{Accept $\mb x^*$}
+            $\mb x_{t} \gets \mb x^*$
+        }{
+            \tcp*[l]{Reject $\mb x^*$}
+            $\mb x_{t} \gets \mb x_{t-1}$
+        }
+    }
+    \caption{Metropolis-Hastings algorithm}
+\end{algorithm}\medbreak
+
+We have in section \ref{section:background:mcmc:theory} talked about convergence for Markov chains to the posterior distribution, but have not talked how that would work in practice. A very handy way is to use the \ti{detailed balance} condition.
+
+\begin{boxedthm}
+    A Markov chain $(\mb X^{(r)})_{r\geq1}$ with transition kernel $k$ satisfies the detailed balance if there exists a function $f$ such that 
+    \begin{equation}
+        k(\mb x|\mb x^*) f(\mb x) = k(\mb x^*|\mb x) f(\mb x^*)
+    \end{equation}
+\end{boxedthm}
+In this context, we also talk about \ti{reversibility}:
+
+\begin{boxedthm}
+    a Markov chain $(\mb X^{(r)})_{r\geq1}$ is \ti{reversible} if
+\begin{equation}
+    \Pr(\mb X^{(r)} | \mb X^{(r+1)}) = \Pr(\mb X^{(r+1)} | \mb X^{(r)})
+\end{equation}
+\end{boxedthm}
+Finally, we can reach an important and useful result for MCMC:
+
+\begin{boxedthm}
+    if a Markov chain $(\mb X^{(r)})_{r\geq1}$ satisfies the detailed balance with $\pi$ a probability density function, then $\pi$ is the stationary density, and chain is reversible.
+\end{boxedthm}
+
+This result means that, as long as we satisfy the detailed balance with our MCMC algorithm, we will converge to the posterior distribution $\pi(\mb)$. In the case of MH, the transition kernel is 
+\begin{equation}
+    k\left(\boldsymbol{x}^* \mid \boldsymbol{x}\right)=\alpha\left(\boldsymbol{x}^*, \boldsymbol{x}\right) q\left(\boldsymbol{x}^* \mid \boldsymbol{x}\right)+\delta_{\boldsymbol{x}}\left(\boldsymbol{x}^*\right) \int q(\boldsymbol{s} \mid \boldsymbol{x})\{1-\alpha(\boldsymbol{s} \mid \boldsymbol{x})\} \mathrm{d} \boldsymbol{s}
+\end{equation}
+where $\delta_{\mb x}(\mb x^*)$ is a point mass at $\mb x$. Putting this kernel into the detailed balance condition, one can derive than the equality indeed holds. TODO: derive in appendix? The only element that we have not discussed so far is the ergodicity condition. Altough is depends on $\pi(\mb x)$ and $q$, it is typically true under very mild conditions, which can be checked in, for example, \cite{mcmc:RobertCasella2004}.\medbreak
+
+A final element to take into account with these theoretical properties is that, while in theory we should converge, in practice this may take a very long time, making it unpractical. This is the point where the engineering mind should take control and try different combinations for the proposal, the burnin, the other parameters for the algorithm, etc.
+
 
 \subsection{Unadjusted Langevin algorithm}
 
