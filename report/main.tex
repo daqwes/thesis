@@ -504,8 +504,8 @@ where $\pi(\mb x)$ is the posterior distribution we would like to sample from. N
 This happens often in practice, as the Gaussian distribution is a common choice of proposal.
 A second comment is that, as mentioned in section \ref{section:background:mcmc:bayesian-inference}, the normalizing constant of the posterior does not matter: it gets simplified in the numerator and denominator as it does not depend on $\mb x$, nor $\mb x^*$ (only the data \tb D, see equation \ref{eq:posterior-with-marginal}). \medbreak
 
-After this computation, we will accept $\mb x^*$ with probability $\alpha$. In practice, this involves for example sampling a value $u \sim U(0,1)$, and accepting if $ u \leq \alpha$. This procedure is repeated until the desired number of samples is obtained, with some part of samples that we discard at the beginning. This period is called the \ti{burnin} period and corresponds to the duration when the samples we obtain are not part of the equilibrium distribution.
-We usually talk about convergence when the samples we get seem to come from $\pi$, based on a error-with-respect-to-iterations plot for example. A pseudocode for the algorithm could be:
+After this computation, we will accept $\mb x^*$ with probability $\alpha$. In practice, this involves for example sampling a value $u \sim U(0,1)$, and accepting if $ u \leq \alpha$. This procedure is repeated until the desired number of samples is obtained, with some part of samples that we discard at the beginning. This period is called the \ti{burn-in} period and corresponds to the duration when the samples we obtain are not part of the equilibrium distribution.
+We usually talk about convergence when the samples we get seem to come from $\pi$, based on a error-with-respect-to-iterations plot for example. A pseudocode for the algorithm could be:\medbreak
 
 \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -558,13 +558,74 @@ This result means that, as long as we satisfy the detailed balance with our MCMC
 \end{equation}
 where $\delta_{\mb x}(\mb x^*)$ is a point mass at $\mb x$. Putting this kernel into the detailed balance condition, one can derive than the equality indeed holds. TODO: derive in appendix? The only element that we have not discussed so far is the ergodicity condition. Altough is depends on $\pi(\mb x)$ and $q$, it is typically true under very mild conditions, which can be checked in, for example, \cite{mcmc:RobertCasella2004}.\medbreak
 
-A final element to take into account with these theoretical properties is that, while in theory we should converge, in practice this may take a very long time, making it unpractical. This is the point where the engineering mind should take control and try different combinations for the proposal, the burnin, the other parameters for the algorithm, etc.
+A final element to take into account with theoretical convergence guarantees is that in practice, the algorithm may take a very long time converge, making it unpractical for real use. In these situations, one could for example investigate different proposals, change the duration of the burn-in period, or even swap MH for another algorithm. Various metrics exist to quantify the convergence, such as the effective sample size or the $\hat R$, but also visual checks, which are very effective. It is also common practice to run several chains from different starting points, and assess the overall performance. More details can be found in \cite{mcmc:gelman2013bayesian}.
+
+\subsection{Gibbs algorithm}
+The Gibbs algorithm takes a different approach compared to MH in that it splits the joint distribution $\pi(\mb x) = \pi(x_1, x_2, \dots, x_n)$ with $\mb x \in \mathbb{R}^n$ into one-dimensional conditionals, and then step samples from each conditional $\pi(x_i|\mb x_{-i}) = \pi(x_i|x_1,\dots,  x_{i-1}, x_{i+1}, \dots, x_n)$ iteratively. It can also be generalized to blocks, where instead of sampling from a one-dimensional distribution, we sample from a joint conditional. \medbreak
+
+It is, in its simplest form, an \ti{unadjusted} algorithm, as it does not involve an accept/reject step.
+A pseudocode for it can be the following:\medbreak
+
+\begin{algorithm}[H]
+    \DontPrintSemicolon
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    \Input{$\mb x^{(0)}, T, B$}
+    \Output{$\mb x^{(B+1)}, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
+    \For{$t\gets 1:T$}{ 
+        $\mb x^{(t)} \gets \mb x^{(t-1)}$\;
+        \For{$i\gets 1:n$}{
+            \tcp*[l]{Sample from the conditional and set $i$-th element to this value}
+            $\mb x_{i}^{(t)} \sim \pi(x_i|\mb x_{-i}^{(t)})$\;
+        }
+    }
+    \caption{Gibbs algorithm}
+\end{algorithm}
+Note that the inner loop updates the current $x^{(t)}$, and not a copy. This implies that at iteration $i$, we are using the conditioned value set at $i-1$ for $x^{(t)}_{i-1}$, and not the one set at $x^{(t-1)}_{i-1}$.\medbreak
+
+The main advantages of Gibbs sampling is that we do not need to tune the proposal distributions, as well as the fact that all samples are accepted. The downside of course is that we need to be able to derive and sample from the conditional, especially doing so efficiently as otherwise this approach becomes very costly. A more general algorithm, called \textit{Metropolis-within-Gibbs}, involves sampling from the conditional using MH, and in that case this may involve an accept/reject step. In the case of standard Gibbs, we may view the conditionals we sample from as proposal distributions $q(\mb x^*|\mb x)$. This in turn shows us why this algorithm is unadjusted, as the acceptance probability $\alpha$ is always equal to 1 \cite{mcmc:slides:Rigon2024Mar}. If we call $\mb x^* = (x_1^{(t)}, \dots, x_{i}^*, \dots, x^{(t)}_{n})$ and $\mb x = (x_1^{(t)}, \dots, x_{i}^{(t)}, \dots, x^{(t)}_{n})$, then
+
+\begin{equation}
+    \alpha(\mb x^*|\mb x) = \frac{\pi(\mb x^*) q(\mb x|\mb x^*)}{\pi(\mb x) q(\mb x^* |\mb x)} = \frac{\pi(x_i^*|\mb x_{-i}^*)\pi(\mb x^*_{-i}) \pi(x_i|\mb x^*_{-i})}{\pi(x_i|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i^*|\mb x_{-i})} = \frac{\pi( x_i^*|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i|\mb x_{-i})}{\pi(x_i|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i^*|\mb x_{-i})} = 1
+\end{equation}
+where we have used the fact that $\mb x^*_{-i} = \mb x_{-i}$.
 
 
 \subsection{Unadjusted Langevin algorithm}
+One big down-side with Metropolis-Hastings or Gibbs sampling is that they can take a long time to converge, especially in a very high-dimensional setting. The Unadjusted Langevin algorithm (ULA) tackles this problem by using the gradient information about the posterior. The downside, of course, is that we must be able to calculate it, but in the case we can, it can drastically speed-up the convergence. The algorithm draws its name from \ti{Langevin diffusion} (also called \ti{Îto diffusion}), a stochastic differential equation (SDE), which is written as follows:
+\begin{equation}
+    \mathrm{d}X_t = -\nabla V(x)\mathrm{d}t + \sqrt{2}\mathrm{d}B_t
+\end{equation}
+where $X_t$ is the position of a particle in a potential $V(x)$ and $B_t$ is the time derivative of the standard Brownian motion. A SDE is a differential equation where one or more of the terms is a stochastic process, and results in a solution which is also a stochastic process. In the case of Langevin diffusion, the solution happens to be a stationary process $p_{\infty}(x) \propto \exp(-V(x))$, which is very handy in the context of MCMC. If we set $V(x) = -\log(\pi(x))$ (we assume a one-dimensional density here), then we can simulate the SDE and obtain samples from $p_\infty = \pi$:
+\begin{equation}    
+    \mathrm{d}X_t = \nabla \log(\pi(x))\mathrm{d}t + \sqrt{2}\mathrm{d}B_t
+\end{equation}
 
-%\subsection{Metropolis-Adjusted Langevin algorithm}
+Of course, to simulate, we must discretize the SDE in some way, and in this case \textit{Euler-Maruyama approximation} is what is commonly used. This results in
+\begin{equation}
+    X^{(k+1)} - X^{(k)} = \tau \nabla \log\pi(X^{(k)}) + \sqrt{2\tau}(B^{k+1} - B^k)
+\end{equation}
+where $\tau$ is a step size that can be changed over time and $(B^{(k+1)} - B^(k)) \sim N(0, I)$. We can then rewrite it as follows:
+\begin{equation}
+    X^{(k+1)} = X^(k) + \tau \nabla \log\pi(X^(k)) + \sqrt{2\tau}\xi^(k)
+\end{equation}
+where $\xi_k \sim N(0, I)$. Note that the true solution can be computed with $X(k\tau)$. The pseudocode can be written as follows (we switch back to using $\mb x \in \mathbb{R}^n$ here):\medbreak
+\begin{algorithm}[H]
+    \DontPrintSemicolon
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
 
+    \Input{$\mb x^{(0)}, \tau_{1:T}, T, B$}
+    \Output{$\mb x^{(B+1)}, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
+    \For{$t\gets 1:T$}{ 
+        $\boldsymbol{\xi}_k \sim N(0, I)$\;
+        $\mb x^{(k+1)} = \mb x^{(k)} + \tau_k \nabla \log\pi(\mb x^{(k)}) + \sqrt{2\tau_k}\boldsymbol{\xi}^{(k)}$\;
+    }
+    \caption{Unadjusted Langevin algorithm}
+\end{algorithm}\medbreak
+
+ULA can be seen as noisy gradient ascent, which is why it performs better than MH or Gibbs. By utilizing the gradient information, we are able to sample more often the regions of high density. Note that there also exists a method called \textit{Metropolis-adjusted Langevin algorithm} (MALA), which generalizes this approach with accept/reject step, but we will not go into the details here \cite{mcmc:langenvin-blog:Ansari2024Apr, wiki:MALA}. 
 
 \chapter{Overview of relevant methods} \label{section:relevant-methods}
 
