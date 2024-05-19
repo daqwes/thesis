@@ -7,6 +7,7 @@
 \usepackage{fancyhdr}
 \usepackage{url}
 \usepackage{pdfpages}
+\raggedbottom
 % \usepackage{biblatex}
 \usepackage[
 backend=biber,
@@ -64,6 +65,8 @@ sorting=ynt
 \newcommand{\tb}{\textbf}
 \newcommand{\ti}{\textit}
 \newcommand{\btheta}{\boldsymbol{\theta}}
+\newcommand{\brho}{\boldsymbol{\rho}}
+
 \title{Efficient sampling algorithms for Bayesian Quantum Tomography}
 \author{Danila Mokeev}
 \date{June 2024}
@@ -359,8 +362,8 @@ There are multiple ways through which one can obtain data for quantum tomography
 When using synthetic data generation, 2 main options are usually considered: separate qubit or mixed qubit.
 
 
-\subsubsection*{Separate qubit data generation}
-Separate qubit generation (also called the ``Pauli basis measurements" in \cite{Guta20}) is a process through which we can find the probability associated with an outcome $\mb s = (s_1, s_2 \dots, s_n) \in \mathcal{R}^n := \{-1, 1\}^n $ for an observable $\mb a = (a_1, a_2 \dots, a_n) \in \{x,y,z\}^n$ (we adopt the same notation as in \cite{MA17} here).\medskip
+\subsubsection*{Separate qubit data generation}\label{section:sep-qub-dg}
+Separate qubit data generation (also called the ``Pauli basis measurements" in \cite{Guta20}) is a process through which we can find the probability associated with an outcome $\mb s = (s_1, s_2 \dots, s_n) \in \mathcal{R}^n := \{-1, 1\}^n $ for an observable $\mb a = (a_1, a_2 \dots, a_n) \in \mathcal{E}^n := \{x,y,z\}^n$ (we adopt the same notation as in \cite{MA17} here).\medskip
 
 The observable $\sigma_{a_i}$ for a qubit can be in $\{\sigma_x, \sigma_y, \sigma_z\}$, where $\sigma_i \in \mathbb{C}^{2 \times 2}$ is one of the Pauli matrices. These matrices are written as follows:
 \begin{equation}
@@ -391,7 +394,7 @@ An important element to take into account when working with this method in pract
 % Note that there is a slight confusion between the term observable for a qubit (i.e. a Pauli matrix) and an observable to measure the system (in this case the Kronecker product of projection matrices).
 
 
-\subsubsection*{Mixed qubit data generation}
+\subsubsection*{Mixed qubit data generation}\label{section:mixed-qub-dg}
 
 Mixed qubit data generation (also called ``Pauli observables" in \cite{Guta20}) is an alternative approach, where instead of calculating the probability for each observable/outcome pair, we will directly approximate the expected value linked to this observable. Its calculation is much more straightforward: if we call $A_m$ the observable of which we calculate the expected value, then $A_m = \sigma_{m_1} \otimes \sigma_{m_2} \dots \otimes \sigma_{m_n}$ with $n$ the number of qubits and $m_i$ identifying the Pauli matrix for qubit $i$ for combination $m$ (the notation is the same as in \cite{meth:bayesian:Langevin:ACMT2024}). This results in a total of $4^n$ combinations ($\sigma_{m_i} \in \{I, \sigma_x, \sigma_y, \sigma_z\}$), hence less costly than the separate qubit process.
 
@@ -604,11 +607,11 @@ where $X_t$ is the position of a particle in a potential $V(x)$ and $B_t$ is the
 
 Of course, to simulate, we must discretize the SDE in some way, and in this case \textit{Euler-Maruyama approximation} is what is commonly used. This results in
 \begin{equation}
-    X^{(k+1)} - X^{(k)} = \tau \nabla \log\pi(X^{(k)}) + \sqrt{2\tau}(B^{k+1} - B^k)
+    X^{(k+1)} - X^{(k)} = \tau \nabla \log\pi(X^{(k)}) + \sqrt{2\tau}(B^{(k+1)} - B^{(k)})
 \end{equation}
-where $\tau$ is a step size that can be changed over time and $(B^{(k+1)} - B^(k)) \sim N(0, I)$. We can then rewrite it as follows:
+where $\tau$ is a step size that can be changed over time and $(B^{(k+1)} - B^{(k)}) \sim N(0, I)$. We can then rewrite it as follows:
 \begin{equation}
-    X^{(k+1)} = X^(k) + \tau \nabla \log\pi(X^(k)) + \sqrt{2\tau}\xi^(k)
+    X^{(k+1)} = X^{(k)} + \tau \nabla \log\pi(X^{(k)}) + \sqrt{2\tau}\xi^{(k)}
 \end{equation}
 where $\xi_k \sim N(0, I)$. Note that the true solution can be computed with $X(k\tau)$. The pseudocode can be written as follows (we switch back to using $\mb x \in \mathbb{R}^n$ here):\medbreak
 \begin{algorithm}[H]
@@ -616,10 +619,10 @@ where $\xi_k \sim N(0, I)$. Note that the true solution can be computed with $X(
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
 
-    \Input{$\mb x^{(0)}, \tau_{1:T}, T, B$}
-    \Output{$\mb x^{(B+1)}, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
-    \For{$t\gets 1:T$}{ 
-        $\boldsymbol{\xi}_k \sim N(0, I)$\;
+    \Input{$\mb x^{(0)}, K, B, \tau_{1:K}$}
+    \Output{$\mb x^{(B+1)}, \mb x^{(B+2)}, \dots, \mb x^{(K)}$}
+    \For{$k\gets 1:K$}{ 
+        $\boldsymbol{\xi}^{(k)} \sim N(0, I)$\;
         $\mb x^{(k+1)} = \mb x^{(k)} + \tau_k \nabla \log\pi(\mb x^{(k)}) + \sqrt{2\tau_k}\boldsymbol{\xi}^{(k)}$\;
     }
     \caption{Unadjusted Langevin algorithm}
@@ -630,14 +633,60 @@ ULA can be seen as noisy gradient ascent, which is why it performs better than M
 \chapter{Overview of relevant methods} \label{section:relevant-methods}
 
 \section{Prob-estimator}
-Introduced in the \cite{MA17} paper, the prob-estimator is a Metropolis-Hastings-based algorithm, where the approximation of $\rho$ is done by a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation:  
-\begin{equation}
-\hat \rho = \frac{1}{T}\sum_{t=1}^T  \left(
-\sum_{i=1}^d \gamma_i^t (V_i^t) (V_i^t)^{\dagger}  
-\right)
+Introduced in \cite{MA17}, the \textit{prob-estimator} is a Metropolis-Hastings-based algorithm, where the approximation of the density matrix $\rho$ is done using a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation. The exact solution is written as follows:
+\begin{equation}\label{eq:rank1-approx}
+    \rho = \sum_{i=1}^d \gamma_i^{(t)} V_i V_i^\dagger
 \end{equation}
-This way of approximating $\rho$ is analogous to taking an eigenvector decomposition, except for the fact that we do not require the $V_i$ to be orthonormal (as they are in the case of a decomposition of a symmetric/hermitian matrix). The $\gamma_i$ thus corresponds to an eigenvalue and $V_i$ its associated eigenvector. Because we are promoting sparsity in the coefficients thanks to a Dirichlet prior (this is done by setting all parameters equal to the same small constant), we are also promoting sparsity in the spectrum of $\rho$.\\\\
-The MH algorithm is run separately for $\gamma$ and $V$, and can be written as follows:
+where $V_i \in \mathbb{C}^{d\times 1}$ are normalized vectors and $\gamma_i \mathbb{C}$ are the sparse coefficients with $\sum_{i=1}^d \gamma_i = 1$.\medbreak
+
+We can check that the properties of a density matrix are respected: it is a sum of Hermitian matrices, which also makes $\rho$ Hermitian and positive semi-definite and 
+\begin{equation}
+    \tr(\rho) = \sum_{i=1}^{d} \gamma_i \tr(V_i V_i^\dagger) = 1
+\end{equation}
+as $\tr(V_i V_i^\dagger) = 1$ due to the normalization.
+TODO: not clear why $tr(V_i V_i^{(t)}) = 1$?.
+% \begin{equation}
+% \hat \rho = \frac{1}{T}\sum_{t=1}^{(t)}  \left(
+% \sum_{i=1}^d \gamma_i^{(t)} V_i^{(t)} (V_i^{{(t)}})^\dagger 
+% \right)
+% \end{equation}
+
+This way of calculating $\rho$ is analogous to taking an eigenvector decomposition
+\begin{equation}
+    \rho = U\Lambda U^\dagger
+\end{equation}
+where $U = (U_1|\dots|U_d)$ with the $U_i$ orthogonal to each other and of norm 1, and $\Lambda = \text{diag}(\lambda_1, \lambda_2, \dots, \lambda_n)$ summing to $1$ (this is due to $\rho$ being a density matrix).\medbreak
+
+The advantage of the approach from equation \ref{eq:rank1-approx} is that it does not require the $V_i$ to be orthonormal (as they are in the case of a decomposition of a symmetric/Hermitian matrix). In some sense, $\gamma_i$ can be thought of as an eigenvalue and $V_i$ its associated eigenvector, even though this is not exactly true. \medbreak
+
+As we are using an MCMC method, we need to formulate the posterior $\pi(\nu | \tb D)$ from which we will be sampling, here with $\nu$ our parameter matrix. In the case of the prob-estimator, they use a pseudo-likelihood written as follows
+\begin{equation}
+    \pi(\tb D| \nu) = \mathcal{L}(\nu, D) = \exp(-\lambda \ell(\nu, D))
+\end{equation}
+where $\lambda$ is a scaling parameter and $\ell(\nu, D)$ the loss function
+\begin{equation}
+    \ell(\nu, D) = \sum_{\mb a \in \mathcal{E}^n} \sum_{\mb s \in \mathcal{R}^n} \left[\tr(\nu P^{\mb a}_{\mb s}) - \hat p_{\mb a,\mb s}\right]^2
+\end{equation}\medbreak
+They use separate qubit data generation, thus all details regarding notation can be checked in \ref{section:sep-qub-dg}.
+The prior $\pi(\nu) = \pi_1(\nu) \pi_2(\nu)$ is defined in 2 parts, :
+\begin{itemize}
+    \item For $\pi_1(\nu)$, the set $V_1, \dots, V_d$ is i.i.d uniformly distributed on the unit sphere. In practice, this involves in first sampling from a standard normal multivariate $\tilde V_i \sim N(0, I)$, and then normalizing it $V_i = \tilde V_i/||\tilde V_i||$.
+    \item For $\pi_2(\nu)$, the set $\gamma_1,\dots,\gamma_d$ is sampled from a Dirichlet distribution $\mathcal{D}(\alpha_1,\dots,\alpha_d)$ with parameter $\alpha_i > 0$. In order to promote sparsity among $\gamma_1, \dots, \gamma_d$ and get a rank-1 approximation of $\rho$, the parameters are all chosen to be the same, small value: $\alpha_1,\dots,\alpha_d = \alpha = 1/d$. This results in a typical drawing of one $\gamma_i$ close to 1, while others close to 0. In practice, the authors do not sample the Dirichlet distribution directly, and instead use an equivalent formulation: $\gamma_i = Y_i/\sum_{j=1}^{d} Y_j$ where $Y_i$ is sampled from a Gamma distribution $Y_i \sim Gamma(\alpha, 1)$. 
+    
+    TODO: not clear how it converts to what is done in practice: sample 0 is from an exponential, and the subsequent ones are multiplying it. Something like : rexp() * exp(runif())  
+\end{itemize}
+The posterior is then written as 
+\begin{equation}
+    \pi(\nu|\tb D) \propto \exp(-\lambda\ell(\nu, \mb D)) \pi(\nu)
+\end{equation}
+and estimated with 
+\begin{equation}
+    \hat \rho_{\text{prob}} = \int \nu \pi(\nu|\tb D) d\nu
+\end{equation}
+
+As specified above, the prior is split in 2 parts. This is due to way the algorithm is structured: inside the main loop of MH (which goes over iterations $t$), we also iterate over each dimension $i$, first for $\gamma$, and then for $V$. This can be seen as doing Gibbs-within-Metropolis-Hastings. \medbreak
+
+The pseudocode for the algorithm is available below:\medbreak
 
 \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -645,66 +694,78 @@ The MH algorithm is run separately for $\gamma$ and $V$, and can be written as f
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$\lambda, \alpha, T, V^0$}
-    \Output{$\hat \rho $}
+    \Input{$d = 2^n, \lambda \in \mathbb{R}, \alpha \in \mathbb{R}, T \in \mathbb{N}, V^{(0)} \in \mathbb{C}^{d \times d}, Y^{(0)} \in \mathbb{C}^{d\times 1}$}
+    \Output{$\hat \rho \in \mathbb{C}^{d\times d}$}
+    $\hat \rho \gets \mb 0$\;
+    $\gamma^{(0)} \in \mathbb{R}^{d\times1} \gets Y^{(0)} /\sum_{i=1}^d Y_i^{(0)}$\;
     \For{$t\gets 1:T$}{ 
-    \tcp*[l]{Update the $\gamma$}
+    $Y^{(t)} \gets Y^{(t-1)}$\;
+    \tcp*[l]{Update $\gamma$}
             \For{$i\gets 1:d$}{
+            $\tilde Y \gets Y^{(t)}$\;
             Sample $y \sim U(-0.5, 0.5)$\;
-            $\tilde Y_i \gets Y_i^{t-1} \exp (y)$ \;
-            $\tilde \gamma_i \gets \tilde Y_i /(\sum_{i=1}^d \tilde Y_i)$\;
-            $\tilde Y_i^t \gets \begin{cases}
-                \tilde Y_i \hspace{0.96cm} \text{with probability} \min(R(\tilde Y_i, Y_i^{t-1}), 1) \tcp*[l]{$R$ defined below}\\
-                Y_i^{t-1} \hspace{0.5cm}\text{otherwise}
-            \end{cases}$ \;
-            $\forall i, \; \gamma_i^t \gets \tilde Y_i /(\sum(_{j=1}^d \tilde Y_j)$
+            $\tilde Y_i \gets Y_i^{(t)} \exp (y)$ \;
+            $\tilde \gamma \gets \tilde Y /(\sum_{j=1}^d \tilde Y_j)$\;
+            $Y_i^{(t)} \gets \begin{cases}
+                \tilde Y_i \hspace{0.96cm} \text{with probability} \min\{R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}), 1\} \tcp*[l]{$R$ defined below}\\
+                Y_i^{(t)} \hspace{0.5cm}\text{otherwise}
+            \end{cases}$
+            $\gamma^{(t)} \gets Y^{(t)} /\sum_{k=1}^d Y_k^{(t)}$ \tcp*[l]{Update all components}
             }
-            
-            \tcp*[l]{Update the $V$}
+            \;
+            $V^{(t)} \gets V^{(t-1)}$\;
+            \tcp*[l]{Update $V$}
             
             \For{$i\gets 1:d$}{
-            
+            $\tilde V \gets V^{(t)}$\;
             Sample $V \sim N(\mathbf{0}, \mathbf{I})$\;
       
-            $\tilde V_i \gets (V + V_i^{t-1})/||V + V_i^{t-1}||_2$\tcp*[l]{Sample from the unit sphere}\;
+            $\tilde V_i \gets (V + V_i^{(t)})/||V + V_i^{(t)}||_2$\tcp*[l]{Sample from the unit sphere}
             
-            $\tilde V_i^t \gets
-            \begin{cases}
-                \tilde V_i \hspace{0.96cm} \text{with probability} \min(A(\tilde V, V^{t-1}), 1) \tcp*[l]{$A$ defined below}\\
-                V_i^{t-1} \hspace{0.5cm}\text{otherwise}
+            $V_i^{(t)} \gets \begin{cases}
+                \tilde V_i \hspace{0.96cm} \text{with probability} \min\{A(\tilde V, V^{(t)}, \gamma^{(t)}), 1\} \tcp*[l]{$A$ defined below}\\
+                V_i^{(t)} \hspace{0.5cm}\text{otherwise}
             \end{cases}$
         }
+        \;
+        \tcp*[l]{Compute a running average estimate}
+        $\hat \rho \gets \frac{1}{t}\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t)} (V_i^{(t)})^\dagger  + (1 - \frac{1}{t})\hat \rho $ 
     }
     \caption{Prob-estimator algorithm}
-\end{algorithm}
+\end{algorithm}\medbreak
 
 Here, we have that 
 $$
-\log R(\tilde Y_i, Y_i^{t-1}) = - \lambda \ell^t + \lambda \ell^{t-1} + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_t^{t-1}}\right) - \tilde Y_i + Y_i^{t-1}
+\log R(\tilde Y_i, Y_i^{(t-1), \gamma}) = - \lambda \ell^{(t)}() + \lambda \ell()^{(t-1)} + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_t^{(t-1)}}\right) - \tilde Y_i + Y_i^{(t-1)}
 $$
 and 
 $$
-\log A(\tilde V, V^{t-1}) = -\lambda \ell + \lambda \ell^{t-1} 
+\log A(\tilde V, V^{(t-1)}) = -\lambda \ell + \lambda \ell^{(t-1)} 
 $$
 
 The first expression is derived as follows: first, suppose that the proposal distribution is symmetric, in which case it does not take part in the acceptance ratio; then, by Bayes rule, we write
 $$
-r = \frac{p(\theta'|x)}{p(\theta^{t-1}|x)} = \frac{p(x|\theta') p(\theta')}{p(x|\theta^{t-1})p(\theta^{t-1})}
+r = \frac{p(\theta'|x)}{p(\theta^{(t-1)}|x)} = \frac{p(x|\theta') p(\theta')}{p(x|\theta^{(t-1)})p(\theta^{(t-1)})}
 $$
 Here, $\theta$ represents the parameters and $x$ our data. We know the likelihood and prior terms, which are $p(x|\theta) = \exp(-\lambda \ell(\theta, x))$ and $p(\theta) = \cfrac{1}{\Gamma(\alpha)}\theta^{\alpha - 1} \exp(-\theta)$. The paper specifies that instead of working directly on the $\gamma$s, they operate on the $Y$s, which allows them to set a $Gamma(\alpha, 1)$ prior on them. The authors talk about a pseudo-likelihood due to the exponential term, however we will stick to the more general likelihood term for the rest of the document. We then obtain:
 $$
-r = \frac{\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')}{\exp(-\lambda \ell^{t-1}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{t-1})}
+r = \frac{\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')}{\exp(-\lambda \ell^{(t-1)}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{(t-1)})}
 $$
 where we have simplified the $\Gamma$ terms. We can then take the $\log$ of this expression, and replace $\theta = Y_i$:
 \begin{align*}
-\log(r) &= \log \left( \frac{\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')}{\exp(-\lambda \ell^{t-1}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{t-1})}\right)\\
-&= \log(\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')) - \log(\exp(-\lambda \ell^{t-1}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{t-1}))\\
-&= -\lambda \ell' + \log(\theta'^{\alpha - 1}) - \theta' + \lambda \ell^{t-1} - \log(\theta_{t-1}^{\alpha - 1}) + \theta^{t-1}\\
-&= -\lambda \ell' + (\alpha - 1) \log(\tilde Y_i) - \tilde Y_i + \lambda \ell^{t-1} - (\alpha - 1) \log(Y_i) + Y_i^{t-1}\\
-&= -\lambda \ell' + \lambda \ell^{t-1} + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_i^{t-1}} \right) - \tilde Y_i + Y_i^{t-1}
+\log(r) &= \log \left( \frac{\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')}{\exp(-\lambda \ell^{(t-1)}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{(t-1)})}\right)\\
+&= \log(\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')) - \log(\exp(-\lambda \ell^{(t-1)}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{(t-1)}))\\
+&= -\lambda \ell' + \log(\theta'^{\alpha - 1}) - \theta' + \lambda \ell^{(t-1)} - \log(\theta_{t-1}^{\alpha - 1}) + \theta^{(t-1)}\\
+&= -\lambda \ell' + (\alpha - 1) \log(\tilde Y_i) - \tilde Y_i + \lambda \ell^{(t-1)} - (\alpha - 1) \log(Y_i) + Y_i^{(t-1)}\\
+&= -\lambda \ell' + \lambda \ell^{(t-1)} + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_i^{(t-1)}} \right) - \tilde Y_i + Y_i^{(t-1)}
 \end{align*}
 
-One note we can make about this computation is that a fundamental assumption is the symmetricity of the proposal. In our case, however, it does not seem to be the case, as even though we sample from a uniform, we then transform the sample through an exponential. This corresponds in practice to a sample from a pdf of the form $f(x) = 1/x$, which is not symmetric.
+Some notes regarding the implementation and what the paper specified:
+\begin{itemize}
+    \item One note we can make about this computation is that a fundamental assumption is the symmetricity of the proposal. In our case, however, it does not seem to be the case, as even though we sample from a uniform, we then transform the sample through an exponential. This corresponds in practice to a sample from a pdf of the form $f(x) = 1/x$, which is not symmetric.
+    \item It is not clear how the sampling from the gamma distribution is done. 
+\end{itemize}
+
 
 \section{Projected Langevin}
 
@@ -734,14 +795,14 @@ $$
 $$
 This results in the following rewrite of $f$:
 \[
-\tilde f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^T))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^T) + \tilde C
+\tilde f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{(t)}))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^{(t)}) + \tilde C
 \]
-where $\tilde Y = \psi(Y)$ and $\psi(YY^*) = \sqrt{2} \psi(Y)\psi(Y)^T$. We can then also obtain the gradient of $\tilde f_{\lambda, \theta}$
+where $\tilde Y = \psi(Y)$ and $\psi(YY^*) = \sqrt{2} \psi(Y)\psi(Y)^{(t)}$. We can then also obtain the gradient of $\tilde f_{\lambda, \theta}$
 \[
-\nabla \tilde f_{\lambda, \theta}(\tilde Y) = -2\sqrt 2 \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^T))^2 (\tilde A_m + \tilde A^T_m)\tilde Y + \cfrac{2d + r + 2}{\theta^2} \left(I_{2d} + \cfrac{2}{\theta^2}\tilde Y \tilde Y^T\right)^{-1} \tilde Y
+\nabla \tilde f_{\lambda, \theta}(\tilde Y) = -2\sqrt 2 \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{(t)}))^2 (\tilde A_m + \tilde A^{(t)}_m)\tilde Y + \cfrac{2d + r + 2}{\theta^2} \left(I_{2d} + \cfrac{2}{\theta^2}\tilde Y \tilde Y^{(t)}\right)^{-1} \tilde Y
 \]. They also use a trick (Sherman-Morrison-Woodbury formula) to compute the inverse more efficiently:
 \[
-\left( I_{2d} + \frac{2}{\theta^2} \tilde Y \tilde Y^T \right)^{-1} =  I_{2d} - \tilde Y \left( \frac{\theta^2}{2} I_{2r}+\tilde Y^T \tilde Y \right)^{-1} \tilde Y^T
+\left( I_{2d} + \frac{2}{\theta^2} \tilde Y \tilde Y^{(t)} \right)^{-1} =  I_{2d} - \tilde Y \left( \frac{\theta^2}{2} I_{2r}+\tilde Y^{(t)} \tilde Y \right)^{-1} \tilde Y^{(t)}
 \]\\\\
 Putting all these things together, we can write the resulting algorithm:
 
