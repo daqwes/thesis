@@ -75,14 +75,11 @@ sorting=ynt
 \includepdf[pages={1}]{cover/cover-danila-mokeev.pdf}
 \maketitle
 
-\begin{abstract}
-    TODO
-\end{abstract}
 
 \newpage
 
 \chapter*{Acknowledgements}
-
+I would like to thank Estelle Massart, Andrew Thompson and Tameem Adel for their help in the making of this thesis. Their guidance and advice was valuable for the 
 \newpage
 
 \tableofcontents*
@@ -107,7 +104,7 @@ $N(\mu, \sigma^2)$ & Normal distribution with mean $\mu$ and standard derivation
 
 \chapter{Introduction}
 
-\section{Motivation and historical context}
+\section{Motivation and thesis structure}
 %\addcontentsline{toc}{chapter}{\protect\numberline{}Motivation}
 \subsection*{Motivation}
 A fundamental problem in physics is the reconstruction of the state of a system given measurements describing it. In classical mechanics, this is, at least in theory, always possible due to the deterministic nature of the system. This allows one to make multiple measurements on a system, usually the position and momentum, to exactly determine its state. In Quantum Mechanics (QM), however, the situation is very different: measuring the system settles it, making it impossible to gain more information by repeating measurements. We are also fundamentally limited by what we can measure: the Heisenberg uncertainty principle only allows the measurement of either the position or the momentum, but not both at the same time. Finally, the no-cloning theorem also forbids the system to be copied right before the measurement unless we know the system.\medskip
@@ -115,6 +112,16 @@ A fundamental problem in physics is the reconstruction of the state of a system 
 \textit{Quantum Tomography} (QT) or \textit{Quantum State Tomography} (QST) is a process that allows to reconstruct the state of the system in the context of QM. It tackles the previously described issues by replicating the initial state of the system multiple times, and then measuring once each replica. Note that there is a subtle difference between copying the system and preparing multiple systems with the same steps, as the latter does \textit{not} require any knowledge about the state, only the \textit{steps} necessary to produce it.\medskip
 
 The term ``tomography" means ``to describe an object based on sections, slices" \cite{wiki:tomography}. Many types of tomographies exist and are used in very diverse environments, with notable examples in medical applications, such as Computed Tomography (CT) or Magnetic Resonance Imaging (MRI). QT works in a similar way: we use a set of slices (observables), each of them probing a particular aspect of that state, to reconstruct the quantum state through a tomographic process. An intuitive analogy is the process of shining light on each side of a 3D object, and reconstructing that object from the obtained shadows. This results in an inverse problem, whereby starting from partial and noisy data, we can obtain the true state of the system.
+
+\subsection{Structure}
+In this chapter, we will start by introducing more formally the problem of Quantum Tomography, describe existing methods to tackle it and state the contribution of this thesis.\medbreak
+
+In Chapter 2, we will provide the needed background to understand QT in the context of numerical experiments, as well as an introduction to Markov chain Monte Carlo methods, with an emphasis on the methods relevant for this thesis.
+
+In Chapter 3, we will review in detail the 2 main algorithms used in the numerical experiments in the context of this work.
+
+In Chapter 4, we will first compare both of the algorithms in terms of their accuracy and versatility, and second we will introduce 2 new algorithms to better understand how their choice and structure impacts the accuracy.
+
 
 \subsection*{Historical context}
 TODO: not sure if this section is needed, if yes then expand\medbreak
@@ -145,7 +152,7 @@ We provide first a table summarising existing methods with the papers using them
         Pauli basis expansion & \cite{Cai-2016}\\\hline
         Maximum Likelihood & \cite{Guta20,meth:ML:BDP,meth:ML:JKMW,meth:ML:Lvovsky,meth:ML:Blume-Kohout,meth:ML:Suzuki,meth:ML:Hradil2004} \\\hline
         Compressed Sensing & \cite{meth:CS:GLFSBE10,meth:CS:Gross-2011, meth:CS:Flammia-2012,meth:CS:Koltchinskii-2011}\\\hline
-        Sampling based & \cite{meth:bayesian:smc:Ferrie-2014,meth:bayesian:smc:Kueng-2015, meth:bayesian:sis:Kravtsov-2013}\\\hline
+        Sampling based & \cite{meth:bayesian:smc:Ferrie-2014,meth:bayesian:smc:Kueng-2015, meth:bayesian:smc:Granade_2016,meth:bayesian:sis:Kravtsov-2013}\\\hline
         Metropolis-Hastings based & \cite{MA17,Mai22,LLJL20, meth:bayesian:mh:Blume-Kohout-2010}\\\hline
         Langevin & \cite{meth:bayesian:Langevin:ACMT2024}\\\hline
     \end{tabular}
@@ -208,7 +215,7 @@ where $Pr(\mb{D}|\rho)$ is the likelihood of $\mb{D}$ given $\rho$ and $\pi(\rho
 \begin{equation}
     \hat \rho_{\text{BME}} = \int \hat \rho \pi(\hat \rho|\mathcal D) d\hat \rho
 \end{equation}
-Markov Chain Monte Carlo (MCMC) methods are a big class of sampling methods and are the common tool of choice. In particular, \cite{MA17,Mai22,LLJL20, meth:bayesian:mh:Blume-Kohout-2010} all propose algorithms derived from the very classical Metropolis-Hastings, an algorithm that performs a random walk from an initial point, with an acceptance/rejection step. There are also other strategies, such as Sequential Monte Carlo (SMC) \cite{meth:bayesian:smc:Ferrie-2014,meth:bayesian:smc:Kueng-2015} or Sequential Importance Sampling \cite{meth:bayesian:sis:Kravtsov-2013}. Finally, there is also a new method introduced in \cite{meth:bayesian:Langevin:ACMT2024}, where the authors use the gradient information from the posterior, resulting in Langevin Sampling. This technique provides faster convergence times.\medbreak
+Markov Chain Monte Carlo (MCMC) methods are a big class of sampling methods and are the common tool of choice. In particular, \cite{MA17,Mai22,LLJL20, meth:bayesian:mh:Blume-Kohout-2010} all propose algorithms derived from the very classical Metropolis-Hastings, an algorithm that performs a random walk from an initial point, with an acceptance/rejection step. There are also other strategies, such as Sequential Monte Carlo (SMC) \cite{meth:bayesian:smc:Ferrie-2014,meth:bayesian:smc:Kueng-2015, meth:bayesian:smc:Granade_2016} or Sequential Importance Sampling \cite{meth:bayesian:sis:Kravtsov-2013}. Finally, there is also a new method introduced in \cite{meth:bayesian:Langevin:ACMT2024}, where the authors use the gradient information from the posterior, resulting in Langevin Sampling. This technique provides faster convergence times.\medbreak
 
 The work in the thesis will focus on the prob-estimator introduced in \cite{MA17}, as well as the projected Langevin approach introduced in \cite{meth:bayesian:Langevin:ACMT2024}. They differ in the algorithms they use, Metropolis-Hastings and Langevin sampling, but also in the prior they choose. A complete description of both of these methods is available in section \ref{section:relevant-methods}.
 
@@ -494,8 +501,8 @@ A very related theorem that provides a similar guarantee than the law of large n
 
 
 % More formally, given a target distribution $f(x|\theta)$ we can evaluate and proposal distribution  TODO
-\subsection{Metropolis-Hastings algorithm}
-The \ti{Metropolis-Hastings} (MH) algorithm is the most well-known and used MCMC algorithm. The Markov chain of samples is built by doing a random walk, with an acceptance/rejection step. It works as follows: given that we are currently located at $\mb x$, we will sample a potential candidate $\mb x^*$ from $q(\mb x^*|\mb x)$ where $q$ is called the \ti{proposal} (or \ti{jumping}) distribution. This $q$ is analogous to the kernel we saw in \ref{section:background:mcmc:theory}, although not exactly as we will come back to it later. Next, we will compute the \ti{acceptance} probability of this sample:
+\subsection{Metropolis-Hastings algorithm}\label{section:mh}
+The \ti{Metropolis-Hastings} (MH) algorithm is the most well-known and used MCMC algorithm. The Markov chain of samples is built by doing a random walk, with an acceptance/rejection step. It works as follows: given that we are currently located at $\mb x \in \mathbb{R}^n$, we will sample a potential candidate $\mb x^*$ from $q(\mb x^*|\mb x)$ where $q$ is called the \ti{proposal} (or \ti{jumping}) distribution. This $q$ is analogous to the kernel we saw in \ref{section:background:mcmc:theory}, although not exactly as we will come back to it later. Next, we will compute the \ti{acceptance} probability of this sample:
 
 \begin{equation}
     \alpha(\mb x^*, \mb x) = \min\left(1, \frac{\pi(\mb x^*) q(\mb x|\mb x^*)}{\pi(\mb x) q(\mb x^*|\mb x)}\right)
@@ -516,22 +523,24 @@ We usually talk about convergence when the samples we get seem to come from $\pi
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$\mb x_0, T, B$}
-    \Output{$\mb x_{B+1}, \mb x_{B+2}, \dots, \mb x_{T}$}
+    \Input{$\mb x^{(0)} \in mathbb{R}^n, T \in \mathbb{N}, B \in \mathbb{N}$}
+    \Output{$\mb x^{({B+1})} \in mathbb{R}^n, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
     \For{$t\gets 1:T$}{ 
-        Sample $\mb x^* \sim q(\mb x^*|\mb x_{t-1})$\;
-        $\alpha = \min\left(1, \frac{\pi(\mb x^*) q(\mb x_{t-1}|\mb x^*)}{\pi(\mb x_{t-1}) q(\mb x^*|\mb x_{t-1})}\right)$\;
+        Sample $\mb x^* \sim q(\mb x^*|\mb x^{(t-1)})$\;
+        $\alpha = \min\left(1, \frac{\pi(\mb x^*) q(\mb x^{(t-1)}|\mb x^*)}{\pi(\mb x^{(t-1)}) q(\mb x^*|\mb x^{(t-1)})}\right)$\;
         Sample $\mb x^* \sim U(-0.5, 0.5)$\;
         \eIf{$u \leq \alpha$}{
             \tcp*[l]{Accept $\mb x^*$}
-            $\mb x_{t} \gets \mb x^*$
+            $\mb x^{(t)} \gets \mb x^*$
         }{
             \tcp*[l]{Reject $\mb x^*$}
-            $\mb x_{t} \gets \mb x_{t-1}$
+            $\mb x^{(t)} \gets \mb x^{(t-1)}$
         }
     }
     \caption{Metropolis-Hastings algorithm}
 \end{algorithm}\medbreak
+
+Note that in most implementations, it is common practice to use $\log(\alpha)$ for the calculation of the acceptance probability, instead of $\alpha$ directly. This allows to avoid numerical problems due to divisions by small numbers and underflow/overflow that might occur when handling double precisions floats. In addition, using the logarithm combines nicely with distributions based on the exponential family, allowing for a $\log(\exp)$ simplification.\medbreak
 
 We have in section \ref{section:background:mcmc:theory} talked about convergence for Markov chains to the posterior distribution, but have not talked how that would work in practice. A very handy way is to use the \ti{detailed balance} condition.
 
@@ -563,7 +572,7 @@ where $\delta_{\mb x}(\mb x^*)$ is a point mass at $\mb x$. Putting this kernel 
 
 A final element to take into account with theoretical convergence guarantees is that in practice, the algorithm may take a very long time converge, making it unpractical for real use. In these situations, one could for example investigate different proposals, change the duration of the burn-in period, or even swap MH for another algorithm. Various metrics exist to quantify the convergence, such as the effective sample size or the $\hat R$, but also visual checks, which are very effective. It is also common practice to run several chains from different starting points, and assess the overall performance. More details can be found in \cite{mcmc:gelman2013bayesian}.
 
-\subsection{Gibbs algorithm}
+\subsection{Gibbs algorithm}\label{section:gibbs}
 The Gibbs algorithm takes a different approach compared to MH in that it splits the joint distribution $\pi(\mb x) = \pi(x_1, x_2, \dots, x_n)$ with $\mb x \in \mathbb{R}^n$ into one-dimensional conditionals, and then step samples from each conditional $\pi(x_i|\mb x_{-i}) = \pi(x_i|x_1,\dots,  x_{i-1}, x_{i+1}, \dots, x_n)$ iteratively. It can also be generalized to blocks, where instead of sampling from a one-dimensional distribution, we sample from a joint conditional. \medbreak
 
 It is, in its simplest form, an \ti{unadjusted} algorithm, as it does not involve an accept/reject step.
@@ -595,7 +604,7 @@ The main advantages of Gibbs sampling is that we do not need to tune the proposa
 where we have used the fact that $\mb x^*_{-i} = \mb x_{-i}$.
 
 
-\subsection{Unadjusted Langevin algorithm}
+\subsection{Unadjusted Langevin algorithm}\label{section:ula}
 One big down-side with Metropolis-Hastings or Gibbs sampling is that they can take a long time to converge, especially in a very high-dimensional setting. The Unadjusted Langevin algorithm (ULA) tackles this problem by using the gradient information about the posterior. The downside, of course, is that we must be able to calculate it, but in the case we can, it can drastically speed-up the convergence. The algorithm draws its name from \ti{Langevin diffusion} (also called \ti{Îto diffusion}), a stochastic differential equation (SDE), which is written as follows:
 \begin{equation}
     \mathrm{d}X_t = -\nabla V(x)\mathrm{d}t + \sqrt{2}\mathrm{d}B_t
@@ -609,11 +618,11 @@ Of course, to simulate, we must discretize the SDE in some way, and in this case
 \begin{equation}
     X^{(k+1)} - X^{(k)} = \tau \nabla \log\pi(X^{(k)}) + \sqrt{2\tau}(B^{(k+1)} - B^{(k)})
 \end{equation}
-where $\tau$ is a step size that can be changed over time and $(B^{(k+1)} - B^{(k)}) \sim N(0, I)$. We can then rewrite it as follows:
+where $\tau$ is a step size that can be changed over time and $(B^{(k+1)} - B^{(k)}) \sim N(\mb 0, \mb I)$. We can then rewrite it as follows:
 \begin{equation}
     X^{(k+1)} = X^{(k)} + \tau \nabla \log\pi(X^{(k)}) + \sqrt{2\tau}\xi^{(k)}
 \end{equation}
-where $\xi_k \sim N(0, I)$. Note that the true solution can be computed with $X(k\tau)$. The pseudocode can be written as follows (we switch back to using $\mb x \in \mathbb{R}^n$ here):\medbreak
+where $\xi_k \sim N(\mb 0, \mb I)$. Note that the true solution can be computed with $X(k\tau)$. The pseudocode can be written as follows (we switch back to using $\mb x \in \mathbb{R}^n$ here):\medbreak
 \begin{algorithm}[H]
     \DontPrintSemicolon
     \SetKwInOut{Input}{Input}
@@ -622,7 +631,7 @@ where $\xi_k \sim N(0, I)$. Note that the true solution can be computed with $X(
     \Input{$\mb x^{(0)}, K, B, \tau_{1:K}$}
     \Output{$\mb x^{(B+1)}, \mb x^{(B+2)}, \dots, \mb x^{(K)}$}
     \For{$k\gets 1:K$}{ 
-        $\boldsymbol{\xi}^{(k)} \sim N(0, I)$\;
+        $\boldsymbol{\xi}^{(k)} \sim N(\mb 0, \mb I)$\;
         $\mb x^{(k+1)} = \mb x^{(k)} + \tau_k \nabla \log\pi(\mb x^{(k)}) + \sqrt{2\tau_k}\boldsymbol{\xi}^{(k)}$\;
     }
     \caption{Unadjusted Langevin algorithm}
@@ -633,7 +642,7 @@ ULA can be seen as noisy gradient ascent, which is why it performs better than M
 \chapter{Overview of relevant methods} \label{section:relevant-methods}
 
 \section{Prob-estimator}
-Introduced in \cite{MA17}, the \textit{prob-estimator} is a Metropolis-Hastings-based algorithm, where the approximation of the density matrix $\rho$ is done using a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation. The exact solution is written as follows:
+Introduced in \cite{MA17}, the \textit{prob-estimator} is a Metropolis-Hastings-based algorithm (more details about it can be found in section \ref{section:mh}), where the approximation of the density matrix $\rho$ is done using a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation. The exact solution is written as follows:
 \begin{equation}\label{eq:rank1-approx}
     \rho = \sum_{i=1}^d \gamma_i^{(t)} V_i V_i^\dagger
 \end{equation}
@@ -670,7 +679,7 @@ where $\lambda$ is a scaling parameter and $\ell(\nu, D)$ the loss function
 They use separate qubit data generation, thus all details regarding notation can be checked in \ref{section:sep-qub-dg}.
 The prior $\pi(\nu) = \pi_1(\nu) \pi_2(\nu)$ is defined in 2 parts, :
 \begin{itemize}
-    \item For $\pi_1(\nu)$, the set $V_1, \dots, V_d$ is i.i.d uniformly distributed on the unit sphere. In practice, this involves in first sampling from a standard normal multivariate $\tilde V_i \sim N(0, I)$, and then normalizing it $V_i = \tilde V_i/||\tilde V_i||$.
+    \item For $\pi_1(\nu)$, the set $V_1, \dots, V_d$ is i.i.d uniformly distributed on the unit sphere. In practice, this involves first sampling from a standard normal multivariate $\tilde V_i \sim N(\mb 0, \mb I)$, and then normalizing it $V_i = \tilde V_i/||\tilde V_i||$.
     \item For $\pi_2(\nu)$, the set $\gamma_1,\dots,\gamma_d$ is sampled from a Dirichlet distribution $\mathcal{D}(\alpha_1,\dots,\alpha_d)$ with parameter $\alpha_i > 0$. In order to promote sparsity among $\gamma_1, \dots, \gamma_d$ and get a rank-1 approximation of $\rho$, the parameters are all chosen to be the same, small value: $\alpha_1,\dots,\alpha_d = \alpha = 1/d$. This results in a typical drawing of one $\gamma_i$ close to 1, while others close to 0. In practice, the authors do not sample the Dirichlet distribution directly, and instead use an equivalent formulation: $\gamma_i = Y_i/\sum_{j=1}^{d} Y_j$ where $Y_i$ is sampled from a Gamma distribution $Y_i \sim Gamma(\alpha, 1)$. 
     
     TODO: not clear how it converts to what is done in practice: sample 0 is from an exponential, and the subsequent ones are multiplying it. Something like : rexp() * exp(runif())  
@@ -688,7 +697,7 @@ As specified above, the prior is split in 2 parts. This is due to way the algori
 
 The pseudocode for the algorithm is available below:\medbreak
 
-\begin{algorithm}[H]
+\begin{algorithm}[H]\label{code:prob}
     \DontPrintSemicolon
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
@@ -708,7 +717,7 @@ The pseudocode for the algorithm is available below:\medbreak
             $\tilde \gamma \gets \tilde Y /(\sum_{j=1}^d \tilde Y_j)$\;
             $Y_i^{(t)} \gets \begin{cases}
                 \tilde Y_i \hspace{0.96cm} \text{with probability} \min\{R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}), 1\} \tcp*[l]{$R$ defined below}\\
-                Y_i^{(t)} \hspace{0.5cm}\text{otherwise}
+                Y_i^{(t)} \hspace{0.63cm}\text{otherwise}
             \end{cases}$
             $\gamma^{(t)} \gets Y^{(t)} /\sum_{k=1}^d Y_k^{(t)}$ \tcp*[l]{Update all components}
             }
@@ -724,7 +733,7 @@ The pseudocode for the algorithm is available below:\medbreak
             
             $V_i^{(t)} \gets \begin{cases}
                 \tilde V_i \hspace{0.96cm} \text{with probability} \min\{A(\tilde V, V^{(t)}, \gamma^{(t)}), 1\} \tcp*[l]{$A$ defined below}\\
-                V_i^{(t)} \hspace{0.5cm}\text{otherwise}
+                V_i^{(t)} \hspace{0.63cm}\text{otherwise}
             \end{cases}$
         }
         \;
@@ -735,76 +744,77 @@ The pseudocode for the algorithm is available below:\medbreak
 \end{algorithm}\medbreak
 
 Here, we have that 
-$$
-\log R(\tilde Y_i, Y_i^{(t-1), \gamma}) = - \lambda \ell^{(t)}() + \lambda \ell()^{(t-1)} + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_t^{(t-1)}}\right) - \tilde Y_i + Y_i^{(t-1)}
-$$
+\begin{align}
+\log R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}) &= - \lambda \ell^{}(\sum_{i=1}^{d} \tilde \gamma_i V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D) + \lambda \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D) \\
+&\quad + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_i^{(t)}}\right) - \tilde Y_i + Y_i^{(t)}
+\end{align}
+
 and 
-$$
-\log A(\tilde V, V^{(t-1)}) = -\lambda \ell + \lambda \ell^{(t-1)} 
-$$
+\begin{equation}
+\log A(\tilde V, V^{(t)}, \gamma^{(t)}) = -\lambda \ell(\sum_{i=1}^{d} \gamma_i^{(t)} \tilde V_i \tilde V_i^\dagger, \mb D) + \lambda \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t)} (V_i^{(t)})^\dagger, \mb D) 
+\end{equation}
+The curious reader can find the detailed derivations in the appendix \ref{section:appendix:acc-rate-prob}.\medbreak
 
-The first expression is derived as follows: first, suppose that the proposal distribution is symmetric, in which case it does not take part in the acceptance ratio; then, by Bayes rule, we write
-$$
-r = \frac{p(\theta'|x)}{p(\theta^{(t-1)}|x)} = \frac{p(x|\theta') p(\theta')}{p(x|\theta^{(t-1)})p(\theta^{(t-1)})}
-$$
-Here, $\theta$ represents the parameters and $x$ our data. We know the likelihood and prior terms, which are $p(x|\theta) = \exp(-\lambda \ell(\theta, x))$ and $p(\theta) = \cfrac{1}{\Gamma(\alpha)}\theta^{\alpha - 1} \exp(-\theta)$. The paper specifies that instead of working directly on the $\gamma$s, they operate on the $Y$s, which allows them to set a $Gamma(\alpha, 1)$ prior on them. The authors talk about a pseudo-likelihood due to the exponential term, however we will stick to the more general likelihood term for the rest of the document. We then obtain:
-$$
-r = \frac{\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')}{\exp(-\lambda \ell^{(t-1)}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{(t-1)})}
-$$
-where we have simplified the $\Gamma$ terms. We can then take the $\log$ of this expression, and replace $\theta = Y_i$:
-\begin{align*}
-\log(r) &= \log \left( \frac{\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')}{\exp(-\lambda \ell^{(t-1)}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{(t-1)})}\right)\\
-&= \log(\exp(-\lambda \ell') \theta'^{\alpha - 1} \exp(-\theta')) - \log(\exp(-\lambda \ell^{(t-1)}) \theta_{t-1}^{\alpha - 1} \exp(-\theta^{(t-1)}))\\
-&= -\lambda \ell' + \log(\theta'^{\alpha - 1}) - \theta' + \lambda \ell^{(t-1)} - \log(\theta_{t-1}^{\alpha - 1}) + \theta^{(t-1)}\\
-&= -\lambda \ell' + (\alpha - 1) \log(\tilde Y_i) - \tilde Y_i + \lambda \ell^{(t-1)} - (\alpha - 1) \log(Y_i) + Y_i^{(t-1)}\\
-&= -\lambda \ell' + \lambda \ell^{(t-1)} + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_i^{(t-1)}} \right) - \tilde Y_i + Y_i^{(t-1)}
-\end{align*}
-
-Some notes regarding the implementation and what the paper specified:
+Note that there are some elements that are not clear in the paper and the the implementation:
 \begin{itemize}
-    \item One note we can make about this computation is that a fundamental assumption is the symmetricity of the proposal. In our case, however, it does not seem to be the case, as even though we sample from a uniform, we then transform the sample through an exponential. This corresponds in practice to a sample from a pdf of the form $f(x) = 1/x$, which is not symmetric.
-    \item It is not clear how the sampling from the gamma distribution is done. 
+    \item The lines 7 and 8 of pseudocode \ref{code:prob} correspond to the sampling from $Gamma(\alpha, 1)$. It is however unclear on why this would correspond to obtaining $\tilde Y_i \sim Gamma(\alpha, 1)$. There exists a classical procedure where one uses the inverse transform method and the fact that if $X_i \sim \exp(\lambda)$, then 
+    \begin{equation}
+        \sum_{i=1}^{t} X_i \sim Gamma(t,\lambda)
+    \end{equation}
+    however this only works in the case where $t \in \mathbb{N}$. The wikipedia page \cite{wiki:gamma-dist} mentions that the case with $0 < \alpha < 1$ (assumed with $\beta=1$) is the most challenging to sample from, with new research \cite{mcmc:gamma-sampling:liu2015simulating} still being done on this topic. The Python library \texttt{numpy} does it using a form of rejection sampling\footnote{\texttt{\url{https://github.com/numpy/numpy/blob/main/numpy/random/src/distributions/distributions.c\#220}}}, similar to \cite{mcmc:gamma-sampling:liu2015simulating}. These approaches are however very different from what is done in the prob-estimator, and as the authors do not indicate why this is correct, it is difficult to understand the reasoning behind it.
+    
+    TODO: moves sections to numerical experiments
+    \item The original paper states the proposed $\tilde V_i$ does not depend on the previous sample ($\tilde V_i$ is sampled uniformly from the uniform distribution). This however contradicts their implementation, which considers $\tilde V_i = V_i^{t} + V$, where $V$ is sampled from the unit sphere. Both approaches seem valid: in the former case, while we do not sample locally, we still explore the parameter space as it constrained to be the unit sphere; in the latter case, we also remain on the unit sphere due to normalization. In our implementation, we decided to align on their code.
+    \item Their paper does not mention the use of a running average, but this is technique they apply in the code. Again, we also align on their code.
+    \item In their code, the first sample they provide to the MCMC algorithm is not random, and comes from an estimation from the inverse method. This provides a warm start and can affect the accuracy of the algorithm. In our experiments, we use a random first sample.
+    \item Not clear how they calculate the acceptance criterion, not specified in paper. What we are able to derive however seems to match their code (but not paper)
+    \item  
 \end{itemize}
 
-
+\newpage
 \section{Projected Langevin}
 
-Introduced in the \cite{meth:bayesian:Langevin:ACMT2024} paper, the projected Langevin approach is based on an Unadjusted Langevin algorithm. The authors utilize the Burer-Monteiro factorization $\rho = Y Y^*$ with $Y \in \mathbb{C}^{d \times r}$, which corresponds to a low rank (of rank $r$) factorization of $\rho$. This corresponds to considering that the density matrix has a maximum rank of $r$. This also allows us to reduce the dimension of the parameter space from $2d^2$ to $2dr$ by running the MCMC method directly on the $Y$ space. It is important to note that the physical constraints of the problem are still respected, as we assume the $Y$s to belong to the complex hypersphere $C \mathbb{S}^{d\times r} = \{ Y \in \mathbb{C}^{d\times r}: ||Y||_F = 1\}$. The Hermitian and semi-definite positive properties of the density matrix are obtained by construction.\medskip
+Introduced in the \cite{meth:bayesian:Langevin:ACMT2024} paper (unpublished at the moment of submission for this thesis), the projected Langevin approach is based on an Unadjusted Langevin algorithm (ULA) (more details about it can be found in section \ref{section:ula}). The authors utilize the Burer-Monteiro factorization (introduced in \cite{proj-langevin:Burer2003}) $\rho = Y Y^\dagger$ with $Y \in \mathbb{C}^{d \times r}$, which corresponds to a low rank (of rank $r$) factorization of $\rho$. This corresponds to consider that the density matrix has a maximum rank of $r$. This also allows us to reduce the dimension of the parameter space from $2d^2$ to $2dr$ by running the MCMC method directly on the $Y$ space. It is important to note that the physical constraints of the problem are still respected, as we assume the matrix $Y$ to belong to the complex hypersphere $C \mathbb{S}^{d\times r} = \{ Y \in \mathbb{C}^{d\times r}: ||Y||_F = 1\}$, leading to a unit trace. The Hermitian and semi-definite positive properties of the density matrix are obtained by construction.\medskip
 
 In addition to the factorization, the paper proposes a new prior, called the spectral scaled Student distribution defined as
-\[
-\nu_{\theta} (Y) = C_\theta \det(\theta^2I_d + YY^*)^{-(2d+r+2)/2}
-\]
-This prior is a complex extension of a prior proposed by \cite{Dal20}, where the student-t distribution is a generalization of the Gaussian distribution, allowing for fatter tails. This feature is what promotes sparsity in the eigenvalues of $Y$, favoring a low rank (most samples are close to 0, but occasionally some are large).\\\\
+\begin{equation}    
+\nu_{\theta} (Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
+\end{equation}
+
+This prior is a complex extension of a prior proposed by \cite{Dal20}, where the student-t distribution is a generalization of the Gaussian distribution, allowing for fatter tails. This feature is what promotes sparsity in the eigenvalues of $Y$, favoring a low rank (most samples are close to 0, but occasionally some are large).\medbreak
 The used likelihood is similar to the prob-estimator, and is written as 
 \begin{equation}
-L(Y) = \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^*))^2
+L(Y) = \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2
 \end{equation}
-with $A_m$ the Hermitian matrix characterizing the $m^{th}$ experiment and $\hat p_m$ a measured probability.\\\\
+with $A_m$ the Hermitian matrix characterizing the $m^{th}$ experiment and $\hat p_m$ a measured probability. The authors use mixed qubit data generation, for which more details can be found in section \ref{section:mixed-qub-dg}. \medbreak
 Combining these terms, we can obtain a posterior $\hat \nu_{\lambda, \theta}(Y) = \exp(-f_{\lambda, \theta}(Y))$ with
 \begin{equation}
-    f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^*))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^*)
+    f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^\dagger)
 \end{equation}
-The exponential in this case is useful to us because it allows us to simplify the calculations, as ULA requires us to set the potential $V(x) = -\log(\pi(x))$ where $\pi(x)$ is the posterior from which we want to sample.\\\\ 
+The exponential in this case is useful to us because it allows us to simplify the calculations. ULA requires us to set the potential $V(x) = -\log(\pi(x))$ where $\pi(x)$ is the posterior from which we want to sample, and using this formulation we obtain a $\log(\exp)$ simplification.\medbreak
 The authors also avoid dealing with complex values by using an isomorphism $\psi: \mathbb{C}^{d\times r}\rightarrow \mathbb{R}^{2d\times 2r}$
-$$
+\begin{equation}
 \psi: M^R + iM^I \rightarrow \frac{1}{\sqrt 2} \begin{pmatrix}
     M^R & - M^I\\
     M^I & M^R
 \end{pmatrix}
-$$
+\end{equation}
+
 This results in the following rewrite of $f$:
-\[
-\tilde f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{(t)}))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^{(t)}) + \tilde C
-\]
-where $\tilde Y = \psi(Y)$ and $\psi(YY^*) = \sqrt{2} \psi(Y)\psi(Y)^{(t)}$. We can then also obtain the gradient of $\tilde f_{\lambda, \theta}$
-\[
-\nabla \tilde f_{\lambda, \theta}(\tilde Y) = -2\sqrt 2 \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{(t)}))^2 (\tilde A_m + \tilde A^{(t)}_m)\tilde Y + \cfrac{2d + r + 2}{\theta^2} \left(I_{2d} + \cfrac{2}{\theta^2}\tilde Y \tilde Y^{(t)}\right)^{-1} \tilde Y
-\]. They also use a trick (Sherman-Morrison-Woodbury formula) to compute the inverse more efficiently:
-\[
-\left( I_{2d} + \frac{2}{\theta^2} \tilde Y \tilde Y^{(t)} \right)^{-1} =  I_{2d} - \tilde Y \left( \frac{\theta^2}{2} I_{2r}+\tilde Y^{(t)} \tilde Y \right)^{-1} \tilde Y^{(t)}
-\]\\\\
-Putting all these things together, we can write the resulting algorithm:
+\begin{equation}    
+\tilde f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^{T}) + \tilde C
+\end{equation}
+
+where $\tilde Y = \psi(Y)$, $\psi(YY^\dagger) = \sqrt{2} \psi(Y)\psi(Y)^{T}$ and $\tilde C$ a normalization constant. We can then also obtain the gradient of $\tilde f_{\lambda, \theta}$:
+\begin{equation}
+\nabla \tilde f_{\lambda, \theta}(\tilde Y) = -2\sqrt 2 \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 (\tilde A_m + \tilde A^{(t)}_m)\tilde Y + \cfrac{2d + r + 2}{\theta^2} \left(I_{2d} + \cfrac{2}{\theta^2}\tilde Y \tilde Y^{T}\right)^{-1} \tilde Y
+\end{equation}
+
+They also use a trick (Sherman-Morrison-Woodbury formula) to compute the inverse more efficiently:
+\begin{equation}
+\left( I_{2d} + \frac{2}{\theta^2} \tilde Y \tilde Y^{T} \right)^{-1} =  I_{2d} - \tilde Y \left( \frac{\theta^2}{2} I_{2r}+\tilde Y^{T} \tilde Y \right)^{-1} \tilde Y^{T}
+\end{equation}
+Putting all these components together, we can write the pseudocode for the resulting algorithm:
 
 \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -812,11 +822,11 @@ Putting all these things together, we can write the resulting algorithm:
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$Y_0 \in \mathbb{C}^{d \times r}, \{\eta_k | k\in 1\dots T\}, \beta, \theta, \lambda$}
-    \Output{$\tilde Y$}
+    \Input{$T \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \{\eta_k | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    \Output{$\tilde Y \in \mathbb{R}^{d\times r}$}
     $\tilde Y_0 \gets \psi(Y_0)$\;
     \For{$k\gets 1:T$}{ 
-        $w_k^R, w_k^I \sim N(0, 1)^{d\times r}$\;
+        $w_k^R, w_k^I \sim N(0, 1)^{d\times r}$\; \tcp*[l]{Sample from the standard normal of size }
         $w_k \gets w_k^R + i w_k^I$\;
         $\tilde w_k \gets \psi(w_k)$\;
         $\tilde Y_k \gets \tilde Y_{k-1} - \eta_k \nabla f  (\tilde Y_{k-1}, \theta, \lambda) + \cfrac{\sqrt{2\eta_k}}{\beta} \tilde w_k$\;
@@ -825,9 +835,13 @@ Putting all these things together, we can write the resulting algorithm:
     \caption{Projected Langevin}
 \end{algorithm}
 
+where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior and $\beta$ a scaling parameter for the noise term. The main differences from the original algorithm are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal.
+
 
 
 \chapter{Numerical experiments}
+
+We will now focus on the main contribution of this thesis, namely numerical experiments to commpare the prob-estimator (which we will refer to as prob) and the Projected Langevin algorithm (which we will refer to as PL).
 
 \section{Baseline comparison}
 
@@ -865,5 +879,47 @@ Putting all these things together, we can write the resulting algorithm:
 % \bibliography{bibliography}
 \printbibliography
 
+\chapter*{Appendix}
+\section*{Derivation of the acceptance rate for the prob-estimator}\label{section:appendix:acc-rate-prob}
+
+\subsection*{Derviation of $\log(R)$}
+TODO: clean-up this part 
+The first expression $\log(R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}))$ (which we will write as $\log(R(\nu^*, \nu))$) is derived as follows: first, let us define
+\begin{align}
+    \tilde \ell &= \ell^{}(\sum_{i=1}^{d} \tilde \gamma_i V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D)\\
+    \ell^{(t)} &= \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D)
+\end{align}
+In this case of the prob-estimator, we do not have a proposal distribution per se (the sampling from $Gamma(\alpha, 1)$ corresponds to the prior), so the acceptance probability is computed as
+\begin{equation}
+    R(\nu^*, \nu) = \frac{\pi(\nu^*|D)}{\pi(\nu|D)} = \frac{\exp(-\lambda \tilde\ell) \pi(\nu^*)}{\exp(-\lambda \ell^{(t)})\pi(\nu)}
+\end{equation}
+The prior $\pi(\nu) = \pi_1(\nu)$ is defined in this case as the Gamma distribution on $Y_i$:
+\begin{equation}
+    \pi_1(y;\alpha, 1) = \cfrac{1}{\Gamma(\alpha)}y^{\alpha - 1} \exp(-y)
+\end{equation}
+We can now rewrite $\alpha$ with this definition:
+\begin{align}
+    R(\nu^*, \nu) = \frac{\exp(-\lambda \tilde\ell) {\tilde Y_i}^{\alpha - 1} \exp(-\tilde Y_i)}{\exp(-\lambda \ell^{(t)}) {Y_i^{(t)}}^{\alpha - 1} \exp(-Y_i^{(t)})}
+\end{align}
+where we have replaced $y$ by either $\tilde Y_i$ or $Y^{(t)}_i$. Finally, we can apply the log transform:
+\begin{align}
+    \log(R(\nu^*, \nu)) &= \log\left(\frac{\exp(-\lambda \tilde\ell) {\tilde Y_i}^{\alpha - 1} \exp(-\tilde Y_i)}{\exp(-\lambda \ell^{(t)}) {Y_i^{(t)}}^{\alpha - 1} \exp(-Y_i^{(t)})}\right)\\
+    &= \log(\exp(-\lambda \tilde\ell) {\tilde Y_i}^{\alpha - 1} \exp(-\tilde Y_i)) - \log(\exp(-\lambda \ell^{(t)}) {Y_i^{(t)}}^{\alpha - 1} \exp(-Y_i^{(t)}))\\
+    &= -\lambda \tilde \ell + (\alpha - 1)\log(\tilde Y_i) - \tilde Y_i - (-\lambda \ell^{(t)} + (\alpha - 1)\log(Y_i^{(t)}) - Y_i^{(t)})\\
+    &= -\lambda \tilde \ell + \lambda \ell^{(t)} + (\alpha -1)\log(\frac{\tilde Y_i}{Y_i^{(t)}}) - \tilde Y_i + Y_i^{(t)}
+\end{align}
+
+\subsection*{Derivation of $\log(A)$}
+The derivation of $\log(A)(\tilde V, V^{(t)}, \gamma^{(t)}) = \log(A(\nu^*, \nu))$ is very similar to the one of $\log(R)$, however much simpler as it does not involve the prior. It is not exactly clear why it is possible and the authors do not provide their derivation, hence we must take guesses. One option is the fact the prior is symmetric (as it is a normal distribution), and in the case of considering it as a proposal, we can simplify the numerator and denominator. Note that this conflicts with what is done for $\log(R)$, as there the prior is considered as part of the posterior. Let's define
+\begin{align}
+    \tilde \ell &= \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} \tilde V_i \tilde V_i^\dagger, \mb D)\\
+    \ell^{(t)} &= \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t)} (V_i^{(t)})^\dagger, \mb D)
+\end{align}
+Then, we can calculate $\log(A)$ as:
+\begin{align}
+    \log(A(\nu^*, \nu)) &= \log(\frac{\pi(\nu^*) p(\nu^*|\nu)}{\pi(\nu) p(\nu|\nu^*)})\\
+                        &= \log(\frac{\exp(-\lambda \tilde \ell)}{\exp(-\lambda \ell^{(t)})})\\
+                        &= -\lambda \tilde \ell + \lambda \ell^{(t)}
+\end{align}
 \includepdf[pages={2}]{cover/cover-danila-mokeev.pdf}
 \end{document}
