@@ -106,7 +106,7 @@ $N(\boldsymbol{\mu},\boldsymbol{\Sigma})$ & Multivariate normal distribution wit
 
 \section{Motivation}
 %\addcontentsline{toc}{chapter}{\protect\numberline{}Motivation}
-A fundamental problem in physics is the reconstruction of the state of a system given measurements describing it. In classical mechanics, this is, at least in theory, always possible due to the deterministic nature of the system. This allows one to make multiple measurements on a system, usually the position and momentum, to exactly determine its state. In Quantum Mechanics (Quantum Mechanics), however, the situation is very different: measuring the system settles it (in Quantum Mechanics we talk about wavefunction collapse), making it impossible to gain more information by repeating measurements. We are also fundamentally limited by what we can measure: the Heisenberg uncertainty principle only allows the measurement of either the position or the momentum, but not both at the same time. Finally, the no-cloning theorem also forbids the system to be copied right before the measurement unless we know the state of the system.\medbreak
+A fundamental problem in physics is the reconstruction of the state of a system given measurements describing it. In classical mechanics, this is, at least in theory, always possible due to the deterministic nature of the system. This allows one to make multiple measurements on a system, usually the position and momentum, to exactly determine its state. In Quantum Mechanics (Quantum Mechanics), however, the situation is very different: measuring the system disturbs it (in Quantum Mechanics we talk about wavefunction collapse), making it impossible to gain more information by repeating measurements. We are also fundamentally limited by what we can measure: the Heisenberg uncertainty principle only allows the measurement of either the position or the momentum, but not both at the same time. Finally, the no-cloning theorem also forbids the system to be copied right before the measurement unless we know the state of the system.\medbreak
 
 \textit{Quantum Tomography} or \textit{Quantum State Tomography} is a process that allows to reconstruct the state of the system in the context of Quantum Mechanics. It tackles the previously described issues by replicating the initial state of the system multiple times, and then measuring once each replica. Note that there is a subtle difference between copying the system and preparing multiple systems with the same steps, as the latter does \textit{not} require any knowledge about the state, only the \textit{steps} necessary to produce it.\medbreak
 
@@ -300,7 +300,7 @@ A \textit{mixed state} $\ket \phi$, on the other hand, is a probabilistic mixtur
 
 A \textit{density matrix} $\rho \in \mathbb{C}^{d \times d}$, with $d = 2^n$ and $n$ the number of qubits, is a matrix that represents a general quantum system. It is written as
 \begin{equation}
-    \rho = \sum_{j} p_j \ket{\psi} \bra{\psi}
+    \rho = \sum_{j} p_j \ket{\psi_j} \bra{\psi_j}
 \end{equation}
 where $p_j$ is the probability of $\ket{\psi_j}$.\medbreak
 
@@ -310,10 +310,11 @@ By construction, we can see that the properties of a density matrix are that it 
 
 The Born rule is a fundamental postulate in Quantum Mechanics that connects the wave function to its measurement. It states that ``The probability density of finding a system in a given state, when measured, is proportional to the square of the amplitude of the system's wavefunction at that state" \cite{wiki:born-rule}.\medbreak
 
-It is described by a collection of orthogonal projective measurements $\{P_m\}$, where $P_mP_{m'}=\delta_{mm'}P_m$ is the projection onto the eigenspace of an \textit{observable} O associated to eigenvalue $m$. An observable corresponds to a physical property which can be measured, for example the position, momentum or spin of a particle. The matrix $O$ is Hermitian, allowing for a simple matrix decomposition: 
+It is described by a collection of orthogonal projective measurements $\{P_m\}$ with $P_mP_{m'}=\delta_{mm'}P_m$. This collection relates to an \textit{observable}, represented by a Hermitian matrix $O$. This property allows it to have a spectral decomposition
 \begin{equation}
     O = \sum_m m P_m
-\end{equation}\medbreak
+\end{equation}
+where $P_m$ is the projection onto the eigenspace of $O$ associated to eigenvalue $m$. An observable corresponds to a physical property which can be measured, for example the position, momentum or spin of a particle.\medbreak
 
 In the case where our state $\ket \psi$ is pure, the Born rule is formulated as
 \begin{equation}
@@ -324,7 +325,7 @@ and can be further generalized to a mixed state, represented with a density matr
     p(m) = \tr(\rho P_m)
 \end{equation}
 
-A small example of such a collection are the projectors operators of the \textit{computational basis} ($\ket 0$ and $\ket 1$). The resulting matrices are $M_0 = \ket 0 \bra 0$ and $M_1 = \ket 1 \bra 1$, which indeed verify the completeness equation. If we have that $\ket \psi = a \ket 0 + b \ket 1$, then $p(0) = \braket{\psi|M_0^\dagger M_0|\psi} = \braket{\psi|M_0|\psi} = |a|^2$ (by idempotency of $M_0$).\medbreak
+A small example of such a collection are the projectors operators of the \textit{computational basis} ($\ket 0$ and $\ket 1$). The resulting matrices are $P_0 = \ket 0 \bra 0$ and $P_1 = \ket 1 \bra 1$, which indeed verify the completeness equation. If we have that $\ket \psi = a \ket 0 + b \ket 1$, then $p(0) = \braket{\psi|P_0^\dagger P_0|\psi} = \braket{\psi|P_0|\psi} = |a|^2$ (by idempotency of a projector matrix).\medbreak
     
 In the context of Quantum Tomography, the most relevant aspect to measure is the spin: in each direction $\{x,y,z\}$, we use a Pauli matrix to probe whether a qubit is spin up $\ket{\cfrac{1}{2}}$ or down $\ket{-\cfrac{1}{2}}$ (eigenvalue of $1/2$ or $-1/2$)\cite{book:Nielsen-Chuang-2010,wiki:born-rule}. \medbreak
 
@@ -380,7 +381,7 @@ Mixed qubit data generation (also called ``Pauli observables" in \cite{Guta20}) 
 \newpage
 
 \section{Markov Chain Monte Carlo methods}
-Markov Chain Monte Carlo (MCMC) methods are a class of sampling algorithms. Sampling from a probability distribution is relevant when we want to compute some statistic about it. In most cases, the distribution $\pi(\mb x)$ has high dimensionality as we work in the state of parameters of statistical models. MCMC is particularly important in the context of \ti{Bayesian inference}. In this case, $\pi(\mb x)$ corresponds to the posterior distribution from which we want to sample, and whose probability density function (PDF) is a complex expression. \medbreak
+Markov Chain Monte Carlo (MCMC) methods are a class of sampling algorithms. Sampling from a probability distribution is relevant when we want to compute some statistic about it, for example the mean. In most cases, the distribution $\pi(\mb x)$ has high dimensionality as we work in the state of parameters of statistical models. MCMC is particularly important in the context of \ti{Bayesian inference}. In this case, $\pi(\mb x)$ corresponds to the posterior distribution from which we want to sample, and whose probability density function (PDF) is a complex expression. \medbreak
 
 Various methods exist for sampling from simple distributions, the most famous being the inverse transform method, rejection sampling, or importance sampling. All these methods however have drawbacks: inverse transform requires an analytical solution for the cumulative density function (CDF), which is usually not possible to obtain for complex PDFs as it requires a proper integral; rejection sampling and importance sampling do not have this problem, but they suffer from the curse of dimensionality - once your dimension grows, the sampling becomes very inefficient.\medbreak
 
@@ -409,7 +410,7 @@ In statistics, integrals are of particular interest to us as they correspond to 
 \begin{equation}
     \mathbb E_{\boldsymbol \theta \sim \pi(\btheta|\mb{D})}\left(f(\boldsymbol{\theta})\right) = \int_{\boldsymbol{\theta}} f(\boldsymbol{\theta})\pi(\btheta|\mb{D}) d\boldsymbol{\btheta} \approx \frac{1}{N} \sum_{i=1}^{n} f(\boldsymbol{\theta}_i)
 \end{equation}
-where $\{\boldsymbol{\theta}_i\}^N_{i=1}$ are samples from $\pi(\btheta|\mb{D})$. This allows us to compute estimates for a random variable (with $f(\btheta) = \btheta$), vector or matrix, the last one being the most relevant in Quantum Tomography. In that case, the parameters correspond to the density matrix $\rho$, and the data to the empirical probabilities $\hat p_{a,s}$. By first putting a prior on $\rho$, we can obtain a sample estimate of $\rho$, balanced by the data we have. This is where the term \ti{inference} comes from, as we infer $\rho$ from the data and prior.
+where $\{\boldsymbol{\theta}_i\}^N_{i=1}$ are samples from $\pi(\btheta|\mb{D})$. This allows us to compute estimates for a random variable (with $f(\btheta) = \btheta$), vector or matrix, the last one being the most relevant in Quantum Tomography. In that case, the parameters correspond to the density matrix $\rho$, and the data to the projectors $P^{\mb a}_{\mb s}$ and the empirical probabilities $\hat p_{a,s}$. By first putting a prior on $\rho$, we can obtain a sample estimate of $\rho$, balanced by the data we have. This is where the term \ti{inference} comes from, as we infer $\rho$ from the data and prior.
 
 \subsection{Theoretical guarantees}\label{section:background:mcmc:theory}
 In contrast to Monte Carlo methods where the samples are independent, MCMC builds a \ti{Markov chain} of samples $\btheta^{(1)} \dots \btheta^{(R)}$, which are dependent. As a reminder, a sequence $\mb X^{(1)}, \mb X^{(2)} \dots \mb X^{(R)}$ of random variables is a Markov chain if
@@ -472,8 +473,8 @@ A very related theorem that provides a similar guarantee than the law of large n
 
 
 % More formally, given a target distribution $f(x|\theta)$ we can evaluate and proposal distribution  TODO
-\subsection{Metropolis-Hastings algorithm}\label{section:mh}
-The \ti{Metropolis-Hastings} (MH) algorithm is the most well-known and used MCMC algorithm. The Markov chain of samples is built by doing a random walk, with an acceptance/rejection step. It works as follows: given that we are currently located at $\mb x \in \mathbb{R}^n$, we will sample a potential candidate $\mb x^*$ from $q(\mb x^*|\mb x)$ where $q$ is called the \ti{proposal} (or \ti{jumping}) distribution. This $q$ is analogous to the kernel we saw in \ref{section:background:mcmc:theory}, although not exactly as we will come back to it later. Next, we will compute the \ti{acceptance} probability of this sample:
+\subsection{Metropolis-Hastings algorithm}\label{section:Metropolis-Hastings}
+The \ti{Metropolis-Hastings} algorithm is the most well-known and used MCMC algorithm. The Markov chain of samples is built by doing a random walk, with an acceptance/rejection step. It works as follows: given that we are currently located at $\mb x \in \mathbb{R}^n$, we will sample a potential candidate $\mb x^*$ from $q(\mb x^*|\mb x)$ where $q$ is called the \ti{proposal} (or \ti{jumping}) distribution. This $q$ is analogous to the kernel we saw in \ref{section:background:mcmc:theory}, although not exactly as we will come back to it later. Next, we will compute the \ti{acceptance} probability of this sample:
 
 \begin{equation}
     \alpha(\mb x^*, \mb x) = \min\left(1, \frac{\pi(\mb x^*) q(\mb x|\mb x^*)}{\pi(\mb x) q(\mb x^*|\mb x)}\right)
@@ -486,7 +487,7 @@ This happens often in practice, as the Gaussian distribution is a common choice 
 A second comment is that, as mentioned in section \ref{section:background:mcmc:bayesian-inference}, the normalizing constant of the posterior does not matter: it gets simplified in the numerator and denominator as it does not depend on $\mb x$, nor $\mb x^*$ (only the data \tb D, see equation \ref{eq:posterior-with-marginal}). \medbreak
 
 After this computation, we will accept $\mb x^*$ with probability $\alpha$. In practice, this involves for example sampling a value $u \sim U(0,1)$, and accepting if $ u \leq \alpha$. This procedure is repeated until the desired number of samples is obtained, with some part of samples that we discard at the beginning. This period is called the \ti{burn-in} period and corresponds to the duration when the samples we obtain are not part of the equilibrium distribution.
-We usually talk about convergence when the samples we get seem to come from $\pi$, based on a error-with-respect-to-iterations plot for example. A pseudocode for the algorithm could be:\medbreak
+We usually talk about \textit{convergence} when the samples we get seem to come from $\pi$, or that the Markov chain has \textit{mixed} (based on a visual assessment for example). A pseudocode for the algorithm could be:\medbreak
 
 \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -494,8 +495,8 @@ We usually talk about convergence when the samples we get seem to come from $\pi
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$\mb x^{(0)} \in mathbb{R}^n, T \in \mathbb{N}, B \in \mathbb{N}$}
-    \Output{$\mb x^{({B+1})} \in mathbb{R}^n, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
+    \Input{$\mb x^{(0)} \in \mathbb{R}^n, T \in \mathbb{N}, B \in \mathbb{N}$}
+    \Output{$\mb x^{({B+1})} \in \mathbb{R}^n, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
     \For{$t\gets 1:T$}{ 
         Sample $\mb x^* \sim q(\mb x^*|\mb x^{(t-1)})$\;
         $\alpha = \min\left(1, \frac{\pi(\mb x^*) q(\mb x^{(t-1)}|\mb x^*)}{\pi(\mb x^{(t-1)}) q(\mb x^*|\mb x^{(t-1)})}\right)$\;
@@ -511,7 +512,7 @@ We usually talk about convergence when the samples we get seem to come from $\pi
     \caption{Metropolis-Hastings algorithm}
 \end{algorithm}\medbreak
 
-Note that in most implementations, it is common practice to use $\log(\alpha)$ for the calculation of the acceptance probability, instead of $\alpha$ directly. This allows to avoid numerical problems due to divisions by small numbers and underflow/overflow that might occur when handling double precisions floats. In addition, using the logarithm combines nicely with distributions based on the exponential family, allowing for a $\log(\exp)$ simplification.\medbreak
+Note that in most implementations, it is common practice to use $\log(\alpha)$ for the calculation of the acceptance probability, instead of $\alpha$ directly. This allows to avoid numerical problems due to divisions by small numbers and underflow/overflow that might occur when handling double precision floats. In addition, using the logarithm combines nicely with distributions based on the exponential family, allowing for a $\log(\exp)$ simplification.\medbreak
 
 We have in section \ref{section:background:mcmc:theory} talked about convergence for Markov chains to the posterior distribution, but have not talked how that would work in practice. A very handy way is to use the \ti{detailed balance} condition.
 
@@ -535,16 +536,16 @@ Finally, we can reach an important and useful result for MCMC:
     if a Markov chain $(\mb X^{(r)})_{r\geq1}$ satisfies the detailed balance with $\pi$ a probability density function, then $\pi$ is the stationary density, and chain is reversible.
 \end{boxedthm}
 
-This result means that, as long as we satisfy the detailed balance with our MCMC algorithm, we will converge to the posterior distribution $\pi(\mb)$. In the case of MH, the transition kernel is 
+This result means that, as long as we satisfy the detailed balance with our MCMC algorithm, we will converge to the posterior distribution $\pi$. In the case of Metropolis-Hastings, the transition kernel is 
 \begin{equation}
     k\left(\boldsymbol{x}^* \mid \boldsymbol{x}\right)=\alpha\left(\boldsymbol{x}^*, \boldsymbol{x}\right) q\left(\boldsymbol{x}^* \mid \boldsymbol{x}\right)+\delta_{\boldsymbol{x}}\left(\boldsymbol{x}^*\right) \int q(\boldsymbol{s} \mid \boldsymbol{x})\{1-\alpha(\boldsymbol{s} \mid \boldsymbol{x})\} \mathrm{d} \boldsymbol{s}
 \end{equation}
-where $\delta_{\mb x}(\mb x^*)$ is a point mass at $\mb x$. Putting this kernel into the detailed balance condition, one can derive than the equality indeed holds. TODO: derive in appendix? The only element that we have not discussed so far is the ergodicity condition. Altough is depends on $\pi(\mb x)$ and $q$, it is typically true under very mild conditions, which can be checked in, for example, \cite{mcmc:RobertCasella2004}.\medbreak
+where $\delta_{\mb x}(\mb x^*)$ is a point mass at $\mb x$. Putting this kernel into the detailed balance condition, one can derive than the equality indeed holds. TODO: derive in appendix? The only element that we have not discussed so far is the ergodicity condition. Altough is depends on $\pi$ and $q$, it is typically true under very mild conditions, which can be checked in, for example, \cite{mcmc:RobertCasella2004}.\medbreak
 
-A final element to take into account with theoretical convergence guarantees is that in practice, the algorithm may take a very long time converge, making it unpractical for real use. In these situations, one could for example investigate different proposals, change the duration of the burn-in period, or even swap MH for another algorithm. Various metrics exist to quantify the convergence, such as the effective sample size or the $\hat R$, but also visual checks, which are very effective. It is also common practice to run several chains from different starting points, and assess the overall performance. More details can be found in \cite{mcmc:gelman2013bayesian}.
+A final element to take into account with theoretical convergence guarantees is that in real-world experiments, the algorithm may take a very long time converge, making it unpractical for real use. In these situations, one could for example investigate different proposals, change the duration of the burn-in period, or even swap Metropolis-Hastings for another algorithm. Various metrics exist to quantify the convergence, such as the effective sample size or $\hat R$, but also visual checks, which are effective for checking if the chain has mixed. It is also common practice to run several chains from different starting points, and assess the overall performance. More details can be found in \cite{mcmc:gelman2013bayesian}.
 
 \subsection{Gibbs algorithm}\label{section:gibbs}
-The Gibbs algorithm takes a different approach compared to MH in that it splits the joint distribution $\pi(\mb x) = \pi(x_1, x_2, \dots, x_n)$ with $\mb x \in \mathbb{R}^n$ into one-dimensional conditionals, and then step samples from each conditional $\pi(x_i|\mb x_{-i}) = \pi(x_i|x_1,\dots,  x_{i-1}, x_{i+1}, \dots, x_n)$ iteratively. It can also be generalized to blocks, where instead of sampling from a one-dimensional distribution, we sample from a joint conditional. \medbreak
+The Gibbs algorithm takes a different approach compared to Metropolis-Hastings in that it splits the joint distribution $\pi(\mb x) = \pi(x_1, x_2, \dots, x_n)$ with $\mb x \in \mathbb{R}^n$ into one-dimensional conditionals, and then step samples from each conditional $\pi(x_i|\mb x_{-i}) = \pi(x_i|x_1,\dots,  x_{i-1}, x_{i+1}, \dots, x_n)$ iteratively. It can also be generalized to blocks, where instead of sampling from a one-dimensional distribution, we sample from a joint conditional. \medbreak
 
 It is, in its simplest form, an \ti{unadjusted} algorithm, as it does not involve an accept/reject step.
 A pseudocode for it can be the following:\medbreak
@@ -565,9 +566,9 @@ A pseudocode for it can be the following:\medbreak
     }
     \caption{Gibbs algorithm}
 \end{algorithm}
-Note that the inner loop updates the current $x^{(t)}$, and not a copy. This implies that at iteration $i$, we are using the conditioned value set at $i-1$ for $x^{(t)}_{i-1}$, and not the one set at $x^{(t-1)}_{i-1}$.\medbreak
+Note that the inner loop updates the current $\mb x^{(t)}$, and not a copy. This implies that at iteration $i$, we are using the conditioned value set at $i-1$ for $x^{(t)}_{i-1}$, and not the one set at $x^{(t-1)}_{i-1}$.\medbreak
 
-The main advantages of Gibbs sampling is that we do not need to tune the proposal distributions, as well as the fact that all samples are accepted. The downside of course is that we need to be able to derive and sample from the conditional, especially doing so efficiently as otherwise this approach becomes very costly. A more general algorithm, called \textit{Metropolis-within-Gibbs}, involves sampling from the conditional using MH, and in that case this may involve an accept/reject step. In the case of standard Gibbs, we may view the conditionals we sample from as proposal distributions $q(\mb x^*|\mb x)$. This in turn shows us why this algorithm is unadjusted, as the acceptance probability $\alpha$ is always equal to 1 \cite{mcmc:slides:Rigon2024Mar}. If we call $\mb x^* = (x_1^{(t)}, \dots, x_{i}^*, \dots, x^{(t)}_{n})$ and $\mb x = (x_1^{(t)}, \dots, x_{i}^{(t)}, \dots, x^{(t)}_{n})$, then
+The main advantages of Gibbs sampling is that we do not need to tune the proposal distributions, as well as the fact that all samples are accepted. The downside of course is that we need to be able to derive and sample from the conditional, especially doing so efficiently as otherwise this approach becomes very costly. A more general algorithm, called \textit{Metropolis-within-Gibbs}, involves sampling from the conditional using Metropolis-Hastings, and in that case this may involve an accept/reject step. In the case of standard Gibbs, we may view the conditionals we sample from as proposal distributions $q(\mb x^*|\mb x)$. This in turn shows us why this algorithm is unadjusted, as the acceptance probability $\alpha$ is always equal to 1 \cite{mcmc:slides:Rigon2024Mar}. If we call $\mb x^* = (x_1^{(t)}, \dots, x_{i}^*, \dots, x^{(t)}_{n})$ and $\mb x = (x_1^{(t)}, \dots, x_{i}^{(t)}, \dots, x^{(t)}_{n})$, then
 
 \begin{equation}
     \alpha(\mb x^*|\mb x) = \frac{\pi(\mb x^*) q(\mb x|\mb x^*)}{\pi(\mb x) q(\mb x^* |\mb x)} = \frac{\pi(x_i^*|\mb x_{-i}^*)\pi(\mb x^*_{-i}) \pi(x_i|\mb x^*_{-i})}{\pi(x_i|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i^*|\mb x_{-i})} = \frac{\pi( x_i^*|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i|\mb x_{-i})}{\pi(x_i|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i^*|\mb x_{-i})} = 1
@@ -576,7 +577,7 @@ where we have used the fact that $\mb x^*_{-i} = \mb x_{-i}$.
 
 
 \subsection{Unadjusted Langevin algorithm}\label{section:ula}
-One big down-side with Metropolis-Hastings or Gibbs sampling is that they can take a long time to converge, especially in a very high-dimensional setting. The Unadjusted Langevin algorithm (ULA) tackles this problem by using the gradient information about the posterior. The downside, of course, is that we must be able to calculate it, but in the case we can, it can drastically speed-up the convergence. The algorithm draws its name from \ti{Langevin diffusion} (also called \ti{Îto diffusion}), a stochastic differential equation (SDE), which is written as follows:
+One big down-side with Metropolis-Hastings or Gibbs sampling is that they can take a long time to converge, especially in a very high-dimensional setting. The Unadjusted Langevin algorithm (ULA) tackles this problem by using the gradient information about the posterior. The downside, of course, is that we must be able to calculate it, but in the case we can, it can drastically speed-up the convergence. The algorithm draws its name from \ti{Langevin diffusion} (also called \ti{Îto diffusion}), a stochastic differential equation (SDE), written as follows:
 \begin{equation}
     \mathrm{d}X_t = -\nabla V(x)\mathrm{d}t + \sqrt{2}\mathrm{d}B_t
 \end{equation}
@@ -608,26 +609,25 @@ where $\xi_k \sim N(\mb 0, \mb I)$. Note that the true solution can be computed 
     \caption{Unadjusted Langevin algorithm}
 \end{algorithm}\medbreak
 
-ULA can be seen as noisy gradient ascent, which is why it performs better than MH or Gibbs. By utilizing the gradient information, we are able to sample more often the regions of high density. Note that there also exists a method called \textit{Metropolis-adjusted Langevin algorithm} (MALA), which generalizes this approach with accept/reject step, but we will not go into the details here \cite{mcmc:langenvin-blog:Ansari2024Apr, wiki:MALA}.
+ULA can be seen as noisy gradient ascent, which is why it performs better than Metropolis-Hastings or Gibbs. By utilizing the gradient information, we are able to sample more often the regions of high density. The cost of computing the gradient is usually compensated by faster convergence times, making it often an algorithm of choice if the gradient of the posterior can be computed. Note that there also exists a method called \textit{Metropolis-adjusted Langevin algorithm} (MALA), which generalizes this approach with an accept/reject step, but we will not go into the details here \cite{mcmc:langenvin-blog:Ansari2024Apr, wiki:MALA}.
 
-TODO: talk about faster convergence, and why it is useful compared to MH
+TODO: talk about theoretical guarantees?
 
 \chapter{Overview of relevant methods} \label{section:relevant-methods}
-We will introduce here 2 MCMC algorithms that are in relevant in the context of this thesis: the \ti{prob-estimator} and the \ti{Projected Langevin algorithm}. They will be useful in Chapter 4 \ref{section:numerical-exp} where we will be comparing them in numerical experiments and Chapter 5 \ref{section:algo-vs-prior} where we will be presenting 2 other new algorithms derived from them.
+We will introduce here 2 MCMC algorithms that are in relevant in the context of this thesis: the \ti{prob-estimator} and the \ti{Projected Langevin algorithm}. They will be useful in Chapter \ref{section:numerical-exp} where we will be comparing them in numerical experiments and Chapter \ref{section:algo-vs-prior} where we will be presenting 2 new algorithms derived from them.
 
 \section{Prob-estimator}
-Introduced in \cite{MA17}, the \textit{prob-estimator} is a Metropolis-Hastings-based algorithm (more details about it can be found in section \ref{section:mh}), where the approximation of the density matrix $\rho$ is done using a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation. The exact solution is written as follows:
+Introduced in \cite{MA17}, the \textit{prob-estimator} is a Metropolis-Hastings-based algorithm (more details about it can be found in section \ref{section:Metropolis-Hastings}), where the approximation of the density matrix $\rho$ is done using a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation. The exact solution is written as follows:
 \begin{equation}\label{eq:rank1-approx}
-    \rho = \sum_{i=1}^d \gamma_i^{(t)} V_i V_i^\dagger
+    \rho = \sum_{i=1}^d \gamma_i V_i V_i^\dagger
 \end{equation}
-where $V_i \in \mathbb{C}^{d\times 1}$ are normalized vectors and $\gamma_i \mathbb{C}$ are the sparse coefficients with $\sum_{i=1}^d \gamma_i = 1$.\medbreak
+where $V_i \in \mathbb{C}^{d\times 1}$ are normalized vectors and $\gamma_i \in \mathbb{C}$ are the sparse coefficients with $\sum_{i=1}^d \gamma_i = 1$.\medbreak
 
 We can check that the properties of a density matrix are respected: it is a sum of Hermitian matrices, which also makes $\rho$ Hermitian and positive semi-definite and 
 \begin{equation}
     \tr(\rho) = \sum_{i=1}^{d} \gamma_i \tr(V_i V_i^\dagger) = 1
 \end{equation}
-as $\tr(V_i V_i^\dagger) = 1$ due to the normalization.
-TODO: not clear why $tr(V_i V_i^{(t)}) = 1$?.
+as $\tr(V_i V_i^\dagger) = 1$ due to the normalization.\medbreak
 % \begin{equation}
 % \hat \rho = \frac{1}{T}\sum_{t=1}^{(t)}  \left(
 % \sum_{i=1}^d \gamma_i^{(t)} V_i^{(t)} (V_i^{{(t)}})^\dagger 
@@ -638,25 +638,23 @@ This way of calculating $\rho$ is analogous to taking an eigenvector decompositi
 \begin{equation}
     \rho = U\Lambda U^\dagger
 \end{equation}
-where $U = (U_1|\dots|U_d)$ with the $U_i$ orthogonal to each other and of norm 1, and $\Lambda = \text{diag}(\lambda_1, \lambda_2, \dots, \lambda_n)$ summing to $1$ (this is due to $\rho$ being a density matrix).\medbreak
+where $U = (U_1|\dots|U_d)$ with $U_i$ orthogonal to each other and of norm 1, and $\Lambda = \text{diag}(\lambda_1, \lambda_2, \dots, \lambda_d)$ with $\sum_{i=1}^d \lambda_i = 1$ (due to $\rho$ being a density matrix).\medbreak
 
-The advantage of the approach from equation \ref{eq:rank1-approx} is that it does not require the $V_i$ to be orthonormal (as they are in the case of a decomposition of a symmetric/Hermitian matrix). In some sense, $\gamma_i$ can be thought of as an eigenvalue and $V_i$ its associated eigenvector, even though this is not exactly true. \medbreak
+The advantage of the approach from equation \ref{eq:rank1-approx} is that it does not require the $V_i$ to be orthonormal (as they are in the case of a decomposition of a symmetric/Hermitian matrix). In some sense, the parameter $\gamma_i$ can be thought of as an eigenvalue and $V_i$ its associated eigenvector, even though this is not exactly true as the collection $\{V_i\}$ is not orthogonal. \medbreak
 
-As we are using an MCMC method, we need to formulate the posterior $\pi(\nu | \tb D)$ from which we will be sampling, here with $\nu$ our parameter matrix. In the case of the prob-estimator, they use a pseudo-likelihood written as follows
+As we are using an MCMC method, we need to formulate the posterior $\pi(\nu | \tb D)$ from which we will be sampling, with $\nu = \sum_{i=1}^d \gamma_i V_i V_i^\dagger$ our parameter matrix and the data $\mb D$ comprised of the projectors $P^{\mb a}_{\mb s}$ and empirical probabilities $\hat p_{\mb a,\mb s}$. In the case of the prob-estimator, the authors use a pseudo-likelihood written as follows
 \begin{equation}
-    \pi(\tb D| \nu) = \mathcal{L}(\nu, D) = \exp(-\lambda \ell(\nu, D))
+    \pi(\tb D| \nu) = \mathcal{L}(\nu, \mb D) = \exp(-\lambda \ell(\nu,\mb D))
 \end{equation}
 where $\lambda$ is a scaling parameter and $\ell(\nu, D)$ the loss function
 \begin{equation}
-    \ell(\nu, D) = \sum_{\mb a \in \mathcal{E}^n} \sum_{\mb s \in \mathcal{R}^n} \left[\tr(\nu P^{\mb a}_{\mb s}) - \hat p_{\mb a,\mb s}\right]^2
+    \ell(\nu, \mb D) = \sum_{\mb a \in \mathcal{E}^n} \sum_{\mb s \in \mathcal{R}^n} \left[\tr(\nu P^{\mb a}_{\mb s}) - \hat p_{\mb a,\mb s}\right]^2
 \end{equation}\medbreak
 They use separate qubit data generation, thus all details regarding notation can be checked in \ref{section:sep-qub-dg}.
-The prior $\pi(\nu) = \pi_1(\nu) \pi_2(\nu)$ is defined in 2 parts, :
+The prior $\pi(\nu) = \pi_1(V_1, \dots, V_d) \pi_2(\gamma_1, \dots, \gamma_d)$ is defined in 2 parts:
 \begin{itemize}
-    \item For $\pi_1(\nu)$, the set $V_1, \dots, V_d$ is i.i.d uniformly distributed on the unit sphere. In practice, this involves first sampling from a standard normal multivariate $\tilde V_i \sim N(\mb 0, \mb I)$, and then normalizing it $V_i = \tilde V_i/||\tilde V_i||$.
-    \item For $\pi_2(\nu)$, the set $\gamma_1,\dots,\gamma_d$ is sampled from a Dirichlet distribution $\mathcal{D}(\alpha_1,\dots,\alpha_d)$ with parameter $\alpha_i > 0$. In order to promote sparsity among $\gamma_1, \dots, \gamma_d$ and get a rank-1 approximation of $\rho$, the parameters are all chosen to be the same, small value: $\alpha_1,\dots,\alpha_d = \alpha = 1/d$. This results in a typical drawing of one $\gamma_i$ close to 1, while others close to 0. In practice, the authors do not sample the Dirichlet distribution directly, and instead use an equivalent formulation: $\gamma_i = Y_i/\sum_{j=1}^{d} Y_j$ where $Y_i$ is sampled from a Gamma distribution $Y_i \sim Gamma(\alpha, 1)$. 
-    
-    TODO: not clear how it converts to what is done in practice: sample 0 is from an exponential, and the subsequent ones are multiplying it. Something like : rexp() * exp(runif())  
+    \item For $\pi_1(V_1, \dots, V_d)$, the set $V_1, \dots, V_d$ is i.i.d uniformly distributed on the unit sphere. In practice, this involves first sampling from a standard normal multivariate $\tilde V_i \sim N(\mb 0, \mb I)$, and then normalizing it $V_i = \tilde V_i/||\tilde V_i||$.
+    \item For $\pi_2(\gamma_1, \dots, \gamma_d)$, the set $\gamma_1,\dots,\gamma_d$ is sampled from a Dirichlet distribution $\mathcal{D}ir(\alpha_1,\dots,\alpha_d)$ with parameter $\alpha_i > 0$. In order to promote sparsity among $\gamma_1, \dots, \gamma_d$ and get a rank-1 approximation of $\rho$, the parameters are all chosen to be the same, small value: $\alpha_1,\dots,\alpha_d = \alpha = 1/d$. This results in a typical drawing of one $\gamma_i$ close to 1, while others close to 0. In practice, the authors do not sample the Dirichlet distribution directly, and instead use an equivalent formulation: $\gamma_i = Y_i/\sum_{j=1}^{d} Y_j$ where $Y_i$ is sampled from a Gamma distribution $Y_i \sim Gamma(\alpha, 1)$.   
 \end{itemize}
 The posterior is then written as 
 \begin{equation}
@@ -667,7 +665,7 @@ and estimated with
     \hat \rho_{\text{prob}} = \int \nu \pi(\nu|\tb D) d\nu
 \end{equation}
 
-As specified above, the prior is split in 2 parts. This is due to way the algorithm is structured: inside the main loop of MH (which goes over iterations $t$), we also iterate over each dimension $i$, first for $\gamma$, and then for $V$. This can be seen as doing Gibbs-within-Metropolis-Hastings. \medbreak
+As specified above, the prior is split in 2 parts. This is due to way the algorithm is structured: inside the main loop of Metropolis-Hastings (which goes over iterations $t$), we also iterate over each dimension $i$, first for $\gamma$, and then for $V$. This can be seen as doing Gibbs-within-Metropolis-Hastings. \medbreak
 
 The pseudocode for the algorithm is available below:\medbreak
 
@@ -729,41 +727,33 @@ and
 \end{equation}
 The curious reader can find the detailed derivations in the appendix \ref{section:appendix:acc-rate-prob}.\medbreak
 
-Note that there are some elements that are not clear in the paper and the the implementation:
-\begin{itemize}
-    \item The lines 7 and 8 of pseudocode \ref{code:prob} correspond to the sampling from $Gamma(\alpha, 1)$. It is however unclear on why this would correspond to obtaining $\tilde Y_i \sim Gamma(\alpha, 1)$. There exists a classical procedure where one uses the inverse transform method and the fact that if $X_i \sim \exp(\lambda)$, then 
-    \begin{equation}
-        \sum_{i=1}^{t} X_i \sim Gamma(t,\lambda)
-    \end{equation}
-    however this only works in the case where $t \in \mathbb{N}$. The wikipedia page \cite{wiki:gamma-dist} mentions that the case with $0 < \alpha < 1$ (assumed with $\beta=1$) is the most challenging to sample from, with new research \cite{mcmc:gamma-sampling:liu2015simulating} still being done on this topic. The Python library \texttt{numpy} does it using a form of rejection sampling\footnote{\texttt{\url{https://github.com/numpy/numpy/blob/main/numpy/random/src/distributions/distributions.c\#220}}}, similar to \cite{mcmc:gamma-sampling:liu2015simulating}. These approaches are however very different from what is done in the prob-estimator, and as the authors do not indicate why this is correct, it is difficult to understand the reasoning behind it.
-    
-    TODO: moves sections to numerical experiments
-    \item The original paper states the proposed $\tilde V_i$ does not depend on the previous sample ($\tilde V_i$ is sampled uniformly from the uniform distribution). This however contradicts their implementation, which considers $\tilde V_i = V_i^{t} + V$, where $V$ is sampled from the unit sphere. Both approaches seem valid: in the former case, while we do not sample locally, we still explore the parameter space as it constrained to be the unit sphere; in the latter case, we also remain on the unit sphere due to normalization. In our implementation, we decided to align on their code.
-    \item Their paper does not mention the use of a running average, but this is technique they apply in the code. Again, we also align on their code.
-    \item In their code, the first sample they provide to the MCMC algorithm is not random, and comes from an estimation from the inverse method. This provides a warm start and can affect the accuracy of the algorithm. In our experiments, we use a random first sample.
-    \item Not clear how they calculate the acceptance criterion, not specified in paper. What we are able to derive however seems to match their code (but not paper)
-    \item  
-\end{itemize}
+
+ Note that there is an element which is ambiguous in the prob-estimator. The lines 7 and 8 of pseudocode \ref{code:prob} correspond to the sampling from $Gamma(\alpha, 1)$. It is however unclear on why this would correspond to obtaining $\tilde Y_i \sim Gamma(\alpha, 1)$. There exists a classical procedure where one uses the inverse transform method and the fact that if $X_i \sim \exp(\lambda)$, then 
+\begin{equation}
+    \sum_{i=1}^{t} X_i \sim Gamma(t,\lambda)
+\end{equation}
+however this only works in the case where $t \in \mathbb{N}$. The wikipedia page \cite{wiki:gamma-dist} mentions that the case with $0 < \alpha < 1$ (assumed with $\beta=1$) is the most challenging to sample from, with new research \cite{mcmc:gamma-sampling:liu2015simulating} still being done on this topic. The Python library \texttt{numpy} does it using a form of rejection sampling\footnote{\texttt{\url{https://github.com/numpy/numpy/blob/main/numpy/random/src/distributions/distributions.c\#220}}}, similar to \cite{mcmc:gamma-sampling:liu2015simulating}. These approaches are however very different from what is done in the prob-estimator, and as the authors do not indicate why it is correct, it is difficult to understand the reasoning behind it.
 
 \newpage
 \section{Projected Langevin}
 
-Introduced in the \cite{meth:bayesian:Langevin:ACMT2024} paper (unpublished at the moment of submission for this thesis), the projected Langevin approach is based on an Unadjusted Langevin algorithm (ULA) (more details about it can be found in section \ref{section:ula}). The authors utilize the Burer-Monteiro factorization (introduced in \cite{proj-langevin:Burer2003}) $\rho = Y Y^\dagger$ with $Y \in \mathbb{C}^{d \times r}$, which corresponds to a low rank (of rank $r$) factorization of $\rho$. This corresponds to consider that the density matrix has a maximum rank of $r$. This also allows us to reduce the dimension of the parameter space from $2d^2$ to $2dr$ by running the MCMC method directly on the $Y$ space. It is important to note that the physical constraints of the problem are still respected, as we assume the matrix $Y$ to belong to the complex hypersphere $C \mathbb{S}^{d\times r} = \{ Y \in \mathbb{C}^{d\times r}: ||Y||_F = 1\}$, leading to a unit trace. The Hermitian and semi-definite positive properties of the density matrix are obtained by construction.\medbreak
+Introduced in the \cite{meth:bayesian:Langevin:ACMT2024} paper (unpublished at the moment of submission for this thesis), the projected Langevin approach is based on an Unadjusted Langevin algorithm (ULA) (more details about it can be found in section \ref{section:ula}). The authors utilize the Burer-Monteiro factorization (introduced in \cite{proj-langevin:Burer2003}) $\rho = Y Y^\dagger$ with $Y \in \mathbb{C}^{d \times r}$ (with $d=2^n$ and $n$ the number of qubits), which corresponds to a low rank (of rank $r$) factorization of $\rho$. This corresponds to consider that the density matrix has a maximum rank of $r$. This also allows us to reduce the dimension of the parameter space from $2d^2$ to $2dr$ by running the MCMC method directly on the $Y$ space. It is important to note that the physical constraints of the problem are still respected, as we assume the matrix $Y$ to belong to the complex hypersphere $C \mathbb{S}^{d\times r} = \{ Y \in \mathbb{C}^{d\times r}: ||Y||_F = 1\}$, leading to a unit trace. The Hermitian and positive semi-definite properties of the density matrix are obtained by construction.\medbreak
 
 In addition to the factorization, the paper proposes a new prior, called the spectral scaled Student distribution defined as
 \begin{equation}    
 \nu_{\theta} (Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
 \end{equation}
+where $\theta$ is a scaling parameter.\medbreak
 
 This prior is a complex extension of a prior proposed by \cite{Dal20}, where the student-t distribution is a generalization of the Gaussian distribution, allowing for fatter tails. This feature is what promotes sparsity in the eigenvalues of $Y$, favoring a low rank (most samples are close to 0, but occasionally some are large).\medbreak
 The used likelihood is similar to the prob-estimator, and is written as 
 \begin{equation}
-L(Y) = \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2
+L(Y, \mb D) = \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2
 \end{equation}
-with $A_m$ the Hermitian matrix characterizing the $m^{th}$ experiment and $\hat p_m$ a measured probability. The authors use mixed qubit data generation, for which more details can be found in section \ref{section:mixed-qub-dg}. \medbreak
-Combining these terms, we can obtain a posterior $\hat \nu_{\lambda, \theta}(Y) = \exp(-f_{\lambda, \theta}(Y))$ with
+with $A_m$ the Hermitian matrix characterizing the $m^{th}$ experiment and $\hat p_m$ a measured probability, corresponding to the data $\mb D$. The authors use mixed qubit data generation, for which more details can be found in section \ref{section:mixed-qub-dg}. \medbreak
+Combining these terms, we can obtain a posterior $\hat \nu_{\lambda, \theta}(Y, \mb D) = \exp(-f_{\lambda, \theta}(Y, \mb D))$ with
 \begin{equation}
-    f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^\dagger)
+    f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^\dagger)
 \end{equation}
 The exponential in this case is useful to us because it allows us to simplify the calculations. ULA requires us to set the potential $V(x) = -\log(\pi(x))$ where $\pi(x)$ is the posterior from which we want to sample, and using this formulation we obtain a $\log(\exp)$ simplification.\medbreak
 The authors also avoid dealing with complex values by using an isomorphism $\psi: \mathbb{C}^{d\times r}\rightarrow \mathbb{R}^{2d\times 2r}$
@@ -776,12 +766,12 @@ The authors also avoid dealing with complex values by using an isomorphism $\psi
 
 This results in the following rewrite of $f$:
 \begin{equation}    
-\tilde f_{\lambda, \theta}(Y) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^{T}) + \tilde C
+\tilde f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^{T}) + \tilde C
 \end{equation}
 
 where $\tilde Y = \psi(Y)$, $\psi(YY^\dagger) = \sqrt{2} \psi(Y)\psi(Y)^{T}$ and $\tilde C$ a normalization constant. We can then also obtain the gradient of $\tilde f_{\lambda, \theta}$:
 \begin{equation}
-\nabla \tilde f_{\lambda, \theta}(\tilde Y) = -2\sqrt 2 \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 (\tilde A_m + \tilde A^{(t)}_m)\tilde Y + \cfrac{2d + r + 2}{\theta^2} \left(I_{2d} + \cfrac{2}{\theta^2}\tilde Y \tilde Y^{T}\right)^{-1} \tilde Y
+\nabla \tilde f_{\lambda, \theta}(\tilde Y, \mb D) = -2\sqrt 2 \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 (\tilde A_m + \tilde A^{(t)}_m)\tilde Y + \cfrac{2d + r + 2}{\theta^2} \left(I_{2d} + \cfrac{2}{\theta^2}\tilde Y \tilde Y^{T}\right)^{-1} \tilde Y
 \end{equation}
 
 They also use a trick (Sherman-Morrison-Woodbury formula) to compute the inverse more efficiently:
@@ -796,20 +786,23 @@ Putting all these components together, we can write the pseudocode for the resul
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$T \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \{\eta_k | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    \Input{$T \in \mathbb{N}, B \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \{\eta_k | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
     \Output{$\tilde Y \in \mathbb{R}^{d\times r}$}
     $\tilde Y_0 \gets \psi(Y_0)$\;
     \For{$k\gets 1:T$}{ 
-        $w_k^R, w_k^I \sim N(0, 1)^{d\times r}$\; \tcp*[l]{Sample from the standard normal of size }
+        $w_k^R, w_k^I \sim N(0, 1)^{d\times r}$\tcp*[l]{Sample from the standard normal of size ${d\times r}$}
         $w_k \gets w_k^R + i w_k^I$\;
         $\tilde w_k \gets \psi(w_k)$\;
         $\tilde Y_k \gets \tilde Y_{k-1} - \eta_k \nabla f  (\tilde Y_{k-1}, \theta, \lambda) + \cfrac{\sqrt{2\eta_k}}{\beta} \tilde w_k$\;
     }
-    $\tilde Y \gets \cfrac{1}{N_{\text{est}}} \sum_{i=1}^{N_{\text{est}}} \tilde Y_{\text{end} - k +1}$\;
+    $\tilde Y \gets \cfrac{1}{T - B} \sum_{k=B+1}^{T} \tilde Y_{k}$\;
     \caption{Projected Langevin}
-\end{algorithm}
+\end{algorithm}\medbreak
+where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior, $\beta$ a scaling parameter for the noise term, $B$ the number of burn-in iterations and $T$ the number of iterations. The main differences from the original algorithm described in \ref{section:ula} are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal.\medbreak
 
-where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior and $\beta$ a scaling parameter for the noise term. The main differences from the original algorithm are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal.
+The main motivation behind this approach comes from the faster convergence times, especially in high-dimensional settings where Metropolis-Hastings suffers. The proposed prior allows for a computable gradient, which bootstraps the use of Langevin sampling.\medbreak
+
+TODO: talk about the Crank-Nicholson preconditioning  
 
 
 
@@ -817,6 +810,13 @@ where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior and 
 
 We will now focus on the main contribution of this thesis, namely numerical experiments to compare the prob-estimator (which we will refer to as prob) and the Projected Langevin algorithm (which we will refer to as PL).
 
+Note that there are some elements that do not match for the prob-estimator between the paper and the implementation:
+\begin{itemize}
+\item The original paper states the proposed $\tilde V_i$ does not depend on the previous sample ($\tilde V_i$ is sampled uniformly from the uniform distribution). This however contradicts their implementation, which considers $\tilde V_i = V_i^{t} + V$, where $V$ is sampled from the unit sphere. Both approaches seem valid: in the former case, while we do not sample locally, we still explore the parameter space as it constrained to be the unit sphere; in the latter case, we also remain on the unit sphere due to normalization. In our implementation, we decided to align on their code.
+\item Their paper does not mention the use of a running average, but this is technique they apply in the code. Again, we also align on their code.
+\item In their code, the first sample they provide to the MCMC algorithm is not random, and comes from an estimation from the inverse method. This provides a warm start and can affect the accuracy of the algorithm. In our experiments, we use a random first sample.
+\item Not clear how they calculate the acceptance criterion, not specified in paper. What we are able to derive however seems to match their code (but not paper)
+\end{itemize}
 \section{Baseline comparison}
 
 \section{Impact of burnin duration}
@@ -835,11 +835,6 @@ We will now focus on the main contribution of this thesis, namely numerical expe
 
 \section{Numerical comparison}
 
-\section{Ass}
-
-\section{Comparing MHS and MHGS to the Prob-estimator}
-
-\section{Comparing MHS and MHGS to Projected Langevin}
 
 
 \chapter{Conclusion}

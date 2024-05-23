@@ -75,6 +75,20 @@
           "xelatex"
          ]
         }
-       ]
+      ],
+      "files.associations": {
+        "*.toml": "toml",
+        "cstdarg": "cpp",
+        "cwchar": "cpp",
+        "atomic": "cpp",
+        "compare": "cpp",
+        "exception": "cpp",
+        "string": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "iosfwd": "cpp",
+        "stdexcept": "cpp",
+        "cstdint": "cpp"
+      }
        
 }
