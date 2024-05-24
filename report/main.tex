@@ -79,7 +79,7 @@ sorting=ynt
 \newpage
 
 \chapter*{Acknowledgements}
-I would like to thank Estelle Massart, Andrew Thompson and Tameem Adel for their help in the making of this thesis. Their guidance and advice was valuable for the 
+I would like to thank Estelle Massart, Andrew Thompson and Tameem Adel for their help in the making of this thesis. Their guidance and great ideas were valuable for the . I also want to thank Matthieu Génévriez for his help on making the Quantum Tomography section more rigorous, and researchers Pierre Alquier and The Tien Mai for providing the source code for the prob-estimator. Finally, I want to thank my family who supported me throughout the university years.
 \newpage
 
 \tableofcontents*
@@ -220,7 +220,7 @@ The work in the thesis will focus on the prob-estimator introduced in \cite{MA17
 %\section{Markov chain Monte Carlo methods}
 
 
-\section{Goals and contributions}
+\section{Goals and contributions}\label{section:goals-contributions}
 In this thesis, our contribution is twofold: first, we investigate how the prob-estimator introduced in \cite{MA17} compares to the projected Langevin algorithm from \cite{meth:bayesian:Langevin:ACMT2024}; second, we try to understand how much impact the used prior has in comparison to the MCMC algorithm that we use to perform the sampling. For the latter, we introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS), which mix the algorithm from \cite{MA17} with the prior from \cite{meth:bayesian:Langevin:ACMT2024}. This allows us to evaluate the advantages that a gradient-based method brings, as well as the effect of a student-t prior on the result. We will focus on providing numerical results, with all the code to reproduce the experiments available in the near future on Github\footnote{\texttt{\url{www.github.com/daqwes/thesis}}}.
 
 \section{Structure}
@@ -800,7 +800,7 @@ Putting all these components together, we can write the pseudocode for the resul
 \end{algorithm}\medbreak
 where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior, $\beta$ a scaling parameter for the noise term, $B$ the number of burn-in iterations and $T$ the number of iterations. The main differences from the original algorithm described in \ref{section:ula} are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal.\medbreak
 
-The main motivation behind this approach comes from the faster convergence times, especially in high-dimensional settings where Metropolis-Hastings suffers. The proposed prior allows for a computable gradient, which bootstraps the use of Langevin sampling.\medbreak
+The main motivation behind this approach comes from the faster convergence times, especially in high-dimensional settings where Metropolis-Hastings suffers. The proposed prior allows for a computable gradient, which bootstraps the use of Langevin sampling. A second benefit comes from the Burer-Monteiro factorization, which allows to use, if available, the information about the rank of density matrix. In general, the parameter $r$ in this factorization corresponds to an upper-bound on the rank of $\hat \rho$, the approximation of the true density matrix $\rho$. This however also means that we may give too much freedom to the approximation if we know that the true $\rho$ is of low rank. Setting $r$ to the true rank allows us to constrain the search space.\medbreak
 
 TODO: talk about the Crank-Nicholson preconditioning  
 
@@ -808,16 +808,22 @@ TODO: talk about the Crank-Nicholson preconditioning
 
 \chapter{Numerical experiments}\label{section:numerical-exp}
 
-We will now focus on the main contribution of this thesis, namely numerical experiments to compare the prob-estimator (which we will refer to as prob) and the Projected Langevin algorithm (which we will refer to as PL).
+We will now focus on the main contribution of this thesis, namely numerical experiments to compare the prob-estimator (which we will refer to as prob in figures) and the Projected Langevin algorithm (which we will refer to as PL in figures).\medbreak
 
-Note that there are some elements that do not match for the prob-estimator between the paper and the implementation:
+The goal with these experiments is to see how does Metropolis-Hastings compare to Langevin sampling with different experimental settings in the context of Quantum Tomography. In particular, we will use the $L_2$ squared error as the main metric to assess performance in 5 main contexts: baseline convergence, influence of the burn-in period, impact of the number of shots, impact of the the number of measurements and finally impact in case we have knowledge about the rank of the matrix (in particular for Langevin). The term ``shots'' here refers to the number of times the quantum system is replicated and measured. The term ``measurements'' (albeit somewhat ambiguous) refers to the number of observables we use. For that experiment in particular, this implies that the number of observables will sometimes be less than the maximum, hence a case of tomographic incompleteness. \medbreak
+
+As mentioned in the introduction \ref{section:goals-contributions}, the code written for these experiments will be made available later on TODO: fix incorrect link \href{www.github.com/daqwes/thesis}{GitHub}. All of it is in Python, with the prob-estimator reimplemented from R and the Projected Langevin algorithm from Matlab, with original source code provided by the authors in both cases (\cite{MA17} and \cite{meth:bayesian:Langevin:ACMT2024} respectively). The prob-estimator originally uses separate qubit data generation and Projected Langevin mixed qubit, however we will sometimes only keep one of them (this will be indicated) to use for both. Per our tests, the results are usually very close between them (for example by using separate qubit for Projected Langevin or vice versa), so either data generation approach should be valid for any experiment, regardless of the used algorithm.\medbreak
+
+Before going in more detail about each experiment, it is important to note that there are some discrepancies for the prob-estimator between the paper and the associated implementation in R:
 \begin{itemize}
-\item The original paper states the proposed $\tilde V_i$ does not depend on the previous sample ($\tilde V_i$ is sampled uniformly from the uniform distribution). This however contradicts their implementation, which considers $\tilde V_i = V_i^{t} + V$, where $V$ is sampled from the unit sphere. Both approaches seem valid: in the former case, while we do not sample locally, we still explore the parameter space as it constrained to be the unit sphere; in the latter case, we also remain on the unit sphere due to normalization. In our implementation, we decided to align on their code.
-\item Their paper does not mention the use of a running average, but this is technique they apply in the code. Again, we also align on their code.
-\item In their code, the first sample they provide to the MCMC algorithm is not random, and comes from an estimation from the inverse method. This provides a warm start and can affect the accuracy of the algorithm. In our experiments, we use a random first sample.
-\item Not clear how they calculate the acceptance criterion, not specified in paper. What we are able to derive however seems to match their code (but not paper)
+\item The original paper states the proposed $\tilde V_i$ does not depend on the previous sample ($\tilde V_i$ is sampled uniformly from the uniform distribution). This however contradicts their implementation, which considers $\tilde V_i = V_i^{(t)} + V$, where $V$ is sampled from the unit sphere. Both approaches seem valid: in the former case, while we do not sample locally, we still explore the parameter space as it constrained to be the unit sphere; in the latter case, we also remain on the unit sphere due to normalization. In our implementation, we decided to align on their code.
+\item Their paper does not mention the use of a running average, but this is technique they apply in the code. In this case, we also align on their code. TODO: add/remove this? and reflect that for Projected Langevin, to have a fair comparison.
+\item In their code, the first sample they provide to the MCMC algorithm is not random, and comes from an estimation using the inverse method. This provides a warm start and can affect the accuracy of the algorithm. In our experiments, we use a the same random first sample for both algorithms. 
 \end{itemize}
-\section{Baseline comparison}
+
+\section{Baseline comparison}\ref{section:baseline-comparison}
+
+We will start with a baseline comparison with a convergence plot. We will $n$ to denote the number of qubits,  is the n
 
 \section{Impact of burnin duration}
 
