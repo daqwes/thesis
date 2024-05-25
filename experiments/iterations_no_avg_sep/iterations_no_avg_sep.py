@@ -33,7 +33,7 @@ def run_experiment(savefig=True):
         n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None
+        n, n_meas, n_shots, rho_type, As_PL, y_hat, n_iter, n_burnin, seed=None
     )
 
     accs_prob = [0] * (n_iter)

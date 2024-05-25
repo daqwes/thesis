@@ -17,13 +17,13 @@ def time_run(f: Callable):
     tac = time.perf_counter()
     return tac - tic, r_val 
 
-def compute_error(rho_hat: np.ndarray, rho_true: np.ndarray, err_type: str = "fro_sq"):
+def compute_error(rho_hat: np.ndarray, rho_true: np.ndarray, err_type: str = "fro_sq") -> float:
     """
     """
     if err_type == "fro_sq":
-        return np.linalg.norm(rho_hat - rho_true)**2
+        return np.linalg.norm(rho_hat - rho_true)**2 #type: ignore
     elif err_type == "fro":
-        return np.linalg.norm(rho_hat - rho_true)
+        return np.linalg.norm(rho_hat - rho_true) #type: ignore
     elif err_type == "MSE":
         d0, d1 = rho_hat.shape
         return np.trace((rho_hat - rho_true) @ np.conj((rho_hat - rho_true).T)) / (d0*d1)

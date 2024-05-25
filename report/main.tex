@@ -66,7 +66,14 @@ sorting=ynt
 \newcommand{\ti}{\textit}
 \newcommand{\btheta}{\boldsymbol{\theta}}
 \newcommand{\brho}{\boldsymbol{\rho}}
-
+\newcommand{\nmeasn}[1]{$n_{\text{meas}}=#1$}
+\newcommand{\nitern}[1]{$n_{\text{iter}}=#1$}
+\newcommand{\nburninn}[1]{$n_{\text{burnin}}=#1$}
+\newcommand{\rhorankn}[1]{\text{rank}$(\rho)=#1$}
+\newcommand{\nmeas}[0]{$n_{\text{meas}} $ }
+\newcommand{\niter}[0]{$n_{\text{iter}} $ }
+\newcommand{\nburnin}[0]{$n_{\text{burnin}} $ }
+\newcommand{\rhorank}[0]{\text{rank}$(\rho) $ }
 \title{Efficient sampling algorithms for Bayesian Quantum Tomography}
 \author{Danila Mokeev}
 \date{June 2024}
@@ -106,7 +113,7 @@ $N(\boldsymbol{\mu},\boldsymbol{\Sigma})$ & Multivariate normal distribution wit
 
 \section{Motivation}
 %\addcontentsline{toc}{chapter}{\protect\numberline{}Motivation}
-A fundamental problem in physics is the reconstruction of the state of a system given measurements describing it. In classical mechanics, this is, at least in theory, always possible due to the deterministic nature of the system. This allows one to make multiple measurements on a system, usually the position and momentum, to exactly determine its state. In Quantum Mechanics (Quantum Mechanics), however, the situation is very different: measuring the system disturbs it (in Quantum Mechanics we talk about wavefunction collapse), making it impossible to gain more information by repeating measurements. We are also fundamentally limited by what we can measure: the Heisenberg uncertainty principle only allows the measurement of either the position or the momentum, but not both at the same time. Finally, the no-cloning theorem also forbids the system to be copied right before the measurement unless we know the state of the system.\medbreak
+A fundamental problem in physics is the reconstruction of the state of a system given measurements describing it. In classical mechanics, this is, at least in theory, always possible due to the deterministic nature of the system. This allows one to make multiple measurements on a system, usually the position and momentum, to exactly determine its state. In Quantum Mechanics, however, the situation is very different: measuring the system disturbs it (in Quantum Mechanics we talk about wavefunction collapse), making it impossible to gain more information by repeating measurements. We are also fundamentally limited by what we can measure: the Heisenberg uncertainty principle only allows the measurement of either the position or the momentum, but not both at the same time. Finally, the no-cloning theorem also forbids the system to be copied right before the measurement unless we know the state of the system.\medbreak
 
 \textit{Quantum Tomography} or \textit{Quantum State Tomography} is a process that allows to reconstruct the state of the system in the context of Quantum Mechanics. It tackles the previously described issues by replicating the initial state of the system multiple times, and then measuring once each replica. Note that there is a subtle difference between copying the system and preparing multiple systems with the same steps, as the latter does \textit{not} require any knowledge about the state, only the \textit{steps} necessary to produce it.\medbreak
 
@@ -688,7 +695,7 @@ The pseudocode for the algorithm is available below:\medbreak
             $\tilde Y_i \gets Y_i^{(t)} \exp (y)$ \;
             $\tilde \gamma \gets \tilde Y /(\sum_{j=1}^d \tilde Y_j)$\;
             $Y_i^{(t)} \gets \begin{cases}
-                \tilde Y_i \hspace{0.96cm} \text{with probability} \min\{R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}), 1\} \tcp*[l]{$R$ defined below}\\
+                \tilde Y_i \hspace{0.96cm} \text{with probability} \min\{R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}, \lambda, \alpha), 1\} \tcp*[l]{$R$ defined below}\\
                 Y_i^{(t)} \hspace{0.63cm}\text{otherwise}
             \end{cases}$
             $\gamma^{(t)} \gets Y^{(t)} /\sum_{k=1}^d Y_k^{(t)}$ \tcp*[l]{Update all components}
@@ -704,7 +711,7 @@ The pseudocode for the algorithm is available below:\medbreak
             $\tilde V_i \gets (V + V_i^{(t)})/||V + V_i^{(t)}||_2$\tcp*[l]{Sample from the unit sphere}
             
             $V_i^{(t)} \gets \begin{cases}
-                \tilde V_i \hspace{0.96cm} \text{with probability} \min\{A(\tilde V, V^{(t)}, \gamma^{(t)}), 1\} \tcp*[l]{$A$ defined below}\\
+                \tilde V_i \hspace{0.96cm} \text{with probability} \min\{A(\tilde V, V^{(t)}, \gamma^{(t)}, \lambda), 1\} \tcp*[l]{$A$ defined below}\\
                 V_i^{(t)} \hspace{0.63cm}\text{otherwise}
             \end{cases}$
         }
@@ -717,13 +724,13 @@ The pseudocode for the algorithm is available below:\medbreak
 
 Here, we have that 
 \begin{align}
-\log R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}) &= - \lambda \ell^{}(\sum_{i=1}^{d} \tilde \gamma_i V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D) + \lambda \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D) \\
+\log R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}, \lambda, \alpha) &= - \lambda \ell^{}(\sum_{i=1}^{d} \tilde \gamma_i V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D) + \lambda \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D) \\
 &\quad + (\alpha - 1) \log\left(\frac{\tilde Y_i}{Y_i^{(t)}}\right) - \tilde Y_i + Y_i^{(t)}
 \end{align}
 
 and 
 \begin{equation}
-\log A(\tilde V, V^{(t)}, \gamma^{(t)}) = -\lambda \ell(\sum_{i=1}^{d} \gamma_i^{(t)} \tilde V_i \tilde V_i^\dagger, \mb D) + \lambda \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t)} (V_i^{(t)})^\dagger, \mb D) 
+\log A(\tilde V, V^{(t)}, \gamma^{(t)}, \lambda) = -\lambda \ell(\sum_{i=1}^{d} \gamma_i^{(t)} \tilde V_i \tilde V_i^\dagger, \mb D) + \lambda \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t)} (V_i^{(t)})^\dagger, \mb D) 
 \end{equation}
 The curious reader can find the detailed derivations in the appendix \ref{section:appendix:acc-rate-prob}.\medbreak
 
@@ -786,7 +793,7 @@ Putting all these components together, we can write the pseudocode for the resul
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$T \in \mathbb{N}, B \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \{\eta_k | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    \Input{$T \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \{\eta_k | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
     \Output{$\tilde Y \in \mathbb{R}^{d\times r}$}
     $\tilde Y_0 \gets \psi(Y_0)$\;
     \For{$k\gets 1:T$}{ 
@@ -795,10 +802,10 @@ Putting all these components together, we can write the pseudocode for the resul
         $\tilde w_k \gets \psi(w_k)$\;
         $\tilde Y_k \gets \tilde Y_{k-1} - \eta_k \nabla f  (\tilde Y_{k-1}, \theta, \lambda) + \cfrac{\sqrt{2\eta_k}}{\beta} \tilde w_k$\;
     }
-    $\tilde Y \gets \cfrac{1}{T - B} \sum_{k=B+1}^{T} \tilde Y_{k}$\;
+    $\tilde Y \gets \cfrac{1}{T} \sum_{k=1}^{T} \tilde Y_{k}$\;
     \caption{Projected Langevin}
 \end{algorithm}\medbreak
-where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior, $\beta$ a scaling parameter for the noise term, $B$ the number of burn-in iterations and $T$ the number of iterations. The main differences from the original algorithm described in \ref{section:ula} are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal.\medbreak
+where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior, $\beta$ a scaling parameter for the noise term and $T$ the number of iterations. There is also a burn-in period which is not indicated here. The main differences from the original algorithm described in \ref{section:ula} are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal.\medbreak
 
 The main motivation behind this approach comes from the faster convergence times, especially in high-dimensional settings where Metropolis-Hastings suffers. The proposed prior allows for a computable gradient, which bootstraps the use of Langevin sampling. A second benefit comes from the Burer-Monteiro factorization, which allows to use, if available, the information about the rank of density matrix. In general, the parameter $r$ in this factorization corresponds to an upper-bound on the rank of $\hat \rho$, the approximation of the true density matrix $\rho$. This however also means that we may give too much freedom to the approximation if we know that the true $\rho$ is of low rank. Setting $r$ to the true rank allows us to constrain the search space.\medbreak
 
@@ -808,30 +815,215 @@ TODO: talk about the Crank-Nicholson preconditioning
 
 \chapter{Numerical experiments}\label{section:numerical-exp}
 
-We will now focus on the main contribution of this thesis, namely numerical experiments to compare the prob-estimator (which we will refer to as prob in figures) and the Projected Langevin algorithm (which we will refer to as PL in figures).\medbreak
+We will now focus on the main contribution of this thesis, namely numerical experiments to compare the prob-estimator (which we will refer to as prob in figures) and the Projected Langevin algorithm (which we will refer to as PL or langevin in figures).\medbreak
 
 The goal with these experiments is to see how does Metropolis-Hastings compare to Langevin sampling with different experimental settings in the context of Quantum Tomography. In particular, we will use the $L_2$ squared error as the main metric to assess performance in 5 main contexts: baseline convergence, influence of the burn-in period, impact of the number of shots, impact of the the number of measurements and finally impact in case we have knowledge about the rank of the matrix (in particular for Langevin). The term ``shots'' here refers to the number of times the quantum system is replicated and measured. The term ``measurements'' (albeit somewhat ambiguous) refers to the number of observables we use. For that experiment in particular, this implies that the number of observables will sometimes be less than the maximum, hence a case of tomographic incompleteness. \medbreak
 
-As mentioned in the introduction \ref{section:goals-contributions}, the code written for these experiments will be made available later on TODO: fix incorrect link \href{www.github.com/daqwes/thesis}{GitHub}. All of it is in Python, with the prob-estimator reimplemented from R and the Projected Langevin algorithm from Matlab, with original source code provided by the authors in both cases (\cite{MA17} and \cite{meth:bayesian:Langevin:ACMT2024} respectively). The prob-estimator originally uses separate qubit data generation and Projected Langevin mixed qubit, however we will sometimes only keep one of them (this will be indicated) to use for both. Per our tests, the results are usually very close between them (for example by using separate qubit for Projected Langevin or vice versa), so either data generation approach should be valid for any experiment, regardless of the used algorithm.\medbreak
+As mentioned in the introduction \ref{section:goals-contributions}, the code written for these experiments will be made available later on \href{https://github.com/daqwes/thesis}{GitHub}. All of it is in Python, with the prob-estimator reimplemented from R and the Projected Langevin algorithm from Matlab, with original source code provided by the authors in both cases (\cite{MA17} and \cite{meth:bayesian:Langevin:ACMT2024} respectively). The prob-estimator originally uses separate qubit data generation and Projected Langevin mixed qubit, however we will sometimes only keep one of them (this will be indicated) to use for both. Per our tests, the results are usually very close between them (for example by using separate qubit for Projected Langevin or vice versa), so either data generation approach should be valid for any experiment, regardless of the used algorithm.\medbreak
 
 Before going in more detail about each experiment, it is important to note that there are some discrepancies for the prob-estimator between the paper and the associated implementation in R:
 \begin{itemize}
 \item The original paper states the proposed $\tilde V_i$ does not depend on the previous sample ($\tilde V_i$ is sampled uniformly from the uniform distribution). This however contradicts their implementation, which considers $\tilde V_i = V_i^{(t)} + V$, where $V$ is sampled from the unit sphere. Both approaches seem valid: in the former case, while we do not sample locally, we still explore the parameter space as it constrained to be the unit sphere; in the latter case, we also remain on the unit sphere due to normalization. In our implementation, we decided to align on their code.
-\item Their paper does not mention the use of a running average, but this is technique they apply in the code. In this case, we also align on their code. TODO: add/remove this? and reflect that for Projected Langevin, to have a fair comparison.
+\item Their paper does not mention the use of a running average, but this is technique they apply in the code. In this case, we also align on their code and reflect that for Projected Langevin, to have a fair comparison. TODO: keep?
 \item In their code, the first sample they provide to the MCMC algorithm is not random, and comes from an estimation using the inverse method. This provides a warm start and can affect the accuracy of the algorithm. In our experiments, we use a the same random first sample for both algorithms. 
 \end{itemize}
 
-\section{Baseline comparison}\ref{section:baseline-comparison}
 
-We will start with a baseline comparison with a convergence plot. We will $n$ to denote the number of qubits,  is the n
+\section{Parameter choice}
+We will use $n$ to denote the number of qubits, $m$ the number of shots, \nmeas the number of measurements, \niter the number of iterations, \nburnin the number of burnin iterations and \rhorank the rank of the true $\rho$. If not specified otherwise, the usual setting is $n=3$, $m=2000$, \nmeasn{3^n} for independent qubit data generation and \nmeasn{4^n} for mixed qubits, \nitern{10000}, \nburninn{2000} and \rhorankn{2}. The choice of a small value for $n$ is related to computation time. The matrix dimensions scale exponentially with the number of qubits, and increasing $n$ to $n=4$ or $n=5$ becomes expensive to run. Regarding the number of shots, it comes from the prob-estimator paper and after tests, it seems to be informative enough (see section \ref{section:comp-nb-shots} for more details). The initial point is the same for both methods, and corresponds to a random rank-1 matrix. More details can be found in the appendix \ref{section:init-sample-gen}.\medbreak
 
-\section{Impact of burnin duration}
+The parameters used for the prob-estimator are $\lambda=m/2$ and $\alpha=1/2$, as it is the case in the original R code. For the Langevin sampling, we use $\lambda=m/2,\theta=0.1,\beta=100,\eta=0.05/m$, where $\beta$ and $\theta$ were chosen using a gridsearch, $\eta$ set sufficiently small for the algorithm to converge and $\lambda$ coming from the original code.
 
-\section{Impact of number of shots}
+\section{Convergence comparison}\label{section:baseline-comparison}
 
-\section{Impact of number of measurements}
+\subsection*{Baseline}
 
-\section{Impact of knowledge of rank}
+We will start the comparison with a convergence plot, using mixed qubit data generation by default:
+
+\begin{figure}[H]
+    % Comes from experiments/iterations_no_avg
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png}
+    \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+    \label{fig:conv-plot-mixed-DG}
+\end{figure}
+
+Here is the same experiment, but with separate qubit data generation:
+
+\begin{figure}[H]
+    % Comes from experiments/iterations_no_avg_sep
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/experiments/baseline/iters_acc_comp_iters_no_avg_sep.png}
+    \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+    \label{fig:conv-plot-sep-DG}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+        \label{fig:conv-plot-mixed-DG-sub}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/iters_acc_comp_iters_no_avg_sep.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:conv-plot-sep-DG-sub}
+    \end{subfigure}
+\end{figure}
+
+As we can see in both these plots, the 2 algorithms achieve the same accuracy, however Projected Langevin converges much faster. This confirms the hypothesis that the gradient is beneficial. It is also a confirmation that both data generation approaches give similar results. The only difference we see is that the convergence of the prob-estimator is faster with the mixed qubit approach, however this does not change the overall conclusion between the algorithms. Note that, as indicated in the previous section \ref{section:numerical-exp}, we use a running average for langevin, which is why it is smoothed out after the end of the burn-in period.
+
+\subsection*{Baseline accross ranks}
+A second element that we would like to check is how these algorithms perform if the rank $\rho$ is different from 2. These are the results we get for 3 combinations, rank 1, rank 2 and rank $d=8$ using mixed qubit data generation:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/iterations_no_avg_rank1
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_rank/iters_acc_comp_iters_no_avg_rank1-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+        \label{fig:conv-plot-diff-rank-1-sub}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/iterations_no_avg
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_rank/iters_acc_comp_iters_no_avg-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:conv-plot-diff-rank-2-sub}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/iterations_no_avg_rankd
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_rank/iters_acc_comp_iters_no_avg_rankd-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:conv-plot-diff-rank-d-sub}
+    \end{subfigure}
+\end{figure}
+
+We can see that the result in sensibly the same accross all ranks, hence confirming our hypothesis that rank 2 is representative of other ranks. It is interesting to note that rank 1 takes longer to converge for the prob-estimator, which means that the density matrix is more difficult to approximate in this situation. This matches our intuition, as random samples (even though they form a Markov chain in this case)tend to increase the rank.
+
+\subsection*{Baseline accross qubit count}
+
+A final element that is interesting to compare is how convergence is impacted by the qubit count. In this case, we will be running both algorithms with $n=\{3,4,5\}$:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/iterations_no_avg_rank1
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+        \label{fig:conv-plot-diff-n-3-sub}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/iterations_no_avg_n4
+        % TODO: rerun if time allows to check which eta is needed for langevin
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:conv-plot-diff-n-4-sub}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/iterations_no_avg_n5
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:conv-plot-diff-n-5-sub}
+    \end{subfigure}
+\end{figure}
+
+With each qubit increase, we can see that convergence becomes more and more challenging. For $n=5$, we decreased $\eta=0.001/m$ as otherwise Langevin was not converging. This also explains why this curve is smooth during the burn-in period, as the steps we take are very small (on the order of $1\text{e-}7$). An interesting question to ask in this case is if Langevin is suitable for larger $n$, as one might expect no convergence happening with a very small $\eta$ (of course if it is required to make it smaller).
+
+\section{Impact of burn-in duration}\label{section:comp-burnin}
+So far, we have used a fixed number for the burn-in duration, in particular \nburninn{2000} for \nitern{10000}. A question we can ask ourselves in this situation is to which degree this value determines the convergence speed, and whether in general convergence will happen if, for example, we reduce \nburnin. For this experiment, we fix \nitern{10000} but we vary \nburnin from $100$ to $6000$. Here are the results we obtain (with mixed qubit data generation):
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/burnin_no_avg
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/burnin/burnin_acc_comp_burnin-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+        \label{fig:burnin-comp-mixed-DG-sub}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/burnin_no_avg_sep
+        % TODO: rerun for title change
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/burnin/burnin_acc_comp_burnin_sep-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:burnin-comp-sep-DG-sub}
+    \end{subfigure}
+\end{figure}
+The duration of the burn-in very marginally impacts the final accuracy, even though a bit more for the prob-estimator. This is also a result we could have expected, as Projected Langevin converges very fast, while the prob-estimator takes time.
+
+\section{Impact of number of shots}\label{section:comp-nb-shots}
+
+As discussed in section \ref{section:numerical-exp}, the value of $m=2000$ for the number of shots was chosen as it was the number provided in the original source code for both algorithms. One however might ask how this value impacts the accuracy, as the number of shots is very information-dense: performing the measurement on a system times (or more exactly replicating more systems and measuring them) provides better estimates for the empirical probabilities $\hat p_{\mb a, \mb s}$. A priori, the expectation we have is that for any algorithm, increasing the number of shots will increase the accuracy. In this experiment, we will be increasing $m$ exponentially from $1\text{e}2$ to $1\text{e}7$, to replicate an experiment that was done the Langevin paper \cite{meth:bayesian:Langevin:ACMT2024}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/shots
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+        \label{fig:shots-comp-mixed-sub}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/shots_sep
+        % TODO: rerun for title change
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_sep_loglog-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:shots-comp-sep-sub}
+    \end{subfigure}
+\end{figure}
+We can see quite a surprising result: while Langevin gets the expected behaviour of scaling linearly in the loglog plot, the prob-estimator does not improve beyond a certain threshold of about $1\text{e-}4,1\text{e-}5$ shots. It occurw with both data generation processes, which means that it is not related to that. A possible explanation could be that the $\lambda$ parameter, which depends on the number of shots, makes the likelihood explode and that the prior is not taken into account anymore. We have therefore tried changing the value of $\lambda$ to a fixed value accross all shots' counts. This is what we obtained (with mixed qubit data generation):
+
+\begin{figure}[H]
+    % Comes from experiments/
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png}
+    \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+    \label{fig:shots-comp-prob-var-lambda}
+\end{figure}
+
+We can see that even with a fixed $\lambda$ for the prob-estimator, the information gain stagnates at around $1\text{e-}5$. We are not exactly sure why this occurs, as the original R code seems to have the same behaviour (and the authors do not provide metrics beyond $m=2000$). The only conclusion we can draw from this result is that it is an inherent property of the method.
+
+\section{Impact of number of measurements}\label{section:comp-nb-meas}
+The number of measurements, or observables, is another interesting thing to explore. While in general we assume a tomographically complete setup, here we will try to reduce the number of observables to see how both algorithms behave in this setup, and how many observables are needed in order to keep accuracy sufficiently high. We will be increasing \nmeas  from $1$ to either $4^n$ for mixed qubit or $3^n$ for separate qubit data generation, with the observables randomly chosen at each step. Here is what we obtain:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/meas
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/meas/meas_acc_comp_meas-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using mixed qubit data generation}
+        \label{fig:meas-comp-mixed-sub}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        % experiments/meas_sep
+        % TODO: rerun for title change
+        \centering
+        \includegraphics[width=\textwidth]{figures/experiments/meas/meas_acc_comp_meas_sep-1.png}
+        \caption{Convergence plot of the prob-estimator vs Projected Langevin using separate qubit data generation}
+        \label{fig:meas-comp-sep-sub}
+    \end{subfigure}
+\end{figure}
+
+\section{Impact of knowledge of rank}\label{section:comp-nb}
 
 \chapter{Algorithm vs prior: what matters the most?}\label{section:algo-vs-prior}
 
@@ -861,9 +1053,9 @@ We will start with a baseline comparison with a convergence plot. We will $n$ to
 \chapter*{Appendix}
 \section*{Derivation of the acceptance rate for the prob-estimator}\label{section:appendix:acc-rate-prob}
 
-\subsection*{Derviation of $\log(R)$}
+\subsection*{Derivation of $\log(R)$}
 TODO: clean-up this part 
-The first expression $\log(R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}))$ (which we will write as $\log(R(\nu^*, \nu))$) is derived as follows: first, let us define
+The first expression $\log(R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}, \lambda, \alpha))$ (which we will write as $\log(R(\nu^*, \nu))$) is derived as follows: first, let us define
 \begin{align}
     \tilde \ell &= \ell^{}(\sum_{i=1}^{d} \tilde \gamma_i V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D)\\
     \ell^{(t)} &= \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t-1)} (V_i^{(t-1)})^\dagger, \mb D)
@@ -889,7 +1081,7 @@ where we have replaced $y$ by either $\tilde Y_i$ or $Y^{(t)}_i$. Finally, we ca
 \end{align}
 
 \subsection*{Derivation of $\log(A)$}
-The derivation of $\log(A)(\tilde V, V^{(t)}, \gamma^{(t)}) = \log(A(\nu^*, \nu))$ is very similar to the one of $\log(R)$, however much simpler as it does not involve the prior. It is not exactly clear why it is possible and the authors do not provide their derivation, hence we must take guesses. One option is the fact the prior is symmetric (as it is a normal distribution), and in the case of considering it as a proposal, we can simplify the numerator and denominator. Note that this conflicts with what is done for $\log(R)$, as there the prior is considered as part of the posterior. Let's define
+The derivation of $\log(A(\tilde V, V^{(t)}, \gamma^{(t)}, \lambda)) = \log(A(\nu^*, \nu))$ is very similar to the one of $\log(R)$, however much simpler as it does not involve the prior. It is not exactly clear why it is possible and the authors do not provide their derivation, hence we must take guesses. One option is the fact the prior is symmetric (as it is a normal distribution), and in the case of considering it as a proposal, we can simplify the numerator and denominator. Note that this conflicts with what is done for $\log(R)$, as there the prior is considered as part of the posterior. Let's define
 \begin{align}
     \tilde \ell &= \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} \tilde V_i \tilde V_i^\dagger, \mb D)\\
     \ell^{(t)} &= \ell^{}(\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t)} (V_i^{(t)})^\dagger, \mb D)
@@ -900,5 +1092,8 @@ Then, we can calculate $\log(A)$ as:
                         &= \log(\frac{\exp(-\lambda \tilde \ell)}{\exp(-\lambda \ell^{(t)})})\\
                         &= -\lambda \tilde \ell + \lambda \ell^{(t)}
 \end{align}
+
+\subsection*{Generation of initial sample}\label{section:init-sample-gen}
+In order to generate the initial sample $\hat \rho_0 \in \mathbb{C}^{d\times r}$ for MCMC algorithms, we use the following scheme: we start by generating a random unitary matrix $V$ of size $d \times r$, then we generate $\tilde D$ a diagonal matrix, where $\tilde D_{ii} \sim Gamma(1/r, 1)$, which we then normalize and create $D = \sqrt{\tilde D/\sum_{i=1}^{r} \tilde D_{ii}}$. Finally, the generated matrix is calculated as $\hat \rho_0 = V D$, which corresponds to a rank-1 matrix. This is analogous to what is suggested in \cite{MA17}.
 \includepdf[pages={2}]{cover/cover-danila-mokeev.pdf}
 \end{document}
