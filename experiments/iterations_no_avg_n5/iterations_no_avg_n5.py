@@ -21,8 +21,8 @@ def run_experiment(savefig=True):
     d = 2**n
     n_meas = d * d
     n_shots = 2000
-    n_iter = 2000
-    n_burnin = 500
+    n_iter = 10000
+    n_burnin = 2000
     rho_type = "rank2"
 
     rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
@@ -36,7 +36,7 @@ def run_experiment(savefig=True):
         n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, eta_shots_indep=0.001
+        n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, eta_shots_indep=0.0001
     )
 
     accs_prob = [0.0] * (n_iter)
