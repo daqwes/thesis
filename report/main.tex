@@ -62,6 +62,7 @@ sorting=ynt
 \newcommand{\tr}{\text{tr}}
 \newcommand{\Tr}{\text{Tr}}
 \newcommand{\mb}{\mathbf}
+\newcommand{\bsy}{\boldsymbol}
 \newcommand{\tb}{\textbf}
 \newcommand{\ti}{\textit}
 \newcommand{\btheta}{\boldsymbol{\theta}}
@@ -100,10 +101,11 @@ I would like to thank Estelle Massart, Andrew Thompson and Tameem Adel for their
 \tb{prob} & prob-estimator\\
 \tb{PL}& Projective Langevin  \\
 $\ket{{\psi}}$ & Quantum state $\psi$ in the \ti{bra-ket} formulation\\
-$\mb{M^\dagger}$ & Conjugate transponse of matrix $M$\\
-$\braket{\mb M}$ & Expected value of a matrix/operator $M$\\
+${M^\dagger}$ & Conjugate transponse of matrix $M$\\
+$\braket{M}$ & Expected value of a matrix/operator $M$\\
 \tb {POVM} & Positive Operator-Valued Measure\\
-$\mb{M\otimes N}$ & Kronecker product between matrices $M$ and $N$\\
+${M\otimes N}$ & Kronecker product between matrices $M$ and $N$\\
+${M \odot N}$ & Hadamard (element-wise) product between matrices $M$ and $N$\\
 ${U}(a,b)$ & Uniform distribution defined on the open interval $(a,b)$\\
 $N(\mu, \sigma^2)$ & Normal distribution with mean $\mu$ and standard derivation $\sigma$\\
 $N(\boldsymbol{\mu},\boldsymbol{\Sigma})$ & Multivariate normal distribution with mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$ 
@@ -382,7 +384,7 @@ An important element to take into account when working with this method in pract
 
 \subsubsection*{Mixed qubit data generation}\label{section:mixed-qub-dg}
 
-Mixed qubit data generation (also called ``Pauli observables" in \cite{Guta20}) is an alternative approach, where instead of calculating the probability for each observable/outcome pair, we will directly approximate the expected value linked to this observable. Its calculation is much more straightforward: if we call $A_m$ the observable of which we calculate the expected value, then $A_m = \sigma_{m_1} \otimes \sigma_{m_2} \dots \otimes \sigma_{m_n}$ with $n$ the number of qubits and $m_i$ identifying the Pauli matrix for qubit $i$ for combination $m$ (the notation is the same as in \cite{meth:bayesian:Langevin:ACMT2024}). This results in a total of $4^n$ combinations ($\sigma_{m_i} \in \{I, \sigma_x, \sigma_y, \sigma_z\}$), hence less costly than the separate qubit process.
+Mixed qubit data generation (also called ``Pauli observables" in \cite{Guta20}) is an alternative approach, where instead of calculating the probability for each observable/outcome pair, we will directly approximate the expected value linked to this observable. Its calculation is much more straightforward: if we call $A_m$ the observable of which we calculate the expected value, then $A_m = \sigma_{m_1} \otimes \sigma_{m_2} \dots \otimes \sigma_{m_n}$ with $n$ the number of qubits and $m_i$ identifying the Pauli matrix for qubit $i$ for combination $m$ (the notation is the same as in \cite{meth:bayesian:Langevin:ACMT2024}). The measured value for each observable is $\hat p_m \in[-1, 1]$. This results in a total of $4^n$ combinations ($\sigma_{m_i} \in \{I, \sigma_x, \sigma_y, \sigma_z\}$), hence less costly than the separate qubit process.
 
 %\section{Pointwise estimation methods}
 \newpage
@@ -623,7 +625,7 @@ TODO: talk about theoretical guarantees?
 \chapter{Overview of relevant methods} \label{section:relevant-methods}
 We will introduce here 2 MCMC algorithms that are in relevant in the context of this thesis: the \ti{prob-estimator} and the \ti{Projected Langevin algorithm}. They will be useful in Chapter \ref{section:numerical-exp} where we will be comparing them in numerical experiments and Chapter \ref{section:algo-vs-prior} where we will be presenting 2 new algorithms derived from them.
 
-\section{Prob-estimator}
+\section{Prob-estimator}\label{section:prob-estimator}
 Introduced in \cite{MA17}, the \textit{prob-estimator} is a Metropolis-Hastings-based algorithm (more details about it can be found in section \ref{section:Metropolis-Hastings}), where the approximation of the density matrix $\rho$ is done using a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation. The exact solution is written as follows:
 \begin{equation}\label{eq:rank1-approx}
     \rho = \sum_{i=1}^d \gamma_i V_i V_i^\dagger
@@ -742,11 +744,11 @@ The curious reader can find the detailed derivations in the appendix \ref{sectio
 however this only works in the case where $t \in \mathbb{N}$. The wikipedia page \cite{wiki:gamma-dist} mentions that the case with $0 < \alpha < 1$ (assumed with $\beta=1$) is the most challenging to sample from, with new research \cite{mcmc:gamma-sampling:liu2015simulating} still being done on this topic. The Python library \texttt{numpy} does it using a form of rejection sampling\footnote{\texttt{\url{https://github.com/numpy/numpy/blob/main/numpy/random/src/distributions/distributions.c\#220}}}, similar to \cite{mcmc:gamma-sampling:liu2015simulating}. These approaches are however very different from what is done in the prob-estimator, and as the authors do not indicate why it is correct, it is difficult to understand the reasoning behind it.
 
 \newpage
-\section{Projected Langevin}
+\section{Projected Langevin}\label{section:projected-langevin}
 
 Introduced in the \cite{meth:bayesian:Langevin:ACMT2024} paper (unpublished at the moment of submission for this thesis), the projected Langevin approach is based on an Unadjusted Langevin algorithm (ULA) (more details about it can be found in section \ref{section:ula}). The authors utilize the Burer-Monteiro factorization (introduced in \cite{proj-langevin:Burer2003}) $\rho = Y Y^\dagger$ with $Y \in \mathbb{C}^{d \times r}$ (with $d=2^n$ and $n$ the number of qubits), which corresponds to a low rank (of rank $r$) factorization of $\rho$. This corresponds to consider that the density matrix has a maximum rank of $r$. This also allows us to reduce the dimension of the parameter space from $2d^2$ to $2dr$ by running the MCMC method directly on the $Y$ space. It is important to note that the physical constraints of the problem are still respected, as we assume the matrix $Y$ to belong to the complex hypersphere $C \mathbb{S}^{d\times r} = \{ Y \in \mathbb{C}^{d\times r}: ||Y||_F = 1\}$, leading to a unit trace. The Hermitian and positive semi-definite properties of the density matrix are obtained by construction.\medbreak
 
-In addition to the factorization, the paper proposes a new prior, called the spectral scaled Student distribution defined as
+In addition to the factorization, the paper proposes a new prior, called the spectral scaled Student-t distribution defined as
 \begin{equation}    
 \nu_{\theta} (Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
 \end{equation}
@@ -757,7 +759,7 @@ The used likelihood is similar to the prob-estimator, and is written as
 \begin{equation}
 L(Y, \mb D) = \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2
 \end{equation}
-with $A_m$ the Hermitian matrix characterizing the $m^{th}$ experiment and $\hat p_m$ a measured probability, corresponding to the data $\mb D$. The authors use mixed qubit data generation, for which more details can be found in section \ref{section:mixed-qub-dg}. \medbreak
+with $A_m$ the Hermitian matrix characterizing the $m^{th}$ experiment and $\hat p_m \in [-1, 1]$ a measured value, corresponding to the data $\mb D$. The authors use mixed qubit data generation, for which more details can be found in section \ref{section:mixed-qub-dg}. \medbreak
 Combining these terms, we can obtain a posterior $\hat \nu_{\lambda, \theta}(Y, \mb D) = \exp(-f_{\lambda, \theta}(Y, \mb D))$ with
 \begin{equation}
     f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^\dagger)
@@ -776,7 +778,7 @@ This results in the following rewrite of $f$:
 \tilde f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^{T}) + \tilde C
 \end{equation}
 
-where $\tilde Y = \psi(Y)$, $\psi(YY^\dagger) = \sqrt{2} \psi(Y)\psi(Y)^{T}$ and $\tilde C$ a normalization constant. We can then also obtain the gradient of $\tilde f_{\lambda, \theta}$:
+where $\tilde Y = \psi(Y)$, $\psi(YY^\dagger) = \sqrt{2} \psi(Y)\psi(Y)^{T}$ and $\tilde C$ a normalization constant. The posterior becomes $\hat \mu_{\lambda, \theta}(\tilde Y, \mb D) =\exp(-\tilde f_{\lambda, \theta}(\tilde Y, \mb D))$. We can then also obtain the gradient of $\tilde f_{\lambda, \theta}$:
 \begin{equation}
 \nabla \tilde f_{\lambda, \theta}(\tilde Y, \mb D) = -2\sqrt 2 \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 (\tilde A_m + \tilde A^{(t)}_m)\tilde Y + \cfrac{2d + r + 2}{\theta^2} \left(I_{2d} + \cfrac{2}{\theta^2}\tilde Y \tilde Y^{T}\right)^{-1} \tilde Y
 \end{equation}
@@ -785,7 +787,7 @@ They also use a trick (Sherman-Morrison-Woodbury formula) to compute the inverse
 \begin{equation}
 \left( I_{2d} + \frac{2}{\theta^2} \tilde Y \tilde Y^{T} \right)^{-1} =  I_{2d} - \tilde Y \left( \frac{\theta^2}{2} I_{2r}+\tilde Y^{T} \tilde Y \right)^{-1} \tilde Y^{T}
 \end{equation}
-Putting all these components together, we can write the pseudocode for the resulting algorithm:
+Putting all these components together, we can write the pseudocode for the resulting algorithm:\medbreak
 
 \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -793,19 +795,19 @@ Putting all these components together, we can write the pseudocode for the resul
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$T \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \{\eta_k | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
-    \Output{$\tilde Y \in \mathbb{R}^{d\times r}$}
-    $\tilde Y_0 \gets \psi(Y_0)$\;
+    \Input{$T \in \mathbb{N}, Y^{(0)} \in \mathbb{C}^{d \times r}, \{\eta^{(k)} | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    \Output{$\tilde Y \in \mathbb{R}^{2d\times 2r}$}
+    $\tilde Y^{(0)} \gets \psi(Y^{(0)})$\;
     \For{$k\gets 1:T$}{ 
-        $w_k^R, w_k^I \sim N(0, 1)^{d\times r}$\tcp*[l]{Sample from the standard normal of size ${d\times r}$}
-        $w_k \gets w_k^R + i w_k^I$\;
-        $\tilde w_k \gets \psi(w_k)$\;
-        $\tilde Y_k \gets \tilde Y_{k-1} - \eta_k \nabla f  (\tilde Y_{k-1}, \theta, \lambda) + \cfrac{\sqrt{2\eta_k}}{\beta} \tilde w_k$\;
+        $w^{(k)}_R, w^{(k)}_I \sim N(0, 1)^{d\times r}$\tcp*[l]{Sample from the standard normal of size ${d\times r}$}
+        $w^{(k)} \gets w^{(k)}_R + i w^{(k)}_I$\;
+        $\tilde w^{(k)} \gets \psi(w^{(k)})$\;
+        $\tilde Y^{(k)} \gets \tilde Y^{(k-1)} - \eta^{(k)} \nabla f  (\tilde Y^{(k-1)}, \theta, \lambda) + \cfrac{\sqrt{2\eta_k}}{\beta} \tilde w^{(k)}$\;
+        $\tilde Y \gets \frac{1}{k} \tilde Y^{(k)} + (1 - \frac{1}{k})\tilde Y$\;
     }
-    $\tilde Y \gets \cfrac{1}{T} \sum_{k=1}^{T} \tilde Y_{k}$\;
-    \caption{Projected Langevin}
+    \caption{Projected Langevin algorithm}
 \end{algorithm}\medbreak
-where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior, $\beta$ a scaling parameter for the noise term and $T$ the number of iterations. There is also a burn-in period which is not indicated here. The main differences from the original algorithm described in \ref{section:ula} are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal.\medbreak
+where $\eta_k$ is the step size, $\theta$ a scaling parameter for the prior, $\beta$ a scaling parameter for the noise term and $T$ the number of iterations. There is also a burn-in period which is not indicated here. The main differences from the original algorithm described in \ref{section:ula} are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal. Note that we also use a running average in this version (this was not done is the original paper), in order to have a fairer comparison with the prob-estimator.\medbreak
 
 The main motivation behind this approach comes from the faster convergence times, especially in high-dimensional settings where Metropolis-Hastings suffers. The proposed prior allows for a computable gradient, which bootstraps the use of Langevin sampling. A second benefit comes from the Burer-Monteiro factorization, which allows to use, if available, the information about the rank of density matrix. In general, the parameter $r$ in this factorization corresponds to an upper-bound on the rank of $\hat \rho$, the approximation of the true density matrix $\rho$. This however also means that we may give too much freedom to the approximation if we know that the true $\rho$ is of low rank. Setting $r$ to the true rank allows us to constrain the search space.\medbreak
 
@@ -1071,7 +1073,7 @@ An advantage that the Langevin algorithm has is that it can incorporate prior in
     \label{fig:rank-info}
 \end{figure}
 
-One might also wonder if this is related to the parameter $\theta$ in the prior. In this case, we ran the same experiment with $\theta \in \{1\text{e-}6,1\text{e-}3,1\text{e-}2,1\text{e-}1,1\text{e}0, 1\text{e}1\}$:
+One might also wonder how the parameter $\theta$ in the prior affects this result. In figure \ref{fig:rank-info-var-theta}, we ran the same experiment with $\theta \in \{1\text{e-}6,1\text{e-}3,1\text{e-}2,1\text{e-}1,1\text{e}0, 1\text{e}1\}$:
 
 \begin{figure}[H]
     \centering
@@ -1116,7 +1118,7 @@ We can also try this experiment for $n=4$ (hence from \rhorankn{1} to \rhorankn{
     \label{fig:rank-info-n4}
 \end{figure}
 
-These results are surprising, as it shows that the information about the rank does not lead to better accuracy. The figures for $n=4$ make it even clearer. There are 2 possible conclusions we can draw from this: either the upperbound that the factorization brings plays a small role in how it constrains the search space, with the prior and its parameters having much more impact, however it is also possible that the way we obtain our first sample is not correct, and even though samples are numerically of different rank, they tend to be too similar. More experiments are needed to investigate these results.\medbreak
+These results are surprising, as it shows that the information about the rank only leads to a marginal improvement in accuracy (it stays on the same order of magnitude). The most speaking one is the with the different combinations of $\theta$: we see on the left figure \ref{fig:rank-info-var-theta-sub} where we known the rank that the error increases for \rhorank{1,2,3} and stabilizes for other ranks around $2\text{e-}3/3\text{e-}3$ (with more variance for smaller $\theta$). On the right figure \ref{fig:rank-no-info-var-theta-sub}, some parameters have the same curve, but others, in particular $\theta \in\{1,10\}$, have a flat curve, with little variation between ranks. The overall conclusion remains however the same regardless of the parameter value: the information gain is minimal and the error is of the same order of magnitude. This results seems to generalize for higher $n$, as we see on figure \ref{fig:rank-info-n4}. There are 2 possible conclusions we can draw from this: either the upperbound that the factorization brings plays a small role in how it constrains the search space, with the prior and its parameters having much more impact, however it is also possible that the way we obtain our first sample is not correct, and even though samples are numerically of different rank, they tend to be too similar. More experiments are needed to investigate these results.\medbreak
 
 One interesting insight we can however draw from figures \ref{fig:rank-info}, \ref{fig:rank-info-var-theta} and \ref{fig:rank-info-n4} (for both cases, whether we know the rank of $\rho$ or not) is that approximating matrices of high rank tends to be more difficult. It is not clear if this is only linked to the fact that we use a low-rank prior, or simply a property of these matrices.
 
@@ -1129,23 +1131,171 @@ Second, for both algorithms, any burn-in duration produces the same accuracy for
 
 Third, Projected Langevin scales when the number of shots increases, while the prob-estimator does not beyond a threshold. As we saw in section \ref{section:comp-nb-shots}, the prob-estimator does not get more accurate after approximately $1\text{e-}4/1\text{e-}5$ shots, while Langevin has a straight line in the loglog plot of figure \ref{fig:shots-comp}. This is further confirmed in figure \ref{fig:shots-comp-prob-var-lambda}, where different combinations of the $\lambda$ parameter are tested for the prob-estimator. This means that in cases where 
 
-Fourth, the number of measurements or observables used in order to stay accurate is the same for both Projected Langevin and the prob-estimator. Indeed, the data generation process has much more importance and we observe mixed qubit needing on average half of the total number, while separate qubit only a third, as visible in figure \ref{fig:meas-comp}. This confirms our intuition that an exact method needs less observables than a approximate method.
+Fourth, the number of measurements or observables needed in order to stay accurate is the same for both Projected Langevin and the prob-estimator. Indeed, the data generation process has much more importance and we observe mixed qubit needing on average half of the total number, while separate qubit only a third, as visible in figure \ref{fig:meas-comp}. This confirms our intuition that an exact method needs less observables than a approximate method.
 
-Finally, for Projected Langevin, having the knowledge about the true rank of $\rho$ does not lead to better accuracy. Indeed, figures \ref{fig:rank-info}, \ref{fig:rank-info-var-theta} and \ref{fig:rank-info-n4} all result in the same conclusion that the rank of $\rho$ has much more importance
+Finally, for Projected Langevin, having the knowledge about the true rank of $\rho$ only leads to marginally better accuracy. Indeed, figures \ref{fig:rank-info}, \ref{fig:rank-info-var-theta} and \ref{fig:rank-info-n4} all result in the same conclusion: the rank of $\rho$ has more importance on the accuracy than information about it.
 
 \chapter{Algorithm vs prior: what matters the most?}\label{section:algo-vs-prior}
-The previous experiments in section \ref{section:numerical-exp} showed us that for lower numbers of qubits $n$, Projected Langevin tends to converge faster in terms of iterations. This raises the question of the ``why'', as the \cite{meth:bayesian:Langevin:ACMT2024} paper not only brings a new algorithm, but also a new prior. In this Chapter \ref{section:algo-vs-prior}, we will introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS) in order to try to understand which part contributes most. By combining Metropolis-Hastings from the prob-estimator with the Student-t prior from Projected Langevin, we can estimate whether the prior is a silver bullet in MCMC methods for Quantum Tomography, or if Langevin is a mandatory component for it to work.\medbreak
+The previous experiments in section \ref{section:numerical-exp} showed us that for lower numbers of qubits $n$, Projected Langevin tends to converge faster in terms of iterations. This raises the question of the ``why'', as \cite{meth:bayesian:Langevin:ACMT2024} not only brings a new algorithm, but also a new prior. In this Chapter \ref{section:algo-vs-prior}, we will introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS) in order to try to understand which part contributes most. By combining Metropolis-Hastings from the prob-estimator with the Student-t prior from Projected Langevin, we can estimate whether the prior is a silver bullet in MCMC methods for Quantum Tomography, or if Langevin is a mandatory component for it to work.\medbreak
 
 This chapter is structured as followed: in \ref{section:mhs-and-mhgs} we will describe in detail both algoritms, then in section \ref{section:proposal-choice} we will talk about the choice of the proposal and finally in section \ref{section:mhs-mhgs-num-exp} we will evaluate numerically how these algorithms perform, in order to draw a meaningful conclusion.
 \section{Introducing new algorithms: MHS and MHGS}\label{section:mhs-and-mhgs}
 \subsection*{Metropolis-Hastings with Student-t prior}
-In an effort to to answer the question: ``'', we introduce 2 new algorithms
+\textit{Metropolis-Hastings with Student-t} (MHS), as its name suggests, is a Metropolis-Hastings based algorithm. It is a vanilla version of the algorithm, as the modifications are minor. The main difference comes from the fact that we work directly on the matrix space, rather than vectors or scalars. More precisely, we utilize the Burer-Monteiro factorization from the Projected Langevin approach (as seen in section \ref{section:projected-langevin}) to work directly with $Y \in \mathbb{R}^{2d \times 2r}$, where we do the reverse isomorphic transformation $\psi^{-1}$ to map back to $Y \in \mathbb{C}^{d\times r}$ to calculate $\hat \rho$. We also use the spectral scaled Student-t prior from Langevin (defined on $\mathbb{C}$ here):
+\begin{equation}
+    \nu_{\theta} (Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
+\end{equation}
+When converted to the real domain, this results in the same posterior as in Projected Langevin $\hat \mu_{\lambda, \theta}(\tilde Y, \mb D) =\exp(-\tilde f_{\lambda, \theta}(\tilde Y, \mb D))$, where 
+\begin{equation}
+    \tilde f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \sqrt{2}\tr(\tilde A_m \tilde Y \tilde Y^{T}))^2 + \cfrac{2d + r + 2}{4}\log \det(\cfrac{\theta^2}{\sqrt 2}I_{2d} + \sqrt 2 \tilde Y \tilde Y^{T}) + \tilde C
+\end{equation}
+In practice, we also the log-transformation trick as described in section \ref{section:Metropolis-Hastings} because it allows for better numerical stability. Assuming a proposal $p_1(\tilde Y|\tilde Y^{(k-1)})$ (which we will describe in more detail in the next section \ref{section:proposal-choice}) and acceptance rate $A_1$, the pseudocode for the resulting algorithm is the following:\medbreak
+
+\begin{algorithm}[H]
+    \DontPrintSemicolon
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    %\underline{Prob-estimator}\;
+    \Input{$T \in \mathbb{N}, Y^{(0)} \in \mathbb{C}^{d \times r}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    \Output{$\tilde Y \in \mathbb{R}^{2d\times 2r}$}
+    $\tilde Y^{(0)} \gets \psi(Y^{(0)})$\;
+    $\tilde Y = \mb 0$\;
+    \For{$k\gets 1:T$}{
+        Sample $\tilde Y^* \sim p_1(\tilde Y|\tilde Y^{(k-1)})$\;
+        Sample $u \sim U(0, 1)$\;
+        $\alpha \gets \min\left\{\log A_1(\tilde Y^*, \tilde Y^{(k-1)}, \theta, \lambda), 1\right\}$\;
+        \eIf{$\log(u) \leq \alpha$}{
+            \tcp*[l]{Accept $\tilde Y^*$}
+            $\tilde Y^{(k)} \gets \tilde Y^*$
+        }{
+            \tcp*[l]{Reject $\tilde Y^*$}
+            $\tilde Y^{(k)} \gets \tilde Y^{(k-1)}$
+        }
+        $\tilde Y \gets \frac{1}{k} \tilde Y^{(k)} + (1 - \frac{1}{k})\tilde Y$\;
+    }
+    \caption{Metropolis-Hastings with Student-t prior}
+\end{algorithm}\medbreak
+
+
+
 \subsection*{Metropolis-Hastings with Gibbs with Student-t prior}
+\textit{Metropolis-Hastings with Gibbs with Student-t prior} (MHGS) is an extension of MHS and is an attempt to imitate more closely the way the prob-estimator works. Indeed as we saw in section \ref{section:prob-estimator}, the prob-estimator resembles more Gibbs-within-Metropolis-Hastings than pure Metropolis-Hastings, as it iterates over each dimension for each MH iteration. With this in mind, MHGS works by sampling each entry of the matrix $\tilde Y \in \mathbb{R}^{2d\times 2r}$ separately. If, again, we assume the proposal $p_2(y|\tilde Y^{(k-1)}_{ij})$ and acceptance rate $A_2$, this results in the following algorithm:\medbreak
+
+\begin{algorithm}[H]
+    \DontPrintSemicolon
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    %\underline{Prob-estimator}\;
+    \Input{$T \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    \Output{$\tilde Y \in \mathbb{R}^{2d\times 2r}$}
+    $\tilde Y_0 \gets \psi(Y_0)$\;
+    $\tilde Y = \mb 0$\;
+    \For{$k\gets 1:T$}{
+        $\tilde Y^{(k)} \gets \tilde Y^{(k-1)}$\;
+        \For{$i\gets 1:2d$}{
+            \For{$j\gets 1:2r$}{
+                Sample $y^* \sim p_2(y|\tilde Y^{(k)}_{ij})$\;
+                Sample $u \sim U(0, 1)$\;
+                $\alpha \gets \min\left\{\log A_2(y^*, \tilde Y^{(k)}_{ij}, \theta, \lambda), 1\right\}$\;
+                \eIf{$\log(u) \leq \alpha$}{
+                    \tcp*[l]{Accept $y^*$}
+                    $\tilde Y^{(k)}_{ij} \gets y^*$
+                }{
+                    \tcp*[l]{Reject $y^*$}
+                    $\tilde Y^{(k)}_{ij} \gets \tilde Y^{(k)}_{ij}$
+                }
+            }
+        }
+        $\tilde Y \gets \frac{1}{k} \tilde Y^{(k)} + (1 - \frac{1}{k})\tilde Y$\;
+    }
+    \caption{Metropolis-Hastings with Gibbs with Student-t prior}
+\end{algorithm}\medbreak
 
 \section{Proposal choice}\label{section:proposal-choice}
+A very important element for these approaches is the choice of the proposal. As we are trying to be as close as possible to the prob-estimator for the algorithm part, it is not clear which proposal should be chosen. The original algorithm samples from a prior, be it a Gamma distribution for $\gamma$ or the unit sphere for $V$. Sampling from these distributions is however only relevant in the rank-1 factorization that the authors use, and not as a general proposal. Following this logic, we should be sampling from the scaled Student-t distribution, however it is not obvious how this should be done and further work is required. In the following sections, we will discuss the considered options.
+
+\subsection*{Proposal for MHS}
+For the MHS algorithm, we considered 3 main options for $p_1(\tilde Y| \tilde Y ^{(k-1)})$: the normal distribution centered at the current sample (which is a very standard proposal), the normal distribution centered at 0 (hence not sampling locally) and the Gamma distribution, in the same way that is done by the prob-estimator. This last method is not the most appropriate given what we mentioned above, however we kept it as a point of comparison. We adjusted the acceptance rate for both the independent normal and the centered normal (however the numerator and denominator simplify as it is symmetric), but did not do so for the gamma distribution, as it is not clear how this should be done (even though it is asymmetrical). We summarize them below in \ref{table:proposal-comp-mhs}:
+\begin{table}[H]
+
+    \begin{center}
+        \begin{tabular}{|c|c|}
+            \hline
+            Proposal name & Equation\\
+            \hline\hline
+             & \\[-10pt]
+            Normal distribution, centered & $\tilde Y^* \gets \tilde Y^{(k-1)} + \sigma \boldsymbol{\eta} \quad\text{with } \boldsymbol{\eta} \sim N(\mb 0, \mb I)$\\
+            Normal distribution, independent & $\tilde Y^* \gets \sigma \boldsymbol{\eta} \quad\text{with } \boldsymbol{\eta} \sim N(\mb 0, \mb I)$\\
+            Gamma distribution, centered & $\tilde Y^* \gets \tilde Y^{(k-1)} \odot \exp (\sigma\boldsymbol{\xi})\quad \text{with } \boldsymbol{\xi} \sim U(-0.5, 0.5)^{2d\times 2r}$\\\hline
+        \end{tabular}
+\end{center}
+\caption{Proposals considered for MHS}
+\label{table:proposal-comp-mhs}
+\end{table}
+
+After running a grid search with parameters $\sigma\in \{0.001, 0.01, 0.05, 0.1, 0.5, 1, 10\}$, these are the results we obtain (sorted by error): 
+
+\begin{table}[H]
+
+    \begin{center}
+        \begin{tabular}{|c|c|c|}
+            \hline
+            Proposal name & Parameter value & Error\\
+            \hline\hline
+            Centered normal& 0.001 & 0.093\\
+            Centered normal&0.01  &0.115\\
+            Independent normal& 0.05 &0.316\\
+            Gamma&0.1  &0.423\\
+            Gamma&1.0   &0.449\\\hline
+        \end{tabular}
+\end{center}
+\caption{Grid search result over proposals and their scaling parameters for MHS}
+\label{table:proposal-grid-search-mhs}
+\end{table}
+Given this outcome, we settled on using the centered normal as our proposal with $\sigma=0.001$. Note that this choice of proposal is not the best, and as stated previously, we should ideally be sampling from the Student-t distribution to align with the prob-estimator approach. 
+
+\subsection*{Proposal for MHGS}
+For the MHGS algorithm, we decided to use the same set of proposals as for MHS, however in their scalar version:
+
+\begin{table}[H]
+
+    \begin{center}
+        \begin{tabular}{|c|c|}
+            \hline
+            Proposal name & Equation\\
+            \hline\hline
+             & \\[-10pt]
+            Normal distribution, centered & $y^* \gets \tilde Y^{(k)}_{ij} + \sigma {\eta} \quad\text{with } \eta \sim N(0,1)$\\
+            Normal distribution, independent & $y^* \gets \sigma {\eta} \quad\text{with } {\eta} \sim N(0, 1)$\\
+            Gamma distribution, centered & $y^* \gets \tilde Y^{(k)} \exp (\sigma u)\quad \text{with } {u} \sim U(-0.5, 0.5)$\\\hline
+        \end{tabular}
+\end{center}
+\caption{Proposals considered for MHGS}
+\label{table:proposal-comp-mhgs}
+\end{table}
+We then re-ran the same gridsearch to obtain the following results:
 
 \section{Numerical comparison}\label{section:mhs-mhgs-num-exp}
 
+\begin{table}[H]
+
+    \begin{center}
+        \begin{tabular}{|c|c|c|}
+            \hline
+            Proposal name & Parameter value & Error\\
+            \hline\hline
+            Centered normal& 0.001 & 0.093\\
+            Centered normal&0.01  &0.115\\
+            Independent normal& 0.05 &0.316\\
+            Gamma&0.1  &0.423\\
+            Gamma&1.0   &0.449\\\hline
+        \end{tabular}
+\end{center}
+\caption{Grid search result over proposals and their scaling parameters for MHGS}
+\label{table:proposal-grid-search-mhgs}
+\end{table}
 
 \chapter{Conclusion}
 

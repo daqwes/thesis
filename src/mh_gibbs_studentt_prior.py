@@ -2,7 +2,7 @@ import time
 import sys
 import numpy as np
 from scipy.special import binom
-
+from scipy.stats import norm
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
 if __name__ == '__main__' or parent_module.__name__ == '__main__':
     from data_generation_sep import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_sep_PL
@@ -39,16 +39,16 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
         post = lik/prior
     return post
     
-def eval_proposal(Y_next: np.ndarray, Y_prev: np.ndarray, dist: str = "normal", scaling_coef: float = 1.0):
+def eval_proposal_scalar(next: float, prev: float, dist: str = "normal", scaling_coef: float = 1.0):
     # TODO
-    m, n = Y_next.shape
     if dist == "normal":
         # return 1/(2 * np.pi)**(m*n) * np.exp(-1/2 * np.linalg.norm(Y_next, ord="fro")**2)
-        raise NotImplementedError("dist is not implemented")
+        # raise NotImplementedError("dist is not implemented")
+        rv = norm(loc=0, scale=scaling_coef)
+        return rv.pdf(next)
     elif dist == "normal_dep":
         # return 1/(2 * np.pi)**(m*n) * np.exp(-1/2 * np.linalg.norm(Y_next - Y_prev, ord="fro")**2)
-        # return 1 # symmetric proposal
-        raise NotImplementedError("dist is not implemented")
+        return 1 # symmetric proposal
     elif dist == "exp_dep":
         return 1 # not symmetric proposal (and 1/x is not a valid pdf, but used in Mai/Alquier)
     else:
@@ -57,7 +57,15 @@ def sample_proposal_scalar(curr: float, seed: int|None, dist: str = "exp_dep", s
     """"""
     if seed is not None:
         np.random.seed(seed)
-    
+    if dist == "normal":
+        std = scaling_coef
+        rd = np.random.normal(0, std)
+        prop = rd
+        return prop
+    elif dist == "normal_dep":
+        std = scaling_coef
+        prop = np.random.normal(curr, std)
+        return prop
     if dist == "exp_dep":
         param = scaling_coef
         rd = np.exp(param * np.random.uniform(-0.5, 0.5))
@@ -66,7 +74,7 @@ def sample_proposal_scalar(curr: float, seed: int|None, dist: str = "exp_dep", s
     else:
         raise ValueError("dist type not valid, provide correct value")
 
-def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, prop_dist: str = "normal", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = False) -> float:
+def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, indices: tuple[float, float], As: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, prop_dist: str = "normal", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = False) -> float:
     """
     r = prop(x|x') * post(x') / prop(x'|x) * post(x)
     Here, post = exp(-(L + log(prior))).
@@ -75,8 +83,9 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap:
            = log(prop(x|x')) - log(prop(x'|x)) + L(x) + log(prior(x)) - L(x') - prior(x')
            = log(prop(x|x')) - log(prop(x'|x)) + log(post(x')) - log(post(x))
     """
+    i,j = indices
     if log_transform:
-        prop = np.log(eval_proposal(Y_prev, Y_next, prop_dist, scaling_coef_prop)) - np.log(eval_proposal(Y_next, Y_prev, prop_dist, scaling_coef_prop))
+        prop = np.log(eval_proposal_scalar(Y_prev[i,j], Y_next[i,j], prop_dist, scaling_coef_prop)) - np.log(eval_proposal_scalar(Y_next[i,j], Y_prev[i,j], prop_dist, scaling_coef_prop))
         post = eval_posterior_real(Y_next, As_r_swap, y_hat, lambda_, theta, log_transform=True)\
                - eval_posterior_real(Y_prev, As_r_swap, y_hat, lambda_, theta, log_transform=True)
         if use_prop_in_ratio:
@@ -84,8 +93,8 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap:
         else:
             ratio = post # ignore the proposal
     else:
-        n_prop = eval_proposal(Y_prev, Y_next, prop_dist, scaling_coef_prop)
-        d_prop = eval_proposal(Y_next, Y_prev, prop_dist, scaling_coef_prop) 
+        n_prop = eval_proposal_scalar(Y_prev[i,j], Y_next[i,j], prop_dist, scaling_coef_prop)
+        d_prop = eval_proposal_scalar(Y_next[i,j], Y_prev[i,j], prop_dist, scaling_coef_prop) 
         n_post = eval_posterior_real(Y_next, As_r_swap, y_hat, lambda_, theta, log_transform)
         d_post = eval_posterior_real(Y_prev, As_r_swap, y_hat, lambda_, theta, log_transform) 
         if use_prop_in_ratio:
@@ -140,7 +149,7 @@ def MH_gibbs_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray,
                 rd = np.random.random()
                 if log_transform:
                     rd = np.log(rd)
-                ratio = acc_ratio(Y_r_next, Y_r_prev, As, As_r_swap, y_hat, lambda_, theta, proposal_dist, scaling_coef_prop, use_prop_in_ratio, log_transform=log_transform)
+                ratio = acc_ratio(Y_r_next, Y_r_prev, (i,j), As, As_r_swap, y_hat, lambda_, theta, proposal_dist, scaling_coef_prop, use_prop_in_ratio, log_transform=log_transform)
                 if rd < ratio:
                     Y_r_prev = Y_r_next
                     acc_count+=1

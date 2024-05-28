@@ -59,12 +59,6 @@ def eval_proposal(Y_next: np.ndarray, Y_prev: np.ndarray, dist: str = "normal", 
         raise ValueError("dist is not a valid type")
 def sample_proposal(d: int, r: int, Y_curr: np.ndarray, seed: int|None, dist: str = "normal", scaling_coef: float = 1.0):
     """
-    TODO
-    In order for the sample to be valid, it needs to respect the physical constraints of the system.
-    - Symmetric/Hermitian
-    - Semi-definite positive
-    - Trace = 1
-    This means that it needs to come from the complex hypersphere, which amounts to it being of frob norm = 1
     """
     if seed is not None:
         np.random.seed(seed)
