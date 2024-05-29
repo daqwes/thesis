@@ -43,13 +43,13 @@ def run_experiment(savefig=True):
             n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
         )
         rhos_pl, _, cum_times_pl = run_PL(
-            n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
+            n, n_meas, n_shots, rho_type, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
         )
         rhos_mhs, _, cum_times_mhs, acc_rate_mhs = run_MH_studentt(
-            n, n_shots, As_PL, y_hat, n_iter, n_burnin, seed = None, proposal_dist="exp_dep", run_avg=True, scaling_coef_prop=0.1,  init_point=init_point
+            n, n_shots, As_PL, y_hat, n_iter, n_burnin, seed = None, proposal_dist="normal_dep", run_avg=True, scaling_coef_prop=0.001,  init_point=init_point
         )
         rhos_mhgs, _, cum_times_mhgs, acc_rate_mhgs = run_MH_gibbs_studentt(
-            n, n_shots, As_PL, y_hat, n_iter, n_burnin, seed = None, proposal_dist="exp_dep", run_avg=True, scaling_coef_prop=0.1,  init_point=init_point
+            n, n_shots, As_PL, y_hat, n_iter, n_burnin, seed = None, proposal_dist="normal_dep", run_avg=True, scaling_coef_prop=0.1,  init_point=init_point
         )
  
         for i in range(n_iter):

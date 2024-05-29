@@ -24,12 +24,14 @@ def run_experiment(savefig=True):
     log_transform = True
     rho_true, As, y_hat = generate_data_sep_PL(n, n_meas, n_shots, rho_type="rank2", seed= seed)
     init_point = gen_init_point(d, d)
-    proposals = ["normal_dep", "exp_dep", "normal"]
+    proposals = ["normal_dep", "exp_dep"]
     scaling_coefs_prop = [0.001, 0.01, 0.05, 0.1, 0.5, 1, 10]
     reps = 3
     results = []
     for prop in proposals:
+        print(prop)
         for coef in scaling_coefs_prop:
+            print(coef)
             avg_err = 0
             avg_acc_rate = 0
             for i in range(reps):
