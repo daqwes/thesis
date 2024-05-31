@@ -93,18 +93,20 @@ I would like to thank Estelle Massart, Andrew Thompson and Tameem Adel for their
 \chapter*{Abbreviations and symbols}
 \addcontentsline{toc}{chapter}{\protect\numberline{}Abbreviations and symbols}
 \begin{tabular}{ll}
-\tb{MCMC} & Markov chain Monte Carlo\\
-\tb{prob} & prob-estimator\\
-\tb{PL}& Projective Langevin  \\
+{MCMC} & Markov chain Monte Carlo\\
+{POVM} & Positive Operator-Valued Measure\\
+{MHS}  & Metropolis-Hastings with Student-t prior algorithm \\
+{MHGS}  & Metropolis-Hastings with Gibbs with Student-t prior algorithm\\
 $\ket{{\psi}}$ & Quantum state $\psi$ in the \ti{bra-ket} formulation\\
 ${M^\dagger}$ & Conjugate transponse of matrix $M$\\
 $\braket{M}$ & Expected value of a matrix/operator $M$\\
-\tb {POVM} & Positive Operator-Valued Measure\\
 ${M\otimes N}$ & Kronecker product between matrices $M$ and $N$\\
 ${M \odot N}$ & Hadamard (element-wise) product between matrices $M$ and $N$\\
 ${U}(a,b)$ & Uniform distribution defined on the open interval $(a,b)$\\
-$N(\mu, \sigma^2)$ & Normal distribution with mean $\mu$ and standard derivation $\sigma$\\
-$N(\boldsymbol{\mu},\boldsymbol{\Sigma})$ & Multivariate normal distribution with mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$ 
+$N(\mu, \sigma^2)$ & Normal distribution with mean $\mu$ and variance $\sigma^2$\\
+$N(\boldsymbol{\mu},\boldsymbol{\Sigma})$ & Multivariate normal distribution with mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$\\
+$Gamma(\alpha,\beta)$ & Gamma distribution with shape $\alpha$ and rate $\beta$\\
+$\mathcal{D}ir(\alpha_1,\dots,\alpha_d)$ & Dirichlet distribution with concentration parameters $\alpha_1,\dots,\alpha_d > 0$
 \end{tabular}
 
 \chapter{Introduction}
@@ -120,7 +122,6 @@ The term ``tomography" means ``to describe an object based on sections, slices" 
 
 \section{Quantum Tomography} \label{introduction:quantum-tomography}
 
-%To quote Wikipedia \cite{wiki:Quantum Tomography}: ``Quantum tomography or quantum state tomography is the process by which a quantum state is reconstructed using measurements on an ensemble of identical quantum states". It is therefore an inverse problem, whereby starting from noisy data, we can reconstruct the true state of the system.\\\\
 As previously described, the goal of Quantum Tomography is the reconstruction of the system state based on measurements. All of this system information is stored in a matrix, called the \textit{density matrix} $\rho \in \mathbb{C}^{d \times d}$, with $d = 2^n$ and $n$ the number of qubits. Due to the physical properties of the system, this matrix is Hermitian ($\rho = \rho^{\dagger}$), positive semi-definite ($\rho > 0$) and satisfying $\tr(\rho) = 1$. The rank of the matrix also has importance, as it conveys a physical property of the system: pure states are of rank 1, while mixed states are of any rank between 2 and $d$. A pure state is described by the wavefunction, which is usually represented by a vector, potentially of infinite dimension. Mixed states, on the other hand, are a generalization of pure states and are represented by a density matrix. They correspond to a probabilistic mixture of pure states. Pure states correspond to matrices of rank 1, while mixed states are of rank 2 and larger. It is important to note that physicists are mostly interested in density matrices of low rank.\medbreak
 
 Quantum Tomography is based on Born's rule, which links a projective measurement $P_m$ associated to an \textit{observable} $O$ to the probability $p(m)$ of obtaining the associated eigenvalue $m$ given a density matrix $\rho$. This can generally be written as 
@@ -142,7 +143,7 @@ We first provide in \ref{table:methods-comp} a summary of existing methods with 
         Maximum Likelihood & \cite{Guta20,meth:ML:BDP,meth:ML:JKMW,meth:ML:Lvovsky,meth:ML:Blume-Kohout,meth:ML:Suzuki,meth:ML:Hradil2004} \\\hline
         Compressed Sensing & \cite{meth:CS:GLFSBE10,meth:CS:Gross-2011, meth:CS:Flammia-2012,meth:CS:Koltchinskii-2011}\\\hline
         Sampling based & \cite{meth:bayesian:smc:Ferrie-2014,meth:bayesian:smc:Kueng-2015, meth:bayesian:smc:Granade_2016,meth:bayesian:sis:Kravtsov-2013}\\\hline
-        Metropolis-Hastings based & \cite{MA17,Mai22,LLJL20, meth:bayesian:mh:Blume-Kohout-2010}\\\hline
+        Metropolis-Hastings based & \cite{MA17,Mai22,LLJL20, meth:bayesian:mh:Cotter2013, meth:bayesian:mh:Blume-Kohout-2010}\\\hline
         Langevin & \cite{meth:bayesian:Langevin:ACMT2024}\\\hline
     \end{tabular}
 \end{center}
@@ -155,9 +156,9 @@ Well-established methods exist to approximate $\rho$. We can split the existing 
 
 Inversion methods are very simple, as they directly rely on the Born rule: $\hat \rho$ is computed by solving the linear system of equations defined by 
 \begin{equation*} \label{eq:inversion-method}
-        \forall a \in \mathcal{A},\forall s \in \mathcal{S}: \, \hat p_{a,s} = \tr(\hat \rho P^a_s)
+        \forall \mb a \in \mathcal{A},\forall \mb s \in \mathcal{S}: \, \hat p_{\mb a, \mb s} = \tr(\hat \rho P^{\mb a}_{\mb s})
 \end{equation*}
-where $\mathcal{A}$ denotes the set of indices for observables, $\mathcal{S}$ the set of indices for projective measurements, $\hat p_{a,s}$ the empirical probability and $P^a_s$ the projection operator. This approach was introduced in \cite{meth:linear-inversion:vogel-risken}, and then used in \cite{meth:linear-inversion:RMH}, but also in \cite{meth:linear-inversion:alquier}, where they additionally use a rank penalization term. This method is easy to understand, however, it returns a matrix $\hat \rho$ which does not satisfy the properties of a density matrix.\medbreak
+where $\mathcal{A}$ denotes the set of indices for observables, $\mathcal{S}$ the set of indices for projective measurements, $\hat p_{\mb a,\mb s}$ the empirical probability and $P^{\mb a}_{\mb s}$ the projection operator. This approach was introduced in \cite{meth:linear-inversion:vogel-risken}, and then used in \cite{meth:linear-inversion:RMH}, but also in \cite{meth:linear-inversion:alquier}, where they additionally use a rank penalization term. This method is easy to understand, however, it returns a matrix $\hat \rho$ which does not satisfy the properties of a density matrix.\medbreak
 %and requires the set of observables to be tomographically complete, which is usually the case but limits us, for example, to run any ablation studies related to the number of observables.
 % \begin{equation}
 %     \hat p_{a,s} = \tr(\hat \rho \cdot P^{a,s})
@@ -170,47 +171,30 @@ In case of \cite{Cai-2016}, the coefficients $\rho_b$ are estimated using an ave
 
 Another common approach used by many \cite{Guta20,meth:ML:BDP,meth:ML:JKMW,meth:ML:Lvovsky,meth:ML:Blume-Kohout,meth:ML:Suzuki,meth:ML:Hradil2004} is Maximum Likelihood (ML) estimation, which tries to maximize an objective function $\mathcal{L}$ to find the best $\rho$ which matches the data. A possible loss function could be 
 \begin{equation}
-\mathcal{L}(\rho ; \mb{D}) \propto \prod_{a \in \mathcal{A}} \prod_{s \in \mathcal{S}}\left[\tr\left(\rho P_{{s}}^{{a}}\right)\right]^{n_{{a}, {s}}},
+\mathcal{L}(\rho ; \mb{D}) \propto \prod_{\mb a \in \mathcal{A}} \prod_{\mb s \in \mathcal{S}}\left[\tr\left(\rho P_{\mb{s}}^{\mb{a}}\right)\right]^{n_{{\mb a}, {\mb s}}},
 \end{equation}
-where $n_{a,s}$ is the number of occurences of $s$ in measurements by $a$. The density matrix is calculated as 
+where $n_{\mb a,\mb s}$ is the number of occurences of $s$ in measurements by $a$. The density matrix is calculated as 
 \begin{equation}
     \hat \rho_{\text{ML}} = \text{argmin}_{\rho} \;\mathcal{L}(\rho;\mb{D})
 \end{equation}
-A downside however often mentioned for this method is the cost, notably for $n\geq10$
+A downside however often mentioned for this method is the cost, notably for $n\geq10$.
 \medbreak
 
 There is also a certain number of papers \cite{meth:CS:GLFSBE10,meth:CS:Gross-2011, meth:CS:Flammia-2012,meth:CS:Koltchinskii-2011} which treat the problem of solving \ref{eq:inversion-method} as a pure optimization problem, with the extra contraint that not all observables are available (compressed sensing). They are however less relevant to us, as we consider to be in the tomographically complete case.\medbreak
 
-% Based on the Born rule, we can write the problem as $p_{i} = \tr(\rho \cdot P_i)$ where $p_i$ corresponds to the probability of obtaining $P_i$. The notation $P_i$ refers here to an observable, meaning that it will measure the system at a particular state. This can for example be the spin of each qubit (up or down, in either direction \{x,y,z\}).\\\\ 
-% The problem is then framed as follows: based on the empirical frequencies $\hat p_i$ and the observables, which are both known, estimate the density matrix $\rho$ (which we call $\hat \rho$). The empirical probabilities $\hat p_i$ are estimated using $m$ independent copies of the system measured with $P_i$. 
-% We will usually refer to $m$ as the number of shots.\\\\
-
-% \[
-% \hat p_{\mathbf{a,s}} = \cfrac{1}{m}\sum_{i=1}^m \mathbf{1}_{\{R^\mathbf{a}_i = \mathbf{s}\}}
-% \]
-% \[
-% \hat p_{i} = \cfrac{1}{m}\sum_{i=1}^m \mathbf{1}_{}
-% \]
-% \[
-% \hat p_{\mathbf{a,s}} = \tr(\hat \rho \cdot P^{\mb a}_{\mb s})
-% \]
-% \[
-% \hat p_{i} = \tr(\hat \rho \cdot P_i)
-% \]
-
 The methods described so far do not make any assumptions about the structure of $\rho$. They may enforce the properties of a density matrix, but not use the low-rank information, with the only exception being papers which include a rank regularization term in the loss function (such as \cite{meth:linear-inversion:alquier}). To tackle this issue, a good idea is to venture into Bayesian methods, which naturally define a \textit{prior} on $\rho$. They also have the advantage of providing a distribution over it, rather than a point estimate, as most optimization-based do.\medbreak
 
-Bayesian methods rely on \ti{Bayes} theorem, which states that given data $\mb{D}$, which in our case are the empirical probabilities $p_{a,s}$ and projectors $P^a_s$, and parameters $\theta$, in our case the density matrix $\rho$, we can calculate the posterior distribution $\pi(\rho|\mb{D})$:
+Bayesian methods rely on \ti{Bayes} theorem, which states that given data $\mb{D}$, which in our case are the empirical probabilities $p_{\mb a, \mb s}$ and projectors $P^{\mb a}_{\mb s}$, and parameters $\theta$, in our case the density matrix $\rho$, we can calculate the posterior distribution $\pi(\rho|\mb{D})$:
 \begin{equation}
     \pi(\rho|\mb{D}) \propto \pi(\mb{D}|\rho) \pi(\rho)
 \end{equation}
-where $Pr(\mb{D}|\rho)$ is the likelihood of $\mb{D}$ given $\rho$ and $\pi(\rho)$ the prior distribution over it. There is also a normalizing term, however it normally omitted as it does not modify the result. Obtaining samples from this posterior is what allows the approximation, and the algorithm used for sampling is the key part in the various approaches. The most common estimator then used is the sample mean, also sometimes called the \ti{Bayesian Mean Estimator} (BME) or the Gibbs estimator:
+where $\pi(\mb{D}|\rho)$ is the likelihood of $\mb{D}$ given $\rho$ and $\pi(\rho)$ the prior distribution over it. There is also a normalizing term, however it normally omitted as it does not modify the result. Obtaining samples from this posterior is what allows the approximation, and the algorithm used for sampling is the key part in the various approaches. The most common estimator then used is the sample mean, also sometimes called the \ti{Bayesian Mean Estimator} (BME) or the Gibbs estimator:
 \begin{equation}
-    \hat \rho_{\text{BME}} = \int \hat \rho \pi(\hat \rho|\mathcal D) d\hat \rho
+    \hat \rho_{\text{BME}} = \int \hat \rho \pi(\hat \rho|\mb D) d\hat \rho
 \end{equation}
-Markov Chain Monte Carlo (MCMC) methods are a big class of sampling methods and are the common tool of choice. In particular, \cite{MA17,Mai22,LLJL20, meth:bayesian:mh:Blume-Kohout-2010} all propose algorithms derived from the very classical Metropolis-Hastings, an algorithm that performs a random walk from an initial point, with an acceptance/rejection step. There are also other strategies, such as Sequential Monte Carlo (SMC) \cite{meth:bayesian:smc:Ferrie-2014,meth:bayesian:smc:Kueng-2015, meth:bayesian:smc:Granade_2016} or Sequential Importance Sampling \cite{meth:bayesian:sis:Kravtsov-2013}. Finally, there is also a new method introduced in \cite{meth:bayesian:Langevin:ACMT2024}, where the authors use the gradient information from the posterior, resulting in Langevin Sampling. This technique provides faster convergence times.\medbreak
+Markov Chain Monte Carlo (MCMC) methods are a big class of sampling methods and are the common tool of choice. In particular, \cite{MA17,Mai22,meth:bayesian:mh:Cotter2013, LLJL20, meth:bayesian:mh:Blume-Kohout-2010} all propose algorithms derived from the very classical Metropolis-Hastings, an algorithm that performs a random walk from an initial point, with an acceptance/rejection step. Some of them, in particular \cite{Mai22,meth:bayesian:mh:Cotter2013, LLJL20}, use an approach called ``preconditioned Crank-Nicholson", which allows for higher acceptance rates and consequently faster convergence. There are also other strategies, such as Sequential Monte Carlo \cite{meth:bayesian:smc:Ferrie-2014,meth:bayesian:smc:Kueng-2015, meth:bayesian:smc:Granade_2016} or Sequential Importance Sampling \cite{meth:bayesian:sis:Kravtsov-2013}. Finally, there is also a new method introduced in \cite{meth:bayesian:Langevin:ACMT2024}, where the authors use the gradient information from the posterior, resulting in Langevin Sampling. This technique also provides faster convergence times.\medbreak
 
-The work in the thesis will focus on the prob-estimator introduced in \cite{MA17}, as well as the projected Langevin approach introduced in \cite{meth:bayesian:Langevin:ACMT2024}. They differ in the algorithms they use, Metropolis-Hastings and Langevin sampling, but also in the prior they choose. A complete description of both of these methods is available in section \ref{section:relevant-methods}.
+The work in the thesis will focus on the prob-estimator introduced in \cite{MA17}, as well as the projected Langevin approach introduced in \cite{meth:bayesian:Langevin:ACMT2024}. They differ in the algorithms they use, Metropolis-Hastings and Langevin sampling, but also in the prior they choose. A complete description of both of these methods is available in chapter \ref{section:relevant-methods}.
 
 % These methods however have drawbacks, mainly their generic structure, not allowing adding extra information about $\rho$. The inversion method also returns a matrix $\hat \rho$ which does not satisfy the properties of a density matrix, and requires the set of observables to be tomographically complete, which is usually is the case but limits us, for example, to run any ablation studies related to the number of observables.
 
@@ -229,27 +213,32 @@ The work in the thesis will focus on the prob-estimator introduced in \cite{MA17
 In this thesis, our contribution is twofold: first, we investigate how the prob-estimator introduced in \cite{MA17} compares to the projected Langevin algorithm from \cite{meth:bayesian:Langevin:ACMT2024}; second, we try to understand how much impact the used prior has in comparison to the MCMC algorithm that we use to perform the sampling. For the latter, we introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS), which mix the algorithm from \cite{MA17} with the prior from \cite{meth:bayesian:Langevin:ACMT2024}. This allows us to evaluate the advantages that a gradient-based method brings, as well as the effect of a student-t prior on the result. We will focus on providing numerical results, with all the code to reproduce the experiments available in the near future on Github\footnote{\texttt{\url{www.github.com/daqwes/thesis}}}.
 
 \section{Structure}
-This thesis will be structured as follows.
+This thesis will be structured as follows.\medbreak
 
-In Chapter 2, we will provide the needed background to understand Quantum Tomography in the context of numerical experiments, as well as an introduction to Markov chain Monte Carlo methods, with an emphasis on the methods relevant for this thesis.\medbreak
+In Chapter \ref{section:background}, we will provide the needed background to understand Quantum Tomography in the context of numerical experiments, as well as an introduction to Markov chain Monte Carlo methods, with an emphasis on the methods relevant for this thesis.\medbreak
 
-In Chapter 3, we will review in detail the 2 main algorithms used in the numerical experiments in the context of this work: the prob-estimator and the Projected Langevin algorithm.\medbreak
+In Chapter \ref{section:relevant-methods}, we will review in detail the 2 main algorithms used in the numerical experiments in the context of this work: the prob-estimator and the Projected Langevin algorithm.\medbreak
 
-In Chapter 4, we will numerically compare both of the algorithms in terms of accuracy in different experimental setups.\medbreak
+In Chapter \ref{section:numerical-exp}, we will numerically compare both of the algorithms in terms of accuracy in different experimental setups.\medbreak
 
-Finally, in Chapter 5, we will introduce 2 new algorithms, MHS and MHGS, to better understand how the choice of the algorithm and prior impacts the accuracy. This will allow us to shine light on the potential benefits of the gradient information and the student-t prior, brought by the Projected Langevin method.
+Finally, in Chapter \ref{section:algo-vs-prior}, we will introduce 2 new algorithms, MHS and MHGS, to better understand how the choice of the algorithm and prior impacts the accuracy. This will allow us to shine light on the potential benefits of the gradient information and the student-t prior, brought by the Projected Langevin method.
 
 
-\chapter{Background}
+\chapter{Background}\label{section:background}
 
-\section{Quantum information}
+In this chapter, we will introduce the relevant background needed for this thesis. We will start with Quantum Information, the qubit and Quantum Tomography in sections \ref{section:quantum-information}, \ref{section:qubit}, \ref{section:quantum-tomography}, and will follow with Markov chain Monte Carlo methods in section \ref{section:mcmc-methods}.
+
+\section{Quantum information}\label{section:quantum-information}
 
 Quantum information is a field that explores how information can be encoded and processed using the principles of quantum mechanics. While classical computers perform operations using \textit{bits} (hence either $0$ or $1$), quantum computers operate on $qubits$, which allows for a superposition of $0$ and $1$. This means that a \textit{quantum state} can be in an infinite combination between $0$ and $1$. This property is more clearly explained using probabilities, where the likelihood of measuring the qubit in a certain state will be proportional to the norm squared of the coefficients of the superposition. It is important to note that when we perform the measurement, only one of the states, $0$ or $1$, will be visible.\medbreak
 
-This measurement process is very important in quantum mechanics, as contrary to classical mechanics, we can not simply observe the system. There are 4 main properties that limit us: fundamentally, a quantum system is probabilistic - measuring it once does not give complete information about the state; in addition, a measurement makes the system wavefunction collapse - repeating the measurement only yields the same state again; the no-cloning theorem, which does not allow to simply copy the state; finally, the Heisenberg uncertainty principle, which states that either component of certain pairs of conjugate operators (such as the position and momentum, for example) can be measured, but not both. Given that, we have to find ways to measure the quantum state of the system, and this is where Quantum Tomography fits into the picture.\medbreak
+This measurement process is very important in quantum mechanics, as contrary to classical mechanics, we can not simply observe the system. There are 4 main properties that limit us: fundamentally, a quantum system is probabilistic - measuring it once does not give complete information about the state; in addition, a measurement makes the system wavefunction collapse - repeating the measurement only yields the same state again; the no-cloning theorem, which does not allow to simply copy the state; finally, the Heisenberg uncertainty principle, which states that either component of certain pairs of conjugate operators (such as the position and momentum, for example) can be measured, but not both. Given that, we have to find ways to measure the quantum state of the system, and this is where Quantum Tomography fits into the picture.
 
+\paragraph*{Bra-ket notation}
+The \textit{bra-ket} notation is going to be used in the following sections, so it is important to first introduce its meaning. It originates from quantum mechnanics, where we often manipulate complex vectors (finite or infite). The ket notation $\ket a$ corresponds to a column vector $a$. The
+bra notation $\bra a$ corresponds to the conjugate transpose of $\ket a$. This means that $\braket{a|b}$ is an inner product between $\ket a$ and $\ket b$, and $\ket a \bra b$ an outer product. The notation $\braket{a|M|b}$ corresponds to a quadratic form between vectors $a$ and $b$, and matrix $M$.\medbreak 
 
-\section{The qubit}
+\section{The qubit}\label{section:qubit}
 The $qubit$ is the fundamental unit of computation in quantum information. It contrasts from classical bits by allowing a continuum of possible states: a linear combination between $0$ and $1$. We usually use the orthonormal basis states with the \textit{bra-ket} formulation to represent it: $\ket 0 = \begin{bmatrix}
     1\\
     0
@@ -285,21 +274,20 @@ The visual explanation unfortunately fades when we consider multiple qubits: in 
 
 where $\alpha,\beta,\gamma,\delta \in \mathbb C$ and normalize to 1, and $\ket{\phi} \in \mathbb{C}^4$.\medbreak
 
-\section{Quantum Tomography}
+\section{Quantum Tomography}\label{section:quantum-tomography}
 As described in \ref{introduction:quantum-tomography}, Quantum Tomography studies the reconstruction of a quantum state described by a density matrix $\rho$. It builds upon the Born rule, which states that given a system state $\ket \psi$ and an observable operator $O$, the probability of occurence of an eigenvalue $m$ of $O$ will be 
 \begin{equation}
     p(m) = \braket{\psi | P_m| \psi} = \lvert\braket{m|\psi}\rvert^2
 \end{equation}
-where $P_m = \ket m \bra m$ is a projection onto the eigenstate of $O$ with eigenvalue $m$ (with eigenvector $\ket m$). The system is measured using $P_m$ with the outcome being an eigenstate $m$. Note that the term operator will be used interchangeably with the term matrix in what follows,as they are equivalent in this context. \medbreak
+where $P_m = \ket m \bra m$ is a projection onto the eigenstate of $O$ with eigenvalue $m$ (and eigenvector $\ket m$). The system is measured using $P_m$ with the outcome being an eigenstate $m$ (to be precise it is measured with the collection $\{P_m\}$ associated to $O$). Note that the term operator will be used interchangeably with the term matrix in what follows, as they are equivalent in this context.\medbreak
 
-In general, one observable is however not enough as it only measures a specific aspect of a state. We will therefore create a collection of observables $O \in \mathcal{O}$, which will allow us to fully describe our state. In the situation when we have access to the entire set $\mathcal{O}$, we talk about \ti{tomographic completeness}. Of course, doing one measurement with an observable is not informative enough, and in order to obtain any statistically significant estimate for the probability of projector, we measure an ensemble $m$ of identically prepared quantum states for each $O$. \medbreak
+In general, one observable is however not enough as it only measures a specific aspect of a state. We will therefore create a collection of observables $\mathcal{O}$ with $O \in \mathcal{O}$, which will allow us to fully describe our state. In the situation when we have access to the entire set $\mathcal{O}$, we talk about \ti{tomographic completeness}. Of course, doing one measurement with an observable is not informative enough, and in order to obtain any statistically significant estimate for the probability of projector, we measure an ensemble $m$ of identically prepared quantum states for each $O$. \medbreak
 
 In the following sections, we will provide a more thorough mathematical background and describe in more detail the different components that constitute Quantum Tomography.
 \subsection{Mathematical description} \label{background:Quantum Tomography:math}
 
-
 \subsubsection*{Pure states, mixed states and density matrix}
-A \textit{pure state} is a quantum state that can be represented using a finite or infinite complex vector $\ket \psi$, element of a Hilbert space and of norm 1. Equivalently, it is a state that can not be expressed as a convex combination of other quantum states \cite{wiki:density-matrix}.\medbreak
+A \textit{pure state} is a quantum state that can be represented using a finite or infinite complex vector $\ket \psi$, element of a Hilbert space, and of norm 1. Equivalently, it is a state that can not be expressed as a convex combination of other quantum states \cite{wiki:density-matrix}.\medbreak
 
 A \textit{mixed state} $\ket \phi$, on the other hand, is a probabilistic mixture of pure states $\ket {\psi_j}$. Mixed states usually arise in situations when we do not know from which states our system state is constituted from. This means that we can not anymore represent our system state as a vector, and must resort to a more general form: the density matrix.\medbreak
 
@@ -313,7 +301,7 @@ By construction, we can see that the properties of a density matrix are that it 
 
 \subsubsection*{Born rule, observable and quantum measurement}
 
-The Born rule is a fundamental postulate in Quantum Mechanics that connects the wave function to its measurement. It states that ``The probability density of finding a system in a given state, when measured, is proportional to the square of the amplitude of the system's wavefunction at that state" \cite{wiki:born-rule}.\medbreak
+The Born rule is a fundamental postulate in Quantum Mechanics that connects the wave function to its measurement. It states that ``the probability density of finding a system in a given state, when measured, is proportional to the square of the amplitude of the system's wavefunction at that state" \cite{wiki:born-rule}.\medbreak
 
 It is described by a collection of orthogonal projective measurements $\{P_m\}$ with $P_mP_{m'}=\delta_{mm'}P_m$. This collection relates to an \textit{observable}, represented by a Hermitian matrix $O$. This property allows it to have a spectral decomposition
 \begin{equation}
@@ -330,9 +318,9 @@ and can be further generalized to a mixed state, represented with a density matr
     p(m) = \tr(\rho P_m)
 \end{equation}
 
-A small example of such a collection are the projectors operators of the \textit{computational basis} ($\ket 0$ and $\ket 1$). The resulting matrices are $P_0 = \ket 0 \bra 0$ and $P_1 = \ket 1 \bra 1$, which indeed verify the completeness equation. If we have that $\ket \psi = a \ket 0 + b \ket 1$, then $p(0) = \braket{\psi|P_0^\dagger P_0|\psi} = \braket{\psi|P_0|\psi} = |a|^2$ (by idempotency of a projector matrix).\medbreak
+A small example of such a collection are the projectors operators of the \textit{computational basis} ($\ket 0$ and $\ket 1$). The resulting matrices are $P_0 = \ket 0 \bra 0$ and $P_1 = \ket 1 \bra 1$. If we have that $\ket \psi = a \ket 0 + b \ket 1$, then $p(0) = \braket{\psi|P_0^\dagger P_0|\psi} = \braket{\psi|P_0|\psi} = |a|^2$ (by idempotency of a projector matrix).\medbreak
     
-In the context of Quantum Tomography, the most relevant aspect to measure is the spin: in each direction $\{x,y,z\}$, we use a Pauli matrix to probe whether a qubit is spin up $\ket{\cfrac{1}{2}}$ or down $\ket{-\cfrac{1}{2}}$ (eigenvalue of $1/2$ or $-1/2$)\cite{book:Nielsen-Chuang-2010,wiki:born-rule}. \medbreak
+In the context of Quantum Tomography, the most relevant aspect to measure is the spin: in each direction $\{x,y,z\}$, we use a Pauli matrix to probe whether a qubit is spin up or down \cite{book:Nielsen-Chuang-2010,wiki:born-rule}. \medbreak
 
 Note that, while projective measurements are the most common measurement operator, they are a specific case of the \textit{Positive Operator-Valued Measure} (POVM). This generalized measure does not enforce the orthogonality property and only requires the collection $\{F_m\}$ to be Hermitian, positive semi-definite operators on a Hilbert space, and satisfy the completeness equation
 \begin{equation}
@@ -341,13 +329,13 @@ Note that, while projective measurements are the most common measurement operato
 
 
 \subsection{Data generation}
-There are multiple ways through which one can obtain data for quantum tomography: using a real-world dataset is a possibility, however for that, you need access (or need to know someone who has) to a quantum computer. An easier approach is simply to simulate the data. It has its downsides, notably the fact that it may not be representative of true data. In our experiments, however, we will stick to synthetic data as it is very flexible and better suited for algorithm research and numerical experiments due to the low iteration time.\medbreak
+There are multiple ways through which one can obtain data for quantum tomography: using a real-world dataset is a possibility, however for that, you need access (or need to know someone who has) to a quantum computer. An easier approach is simply to simulate the data. It has its downsides, notably the fact that it may not be representative of true data. In our experiments, however, we will stick to synthetic data as it is very flexible and better suited for algorithm research and numerical experiments, due to the low iteration time.\medbreak
 
 When using synthetic data generation, 2 main options are usually considered: separate qubit or mixed qubit.
 
 
 \subsubsection*{Separate qubit data generation}\label{section:sep-qub-dg}
-Separate qubit data generation (also called the ``Pauli basis measurements" in \cite{Guta20}) is a process through which we can find the probability associated with an outcome $\mb s = (s_1, s_2 \dots, s_n) \in \mathcal{R}^n := \{-1, 1\}^n $ for an observable $\mb a = (a_1, a_2 \dots, a_n) \in \mathcal{E}^n := \{x,y,z\}^n$ (we adopt the same notations as in \cite{MA17} here).\medbreak
+Separate qubit data generation (also called the ``Pauli basis measurements" in \cite{Guta20}) is a process through which we can find the probability associated with an outcome $\mb s = (s_1, s_2 \dots, s_n) \in \mathcal{R}^n := \{-1, 1\}^n $ for an observable $\mb a = (a_1, a_2 \dots, a_n) \in \mathcal{E}^n := \{x,y,z\}^n$ (we adopt the same notations as in \cite{MA17} here and make them more specific than in the introduction \ref{section:litterature-review}).\medbreak
 
 The observable $\sigma_{a_i}$ for a qubit can be in $\{\sigma_x, \sigma_y, \sigma_z\}$, where $\sigma_i \in \mathbb{C}^{2 \times 2}$ is one of the Pauli matrices. These matrices are written as follows:
 \begin{equation}
@@ -371,7 +359,7 @@ We thus have a total of $3^n$ possible experimental observables and $2^n$ possib
 \begin{equation}
     \forall \mb s \in \mathcal{R}^n, p_{\mb a,\mb s} = \Pr(R^{\mb a} = \mb s) = \tr(\rho P^{\mb a}_{\mb s})
 \end{equation}
-where $R^\mb{a} \in \mathcal{R}^n$ is the random vector outcome of the experiment $\mb a$ and $p_{\mb a,\mb s}$ the probability linked to that pair. We can see that we recover the projective measurement (or more generally the POVM), only extended to the multi-qubit case by the Kronecker product applied to the projectors $P^{\mb a}_\mb{ s}$.\medbreak
+where $R^\mb{a} \in \mathcal{R}^n$ is the random vector outcome of the measurement with $\mb a$ and $p_{\mb a,\mb s}$ the probability linked to that pair. We can see that we recover the projective measurement (or more generally the POVM), only extended to the multi-qubit case by the Kronecker product applied to the projectors $P^{\mb a}_\mb{ s}$.\medbreak
 
 An important element to take into account when working with this method in practice is that, while it the theoretically correct approach, it requires on the order of $6^n = 2^n 3^n$ operations, making it costly.
 
@@ -385,12 +373,12 @@ Mixed qubit data generation (also called ``Pauli observables" in \cite{Guta20}) 
 %\section{Pointwise estimation methods}
 \newpage
 
-\section{Markov Chain Monte Carlo methods}
-Markov Chain Monte Carlo (MCMC) methods are a class of sampling algorithms. Sampling from a probability distribution is relevant when we want to compute some statistic about it, for example the mean. In most cases, the distribution $\pi(\mb x)$ has high dimensionality as we work in the state of parameters of statistical models. MCMC is particularly important in the context of \ti{Bayesian inference}. In this case, $\pi(\mb x)$ corresponds to the posterior distribution from which we want to sample, and whose probability density function (PDF) is a complex expression. \medbreak
+\section{Markov Chain Monte Carlo methods}\label{section:mcmc-methods}
+Markov Chain Monte Carlo (MCMC) methods are a class of sampling algorithms. Sampling from a probability distribution is relevant when we want to compute some statistic about it, for example the mean. In most cases, the target distribution $\pi(\mb x)$ has high dimensionality as we work in the space of parameters of statistical models. MCMC is particularly important in the context of \ti{Bayesian inference}. In this case, $\pi(\mb x)$ corresponds to the posterior distribution from which we want to sample, and whose probability density function usually corresponds to a complex expression. \medbreak
 
-Various methods exist for sampling from simple distributions, the most famous being the inverse transform method, rejection sampling, or importance sampling. All these methods however have drawbacks: inverse transform requires an analytical solution for the cumulative density function (CDF), which is usually not possible to obtain for complex PDFs as it requires a proper integral; rejection sampling and importance sampling do not have this problem, but they suffer from the curse of dimensionality - once your dimension grows, the sampling becomes very inefficient.\medbreak
+Various methods exist for sampling from simple distributions, the most famous being the inverse transform method, rejection sampling, or importance sampling. All these methods however have drawbacks: inverse transform requires an analytical solution for the cumulative density function, which is usually not possible to obtain for complex probability density functions as it requires a proper integral; rejection sampling and importance sampling do not have this problem, but they suffer from the curse of dimensionality - once your dimension grows, the sampling becomes very inefficient.\medbreak
 
-We will now cover several aspects which make up MCMC: Bayesian inference, the theoretical guarantees behind the MCMC methods and finally the 2 main algorithms we will be concerned about in this thesis, Metropolis-Hastings and Langevin sampling.
+We will now cover several aspects which make up MCMC: Bayesian inference in \ref{section:background:mcmc:bayesian-inference}, the theoretical guarantees behind the MCMC methods in \ref{section:background:mcmc:theory} and finally the 3 main algorithms we will be concerned about in this thesis, Metropolis-Hastings in \ref{section:Metropolis-Hastings}, Gibbs sampling in \ref{section:gibbs} and Langevin sampling in \ref{section:ula}.
 
 \subsection{Bayesian inference}\label{section:background:mcmc:bayesian-inference}
 As its name suggests, Bayesian inference relies on Bayes theorem. In the context of algorithms, it states that given data $\mb{D}$ and parameters $\boldsymbol{\theta}$, the \textit{posterior} distribution $\pi(\btheta|\mb{D})$ is calculated as 
@@ -409,24 +397,24 @@ Getting samples from $\pi(\boldsymbol{\theta}|\mb{D})$ allows us to compute inte
 \begin{equation}
     \int_\Omega g(x) dx \approx \frac{1}{N} \sum_{i=1}^{N} g(x_i)
 \end{equation}
-The law of large numbers ensures that with $N \rightarrow \infty$, the discrete sum converges to the true integral.\cite{wiki:monte-carlo-integration}\medbreak
+The law of large numbers ensures that with $N \rightarrow \infty$, the discrete sum converges to the true integral\cite{wiki:monte-carlo-integration}.\medbreak
 
 In statistics, integrals are of particular interest to us as they correspond to expected values. If we have function $f(\boldsymbol{\theta})$ defined on some set $\boldsymbol{\Theta}$, then
 \begin{equation}
-    \mathbb E_{\boldsymbol \theta \sim \pi(\btheta|\mb{D})}\left(f(\boldsymbol{\theta})\right) = \int_{\boldsymbol{\theta}} f(\boldsymbol{\theta})\pi(\btheta|\mb{D}) d\boldsymbol{\btheta} \approx \frac{1}{N} \sum_{i=1}^{n} f(\boldsymbol{\theta}_i)
+    \mathbb E_{\boldsymbol \theta \sim \pi(\btheta|\mb{D})}\left[f(\boldsymbol{\theta})\right] = \int_{\boldsymbol{\theta}} f(\boldsymbol{\theta})\pi(\btheta|\mb{D}) d\boldsymbol{\btheta} \approx \frac{1}{N} \sum_{i=1}^{n} f(\boldsymbol{\theta}_i)
 \end{equation}
-where $\{\boldsymbol{\theta}_i\}^N_{i=1}$ are samples from $\pi(\btheta|\mb{D})$. This allows us to compute estimates for a random variable (with $f(\btheta) = \btheta$), vector or matrix, the last one being the most relevant in Quantum Tomography. In that case, the parameters correspond to the density matrix $\rho$, and the data to the projectors $P^{\mb a}_{\mb s}$ and the empirical probabilities $\hat p_{a,s}$. By first putting a prior on $\rho$, we can obtain a sample estimate of $\rho$, balanced by the data we have. This is where the term \ti{inference} comes from, as we infer $\rho$ from the data and prior.
+where $\{\boldsymbol{\theta}_i\}^N_{i=1}$ are samples from $\pi(\btheta|\mb{D})$. This allows us to compute estimates for a random variable (with $f(\btheta) = \btheta$), vector or matrix, the last one being the most relevant in Quantum Tomography. In that case, the parameters correspond to the density matrix $\rho$, and the data to the projectors $P^{\mb a}_{\mb s}$ and the empirical probabilities $\hat p_{\mb a,\mb s}$. By first putting a prior on $\rho$, we can obtain a sample estimate of $\rho$, balanced by the data we have. This is where the term \ti{inference} comes from, as we infer $\rho$ from the data and prior.
 
 \subsection{Theoretical guarantees}\label{section:background:mcmc:theory}
 In contrast to Monte Carlo methods where the samples are independent, MCMC builds a \ti{Markov chain} of samples $\btheta^{(1)} \dots \btheta^{(R)}$, which are dependent. As a reminder, a sequence $\mb X^{(1)}, \mb X^{(2)} \dots \mb X^{(R)}$ of random variables is a Markov chain if
 \begin{equation}
     \Pr(\mb X^{(r+1)} \in A|\mb x^{(1)}, \dots, \mb x^{(r)}) = \Pr(\mb X^{(r+1)}|\mb x^{(r)})
 \end{equation}
-where $\mb x^{(i)}$ is a realization of $\mb X^{(i)}$ on domain $A$. One question remains: how can we make sure that samples we obtain from some Markov chain indeed come from the distribution we sample from? In order to answer this, we need to review several properties of Markov chains.\medbreak
+where $\mb x^{(i)}$ is a realization of $\mb X^{(i)}$ on domain $A$ (which is usually multidimensional hence the bold notations, however in our definitions it will be one-dimensional). One question remains: how can we make sure that samples we obtain from some Markov chain indeed come from the distribution we sample from? In order to answer this, we need to review several properties of Markov chains.\medbreak
 
 A \ti{transition kernel} $k$ is a function that that fully characterizes a Markov chain. It gives the probability of transitioning from one state to another in chain: in the continuous case, this corresponds to conditional function $k(\mb x^{(r+1)}| \mb x^{(r)})$ and the discrete case, it is a transition matrix $P$. We say that our chain in \ti{invariant} to a distribution $\pi(\mb x)$ if 
 \begin{equation}
-    \pi(\mb x^*) = \int k(\mb x^*|x) \pi(\mb x)d\mb x
+    \pi(\mb x^*) = \int k(\mb x^*|\mb x) \pi(\mb x)d\mb x
 \end{equation}
 This corresponds to saying that our chain admits a \ti{stationary} distribution, or equivalently that the \ti{marginal} distributions of $\mb X^{(r)}$ and $\mb X^{(r+1)}$ are the same. The distribution $\pi(\mb x)$, called the \ti{target} density, corresponds to the distribution we want to sample from in the context of MCMC. It is important to note that not all chains admit a stationary distribution, and a few properties must be respected. We will cover the discrete case for brevity reasons, but this of course extends to the continuous one \cite{mcmc:slides:Rigon2024Mar,wiki:markov-chain}.
 \begin{itemize}
@@ -435,13 +423,13 @@ This corresponds to saying that our chain admits a \ti{stationary} distribution,
         \Pr(\tau_j < \infty | \mb x^{(0)} = j') > 0\quad \forall j,j' \in \mathbb{N}
     \end{equation} 
     where $\tau_j = \inf\{r\geq 1: \mb X^{(r)} = j\}$ is the first passage time for which the chain is equal to $j$ (defined as $\infty$ if $\mb X^{(r)} \neq j$ for every $r\geq 1$) and $\Pr(\tau_j < \infty | \mb x^{(0)} = j')$ the probability of return to $j$ in a finite number of steps.
-    \item \tb{Aperiodicity}: a Markov chain is \ti{aperiodic} if it does not have any deterministic cycles. Formally, we say that a state $j$ is aperiodic if the set $\{r\geq1: [P^r]_{jj} > 0\}$ has no common divisor other than 1 (the matrix $P$ is the ) A chain is aperiodic if all of its states are aperiodic.
+    \item \tb{Aperiodicity}: a Markov chain is \ti{aperiodic} if it does not have any deterministic cycles. Formally, we say that a state $j$ is aperiodic if the set $\{r\geq1: [P^r]_{jj} > 0\}$ has no common divisor other than 1. A chain is aperiodic if all of its states are aperiodic.
     \item \tb{Harris recurrence}:  a Markov chain is \ti{recurrent} if it visits any region of the sample space sufficiently often. Formally, a state $j$ of a discrete irreducible Markov chain is recurrent if and only if
     \begin{equation}
         \Pr(\tau_j < \infty |\mb x^{(0)} = j) = \Pr(\mb X^{(r)} = j \text{ for infinitely many } r | \mb x^{(0)}=j) = 1
     \end{equation}
-    In other words, it means that this state is visited infinitely often. If we have all the states that are recurrent, then the chain is called recurrent. If additionally this chain admits an invariant PDF, then it is Harris positive (also called positive recurrent).
-    \item \tb{Ergodicity}: a Markov chain in \ti{ergodic} if every state is ergodic. A state $j$ is ergodic if is aperiodic and positive recurrent. Intuitively, this property means that we can reach every state with a probability greater than 0.
+    In other words, it means that this state is visited infinitely often. If we have all the states that are recurrent, then the chain is called recurrent. If additionally this chain admits an invariant distribution, then it is Harris positive (also called positive recurrent).
+    \item \tb{Ergodicity}: a Markov chain in \ti{ergodic} if every state is ergodic. A state $j$ is ergodic if it is aperiodic and positive recurrent. Intuitively, this property means that we can reach every state with a probability greater than 0.
 \end{itemize}
 We can finally state the main result that allows us to use Markov chains for MCMC \cite{mcmc:RobertCasella2004}:
 \begin{boxedthm}
@@ -469,10 +457,10 @@ where $\pi(\mb x)$ is the posterior distribution we would like to sample from. N
     \alpha(\mb x^*, \mb x) = \min\left(1, \frac{\pi(\mb x^*)}{\pi(\mb x)}\right)
 \end{equation}
 This happens often in practice, as the Gaussian distribution is a common choice of proposal.
-A second comment is that, as mentioned in section \ref{section:background:mcmc:bayesian-inference}, the normalizing constant of the posterior does not matter: it gets simplified in the numerator and denominator as it does not depend on $\mb x$, nor $\mb x^*$ (only the data \tb D, see equation \ref{eq:posterior-with-marginal}). \medbreak
+A second comment is that, as mentioned in section \ref{section:background:mcmc:bayesian-inference}, the normalizing constant of the posterior is not important: it gets simplified in the numerator and denominator as it does not depend on $\mb x$, nor $\mb x^*$ (only the data \tb D, see equation \ref{eq:posterior-with-marginal}). \medbreak
 
 After this computation, we will accept $\mb x^*$ with probability $\alpha$. In practice, this involves for example sampling a value $u \sim U(0,1)$, and accepting if $ u \leq \alpha$. This procedure is repeated until the desired number of samples is obtained, with some part of samples that we discard at the beginning. This period is called the \ti{burn-in} period and corresponds to the duration when the samples we obtain are not part of the equilibrium distribution.
-We usually talk about \textit{convergence} when the samples come from $\pi$ (the posterior distribution we want to sample from), or that the Markov chain has \textit{mixed} (based on a visual assessment for example). A pseudocode for the algorithm could be:\medbreak
+We usually talk about \textit{convergence} when the samples come from $\pi$ (the posterior distribution we want to sample from), or that the Markov chain has \textit{mixed}. A pseudocode for the algorithm could be:\medbreak
 
 \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -480,10 +468,10 @@ We usually talk about \textit{convergence} when the samples come from $\pi$ (the
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$\mb x^{(0)} \in \mathbb{R}^n, T \in \mathbb{N}, B \in \mathbb{N}$}
-    \Output{$\mb x^{({B+1})} \in \mathbb{R}^n, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
+    \Input{$\mb x^{(0)} \in \mathbb{R}^n, T \in \mathbb{N}$}
+    \Output{$\mb x^{({1})} \in \mathbb{R}^n, \mb x^{(2)}, \dots, \mb x^{(T)}$}
     \For{$t\gets 1:T$}{ 
-        Sample $\mb x^* \sim q(\mb x^*|\mb x^{(t-1)})$\;
+        Sample $\mb x^* \sim q(\mb x|\mb x^{(t-1)})$\;
         $\alpha = \min\left(1, \frac{\pi(\mb x^*) q(\mb x^{(t-1)}|\mb x^*)}{\pi(\mb x^{(t-1)}) q(\mb x^*|\mb x^{(t-1)})}\right)$\;
         Sample $\mb x^* \sim U(-0.5, 0.5)$\;
         \eIf{$u \leq \alpha$}{
@@ -496,6 +484,7 @@ We usually talk about \textit{convergence} when the samples come from $\pi$ (the
     }
     \caption{Metropolis-Hastings algorithm}
 \end{algorithm}\medbreak
+where $T$ is the number of iterations.\medbreak
 
 Note that in most implementations, it is common practice to use $\log(\alpha)$ for the calculation of the acceptance probability, instead of $\alpha$ directly. This allows to avoid numerical problems due to divisions by small numbers and underflow/overflow that might occur when handling double precision floats. In addition, using the logarithm combines nicely with distributions based on the exponential family, allowing for a $\log(\exp)$ simplification.\medbreak
 
@@ -540,8 +529,8 @@ A pseudocode for it can be the following:\medbreak
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
 
-    \Input{$\mb x^{(0)}, T, B$}
-    \Output{$\mb x^{(B+1)}, \mb x^{(B+2)}, \dots, \mb x^{(T)}$}
+    \Input{$\mb x^{(0)}, T \in \mathbb N$}
+    \Output{$\mb x^{(1)}, \mb x^{(2)}, \dots, \mb x^{(T)}$}
     \For{$t\gets 1:T$}{ 
         $\mb x^{(t)} \gets \mb x^{(t-1)}$\;
         \For{$i\gets 1:n$}{
@@ -553,7 +542,7 @@ A pseudocode for it can be the following:\medbreak
 \end{algorithm}
 Note that the inner loop updates the current $\mb x^{(t)}$, and not a copy. This implies that at iteration $i$, we are using the conditioned value set at $i-1$ for $x^{(t)}_{i-1}$, and not the one set at $x^{(t-1)}_{i-1}$.\medbreak
 
-The main advantages of Gibbs sampling is that we do not need to tune the proposal distributions, as well as the fact that all samples are accepted. The downside of course is that we need to be able to derive and sample from the conditional, especially doing so efficiently as otherwise this approach becomes very costly. A more general algorithm, called \textit{Metropolis-within-Gibbs}, involves sampling from the conditional using Metropolis-Hastings, and in that case this may involve an accept/reject step. In the case of standard Gibbs, we may view the conditionals we sample from as proposal distributions $q(\mb x^*|\mb x)$. This in turn shows us why this algorithm is unadjusted, as the acceptance probability $\alpha$ is always equal to 1 \cite{mcmc:slides:Rigon2024Mar}. If we call $\mb x^* = (x_1^{(t)}, \dots, x_{i}^*, \dots, x^{(t)}_{n})$ and $\mb x = (x_1^{(t)}, \dots, x_{i}^{(t)}, \dots, x^{(t)}_{n})$, then
+The main advantages of Gibbs sampling is that we do not need to tune the proposal distributions, as well as the fact that all samples are accepted. The downside of course is that we need to be able to derive and sample from the conditional, especially doing so efficiently as otherwise this approach becomes very costly. A more general algorithm, called \textit{Metropolis-within-Gibbs}, involves sampling from the conditional using Metropolis-Hastings, and in that case this may involve an accept/reject step (an example of which is the prob-estimator in section \ref{section:prob-estimator} or the MHGS algorithm in section \ref{section:mhs-and-mhgs}). In the case of standard Gibbs, we may view the conditionals we sample from as proposal distributions $q(\mb x^*|\mb x)$. This in turn shows us why this algorithm is unadjusted, as the acceptance probability $\alpha$ is always equal to 1 \cite{mcmc:slides:Rigon2024Mar}. If we call $\mb x^* = (x_1^{(t)}, \dots, x_{i}^*, \dots, x^{(t)}_{n})$ and $\mb x = (x_1^{(t)}, \dots, x_{i}^{(t)}, \dots, x^{(t)}_{n})$, then
 
 \begin{equation}
     \alpha(\mb x^*|\mb x) = \frac{\pi(\mb x^*) q(\mb x|\mb x^*)}{\pi(\mb x) q(\mb x^* |\mb x)} = \frac{\pi(x_i^*|\mb x_{-i}^*)\pi(\mb x^*_{-i}) \pi(x_i|\mb x^*_{-i})}{\pi(x_i|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i^*|\mb x_{-i})} = \frac{\pi( x_i^*|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i|\mb x_{-i})}{\pi(x_i|\mb x_{-i})\pi(\mb x_{-i}) \pi(x_i^*|\mb x_{-i})} = 1
@@ -562,7 +551,9 @@ where we have used the fact that $\mb x^*_{-i} = \mb x_{-i}$.
 
 
 \subsection{Unadjusted Langevin algorithm}\label{section:ula}
-One big down-side with Metropolis-Hastings or Gibbs sampling is that they can take a long time to converge, especially in a very high-dimensional setting. The Unadjusted Langevin algorithm (ULA) tackles this problem by using the gradient information about the posterior. The downside, of course, is that we must be able to calculate it, but in the case we can, it can drastically speed-up the convergence. The algorithm draws its name from \ti{Langevin diffusion} (also called \ti{Îto diffusion}), a stochastic differential equation (SDE), written as follows:
+One big down-side with Metropolis-Hastings or Gibbs sampling is that they can take a long time to converge, especially in a very high-dimensional setting. The Unadjusted Langevin algorithm (ULA) tackles this problem by using the gradient information of the posterior. The downside, of course, is that we must be able to calculate it, but in the case we can, it can drastically speed-up the convergence.\medbreak
+
+The algorithm draws its name from \ti{Langevin diffusion} (also called \ti{Îto diffusion}), a stochastic differential equation (SDE), written as follows:
 \begin{equation}
     \mathrm{d}X_t = -\nabla V(x)\mathrm{d}t + \sqrt{2}\mathrm{d}B_t
 \end{equation}
@@ -585,23 +576,22 @@ where $\xi^{(k)} \sim N(\mb 0, \mb I)$. Note that the true solution can be compu
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
 
-    \Input{$\mb x^{(0)}, K, B, \tau_{1:K}$}
-    \Output{$\mb x^{(B+1)}, \mb x^{(B+2)}, \dots, \mb x^{(K)}$}
+    \Input{$\mb x^{(0)}, K, \tau^{(1)}, \dots, \tau^{(K)}$}
+    \Output{$\mb x^{(1)}, \mb x^{(2)}, \dots, \mb x^{(K)}$}
     \For{$k\gets 1:K$}{ 
         $\boldsymbol{\xi}^{(k)} \sim N(\mb 0, \mb I)$\;
         $\mb x^{(k+1)} = \mb x^{(k)} + \tau^{(k)} \nabla \log\pi(\mb x^{(k)}) + \sqrt{2\tau^{(k)}}\boldsymbol{\xi}^{(k)}$\;
     }
     \caption{Unadjusted Langevin algorithm}
-\end{algorithm}\medbreak
+\end{algorithm}
+with $K$ the number of iterations.  \medbreak
 
-ULA can be seen as noisy gradient ascent, which is why it performs better than Metropolis-Hastings or Gibbs. By utilizing the gradient information, we are able to sample more often the regions of high density. The cost of computing the gradient is usually compensated by faster convergence times, making it often an algorithm of choice if the gradient of the posterior can be computed. Note that there also exists a method called \textit{Metropolis-adjusted Langevin algorithm} (MALA), which generalizes this approach with an accept/reject step, but we will not go into the details here \cite{mcmc:langenvin-blog:Ansari2024Apr, wiki:MALA}.
-
-TODO: talk about theoretical guarantees?
+ULA can be seen as noisy gradient ascent, which is why it performs better than Metropolis-Hastings or Gibbs. By utilizing the gradient information, we are able to sample more often the regions of high density. The cost of computing the gradient is usually compensated by faster convergence times, making it often an algorithm of choice if the gradient of the posterior can be computed. The algorithm is relevant in this thesis due to its use in the Projected Langevin method (see section \ref{section:projected-langevin}). Note that there also exists a method called \textit{Metropolis-adjusted Langevin algorithm} (MALA), which generalizes this approach with an accept/reject step, but we will not go into the details here \cite{mcmc:langenvin-blog:Ansari2024Apr, wiki:MALA}.
 
 \chapter{Overview of relevant methods} \label{section:relevant-methods}
-In this chapter, we will introduce two MCMC algorithms that are in relevant in the context of this thesis: the \ti{prob-estimator} and the \ti{Projected Langevin algorithm}. They will be useful in Chapter \ref{section:numerical-exp} where we will be comparing them in numerical experiments and Chapter \ref{section:algo-vs-prior} where we will be presenting 2 new algorithms derived from them.\medbreak
+In this chapter, we will introduce two MCMC algorithms that are in relevant in the context of this thesis: the \ti{prob-estimator} (in \ref{section:prob-estimator}) and the \ti{Projected Langevin algorithm} (in \ref{section:projected-langevin}). They will be useful in Chapter \ref{section:numerical-exp} where we will be comparing them in numerical experiments and Chapter \ref{section:algo-vs-prior} where we will be presenting 2 new algorithms derived from them.\medbreak
 
-Note that both papers provide theoretical convergence bounds for the method they propose, however we will not describe them here as they are not relevant in the context of our experiments.
+Note that both papers provide theoretical convergence bounds for the method they propose, however we will not describe them here as they are not relevant in the context of our experiments. Also note that the notations we use in this chapter differ from the ones used in the MCMC chapter \ref{section:mcmc-methods}, as we prefer to stick to the notations used in the original papers.
 
 \section{Prob-estimator}\label{section:prob-estimator}
 Introduced in \cite{MA17}, the \textit{prob-estimator} is a Metropolis-Hastings-based algorithm (more details about it can be found in section \ref{section:Metropolis-Hastings}), where the approximation of the density matrix $\rho$ is done using a sum of rank 1 matrices and sparse coefficients, leading to a rank 1 approximation. The exact solution is written as follows:
@@ -633,7 +623,7 @@ As we are using an MCMC method, we need to formulate the posterior $\pi(\nu | \t
 \begin{equation}
     \pi(\tb D| \nu) = \mathcal{L}(\nu, \mb D) = \exp(-\lambda \ell(\nu,\mb D))
 \end{equation}
-where $\lambda$ is a scaling parameter and $\ell(\nu, D)$ the loss function
+where $\lambda$ is a weight parameter for the likelihood and $\ell(\nu, D)$ the loss function
 \begin{equation}
     \ell(\nu, \mb D) = \sum_{\mb a \in \mathcal{E}^n} \sum_{\mb s \in \mathcal{R}^n} \left[\tr(\nu P^{\mb a}_{\mb s}) - \hat p_{\mb a,\mb s}\right]^2
 \end{equation}\medbreak
@@ -652,7 +642,7 @@ and estimated with
     \hat \rho_{\text{prob}} = \int \nu \pi(\nu|\tb D) d\nu
 \end{equation}
 
-As specified above, the prior is split in 2 parts. This is due to way the algorithm is structured: inside the main loop of Metropolis-Hastings (which goes over iterations $1\rightarrow T$), we also iterate over each dimension $1\rightarrow d$, first for $\gamma$, and then for $V$. This can be seen as doing Gibbs-within-Metropolis-Hastings. \medbreak
+As specified above, the prior is split in 2 parts. This is due to way the algorithm is structured: inside the main loop of Metropolis-Hastings (which goes over iterations $1\rightarrow T$), we also iterate over each dimension $1\rightarrow d$, first for $\gamma$, and then for $V$. This can be seen as doing Metropolis-within-Gibbs. \medbreak
 
 The pseudocode for the algorithm is available below:\medbreak
 
@@ -701,6 +691,7 @@ The pseudocode for the algorithm is available below:\medbreak
     }
     \caption{Prob-estimator algorithm}
 \end{algorithm}\medbreak
+where $\lambda$ is a weight parameter for the likelihood, $\alpha$ a scale parameter for the prior, $T$ the number of iterations and $V^{(0)}, Y^{(0)}$ the initial samples. \medbreak
 
 Here, we have that 
 \begin{align}
@@ -793,29 +784,29 @@ The main motivation behind this approach comes from the faster convergence times
 
 \chapter{Numerical experiments}\label{section:numerical-exp}
 We will now focus on the first main contribution of this thesis, namely numerical experiments to compare the prob-estimator (which we will refer to as prob in figures) and the Projected Langevin algorithm (which we will refer to as PL or langevin in figures).\medbreak
-TODO: talk about the number of samples used for the experiments
-The goal with these experiments is to see how does Metropolis-Hastings compare to Langevin sampling with different experimental settings in the context of Quantum Tomography. In particular, we will use the $L_2$ squared (or Frobenius squared) error as the main metric to assess performance in 5 main contexts: convergence plots in section \ref{section:convergence-comparison}, influence of the burn-in period in section \ref{section:comp-burnin}, impact of the number of shots in section \ref{section:comp-nb-shots}, impact of the number of measurements in section \ref{section:comp-nb-meas} and finally the impact of knowledge about the rank of the matrix (in particular for Langevin) in section \ref{section:comp-rank-info}. The term ``shots'' here refers to the number of times the quantum system is replicated and measured. The term ``measurements'' (albeit somewhat ambiguous) refers to the number of observables we use. For that experiment specifically, this implies that the number of observables will sometimes be less than the maximum, hence a case of tomographic incompleteness. \medbreak
 
-As mentioned in the introduction \ref{section:goals-contributions}, the code written for these experiments will be made available later on \href{https://github.com/daqwes/thesis}{GitHub}. All of it is in Python, with the prob-estimator reimplemented from R and the Projected Langevin algorithm from Matlab, with the original source code provided by the authors in both cases (\cite{MA17} and \cite{meth:bayesian:Langevin:ACMT2024} respectively). The prob-estimator originally uses separate qubit data generation and Projected Langevin mixed qubit, however we will often use only one of the data generation procedures to perform the experiment (this will be indicated). Per our tests, the results are usually very close between them (for example by using separate qubit for Projected Langevin or vice versa), so either data generation approach should be valid for any experiment, regardless of the used algorithm.\medbreak
+The goal with these experiments is to see how does Metropolis-Hastings compare to Langevin sampling with different experimental settings in the context of Quantum Tomography. In particular, we will use the $L_2$ squared (or Frobenius squared) error as the main metric to assess performance in 5 main contexts: convergence plots in \ref{section:convergence-comparison}, influence of the burn-in period in \ref{section:comp-burnin}, impact of the number of shots in \ref{section:comp-nb-shots}, impact of the number of measurements in \ref{section:comp-nb-meas} and finally the impact of knowledge about the rank of the matrix (in particular for Langevin) in \ref{section:comp-rank-info}. The term ``shots'' here refers to the number of times the quantum system is replicated and measured. The term ``measurements'' (albeit somewhat ambiguous) refers to the number of observables we use. \medbreak
 
-Before describing in more detail each experiment, it is important to note that there are some discrepancies for the prob-estimator between the paper and the associated implementation in R. These details may impact the obtained results, therefore it is relevant to keep them in mind.
+As mentioned in the introduction \ref{section:goals-contributions}, the code written for these experiments will be made available later on \href{https://github.com/daqwes/thesis}{GitHub}. All of it is in Python, with the prob-estimator reimplemented from R and the Projected Langevin algorithm from Matlab, with the original source code provided by the authors in both cases (\cite{MA17} and \cite{meth:bayesian:Langevin:ACMT2024} respectively). The prob-estimator originally uses separate qubit data generation and Projected Langevin mixed qubit, however we will often use only one of the data generation procedures to perform the experiments (this will be indicated). Per our tests, the results are usually very close between them (for example by using separate qubit for Projected Langevin or vice versa), so either data generation approach should be valid for any experiment, regardless of the used algorithm.\medbreak
+
+Before describing in more detail each experiment, it is important to note that there are some discrepancies for the prob-estimator between the paper and the associated (original) implementation in R. These details may impact the obtained results, therefore it is relevant to keep them in mind.
 \begin{itemize}
 \item The original paper states the proposed $\tilde V_i$ does not depend on the previous sample ($\tilde V_i$ is sampled uniformly from the uniform distribution). This however contradicts their implementation, which considers $\tilde V_i = V_i^{(t)} + V$, where $V$ is sampled from the unit sphere. Both approaches seem valid: in the former case, while we do not sample locally, we still explore the parameter space as it constrained to be the unit sphere; in the latter case, we also remain on the unit sphere due to normalization. In our implementation, we decided to align on their code.
-\item Their paper does not mention the use of a running average, but this is a technique they apply in the code. In this case, we also align on their code and reflect it for Projected Langevin, to have a fair comparison.
+\item Their paper does not mention the use of a running average, but this is a technique they apply in the code. In this case, we also align on their code and reflect it for Projected Langevin, to allow for a fair comparison.
 \item In their code, the first sample for the MCMC algorithm is not random, and comes from an estimation using the inverse method. This provides a warm start and can affect the accuracy of the algorithm. In our experiments, we use a the same random first sample for both algorithms to avoid any potential bias. 
 \end{itemize}
 
 
 \section{Parameter choice}
-We will use $n$ to denote the number of qubits, $m$ the number of shots, \nmeas the number of measurements, \niter the number of iterations, \nburnin the number of burn-in iterations and \rhorank the rank of the true $\rho$. If not specified otherwise, the usual setting is $n=3$, $m=2000$, \nmeasn{3^n} for independent qubit data generation and \nmeasn{4^n} for mixed qubits, \nitern{10000}, \nburninn{2000} and \rhorankn{2}. The choice of a small value for $n$ is related to computation time. The matrix dimensions scale exponentially with the number of qubits, and increasing $n$ to $n=4$ or $n=5$ becomes expensive to run. The number of shots comes from the prob-estimator paper (and is also the value used in the original Projected Langevin code) and after tests, it seems to be informative enough (see section \ref{section:comp-nb-shots} for more details). The initial sample is the same for both methods, and corresponds to a random matrix of rank $d=8$. More details on how it is generated can be found in the appendix \ref{section:init-sample-gen}.\medbreak
+We will use $n$ to denote the number of qubits, $m$ the number of shots, \nmeas the number of measurements, \niter the number of iterations, \nburnin the number of burn-in iterations and \rhorank the rank of the true $\rho$. If not specified otherwise, the usual setting is $n=3$, $m=2000$, \nmeasn{3^n} for independent qubit data generation and \nmeasn{4^n} for mixed qubits, \nitern{10000}, \nburninn{2000} and \rhorankn{2}. The choice of a small value for $n$ is related to computation time. The matrix dimensions scale exponentially with the number of qubits, and increasing $n$ to $n=4$ or $n=5$ becomes expensive to run. The number of shots comes from the original source code for both the prob-estimator and Projected Langevin papers, and after tests, it seems to be informative enough (see section \ref{section:comp-nb-shots} for more details). The initial sample is the same for both methods, and corresponds to a random matrix of rank $d=8$. More details on how it is generated can be found in the appendix \ref{section:init-sample-gen}.\medbreak
 
 The parameters used for the prob-estimator are $\lambda=m/2$ and $\alpha=1/2$, as it is the case in the original R code. For the Langevin sampling, we use $\lambda=m/2,\theta=0.1,\beta=100,\eta=0.05/m$, where $\beta$ and $\theta$ were chosen using a gridsearch, $\eta$ set sufficiently small for the algorithm to converge and $\lambda$ coming from the original code.
 
 \section{Convergence comparison}\label{section:convergence-comparison}
 
-\subsection*{Baseline}
+\subsection*{Baseline convergence}
 
-We will start the comparison with a convergence plot:
+We will start the comparison with a simple convergence plot:
 
 \begin{figure}[H]
     \centering
@@ -838,7 +829,7 @@ We will start the comparison with a convergence plot:
 
 As we can see in both these plots, the 2 algorithms achieve the same accuracy, however Projected Langevin converges much faster. This confirms the hypothesis that the gradient is beneficial. It is also a confirmation that both data generation approaches give similar results. The only difference we see is that the convergence of the prob-estimator is faster with the mixed qubit approach, however this does not change the overall conclusion between the algorithms. Note that, as indicated in the previous section \ref{section:numerical-exp}, we also use running average for Langevin, which is why it is smoothed out after the end of the burn-in period.
 
-\subsection*{Baseline accross ranks}
+\subsection*{Convergence accross ranks}
 A second element that we would like to check is how these algorithms perform if the rank $\rho$ is different from 2. These are the results we get for 3 combinations, rank 1, rank 2 and rank $d=8$ using mixed qubit data generation:
 
 \begin{figure}[H]
@@ -871,7 +862,7 @@ A second element that we would like to check is how these algorithms perform if 
 
 We can see that the result in sensibly the same accross all ranks, hence confirming our hypothesis that rank 2 is representative of other ranks. It is interesting to note that rank 1 takes longer to converge for the prob-estimator, which means that the density matrix is more difficult to approximate in this situation. This matches our intuition, as a sum of nonzero matrix random samples (forming a Markov chain in this case) is of full rank.
 
-\subsection*{Baseline accross qubit count}
+\subsection*{Convergence accross qubit count}
 
 A final element that is interesting to compare is how convergence is impacted by the qubit count. In this case, we will be running both algorithms with $n\in\{3,4,5\}$:
 
@@ -887,7 +878,6 @@ A final element that is interesting to compare is how convergence is impacted by
     \hfill
     \begin{subfigure}[b]{0.49\textwidth}
         % experiments/iterations_no_avg_n4
-        % TODO: rerun if time allows to check which eta is needed for langevin
         \centering
         \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png}
         \caption{$n=4$}
@@ -904,7 +894,9 @@ A final element that is interesting to compare is how convergence is impacted by
     \label{fig:conv-plot-diff-n}
 \end{figure}
 
-With each qubit increase, we can see that convergence becomes more and more challenging. We also see that for $n=5$, the prob-estimator converges to a higher accuracy than Langevin, at least for this number of iterations. For $n\in\{4,5\}$, we decreased $\eta$ to $0.0001/m$ as otherwise Langevin was not converging. This also explains why this curve is smooth during the burn-in period, as the steps we take are very small (on the order of $1\text{e-}7$). There seems to be a major trade-off appearing for Langevin: either we reduce the step size in order to obtain convergence and accuracy, but pay with with convergence time, or converge faster, but without being as accurate, or even without obtaining convergence. One important aspect this conclusion however omits is the computation time (in seconds). If we look at the same figures from above \ref{fig:conv-plot-diff-n}, but instead plot the accuracy with respect to time, this is what we obtain:
+With each qubit increase, we can see that convergence becomes more and more challenging. We also see that for $n=5$, the prob-estimator converges to a higher accuracy than Langevin (for this number of iterations at least). For $n\in\{4,5\}$, we decreased $\eta$ to $0.0001/m$ as otherwise Langevin was not converging. This also explains why this curve is smooth during the burn-in period, as the steps we take are very small (on the order of $1\text{e-}7$). There seems to be a major trade-off appearing for Langevin: either we reduce the step size in order to obtain convergence and accuracy, but pay with with convergence time, or converge faster, but without being as accurate, or even without obtaining convergence. \medbreak
+
+One important aspect this conclusion however omits is the computation time (in seconds). If we look at the same figures from above \ref{fig:conv-plot-diff-n}, but instead plot the accuracy with respect to time, this is what we obtain:
 
 \begin{figure}[H]
     \centering
@@ -926,7 +918,7 @@ With each qubit increase, we can see that convergence becomes more and more chal
     \begin{subfigure}[b]{0.49\textwidth}
         % experiments/iterations_no_avg_n5
         \centering
-        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png}
+        \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png}
         \caption{$n=5$}
         \label{fig:conv-plot-time-diff-n-5-sub}
     \end{subfigure}
@@ -934,7 +926,9 @@ With each qubit increase, we can see that convergence becomes more and more chal
     \label{fig:conv-plot-time-diff-n}
 \end{figure}
 
-We can see that increasing $n$ and decreasing $\eta$ for Langevin leads to higher computational time for convergence. This is a surprising result, as one might expect Langevin to keep performing consistenly better than Metropolis-Hastings when the dimensionality increases. It is possible that with a better choice of parameters $\theta, \lambda,\beta$ this situation does not occur, however it is mostly unlikely given the extent to which it takes time (more experiments with different combinations of parameters but also larger $n$ would be needed to give a definite answer). This hints us on potential advantages of Langevin: it is a method that remains precise when $n$ grows if we keep $\eta$ small enough, however at the expense of computation time. The prob-estimator on the other hand seems to be consistently slow and relatively precise, but without needing to adjust a step size paramer. Note that it also remains untested how the same experiment would perform in case of a reduced burn-in duration, as, given results from section \ref{section:comp-burnin}, the final accuracy seems to the same accross varying burn-in periods. It might be possible for the prob-estimator to converge much faster even with \nburninn{500} (at least for $n=3$).\medbreak
+We can see that increasing $n$ and decreasing $\eta$ for Langevin leads to higher computation time for convergence. This is a surprising result, as one might expect Langevin to keep performing consistenly better than Metropolis-Hastings when the dimensionality increases. It is possible that with a better choice of parameters $\theta, \lambda,\beta$ this situation does not occur, however it is mostly unlikely given the extent to which it takes time (more experiments with different combinations of parameters but also larger $n$ would be needed to give a definite answer).\medbreak
+
+This hints us on potential advantages of Langevin: it is a method that remains precise when $n$ grows if we keep $\eta$ small enough, however at the expense of computation time. The prob-estimator on the other hand seems to be consistently slow and relatively precise, but without needing to adjust a step size paramer. Note that it also remains untested how the same experiment would perform in case of a reduced burn-in duration for the prob-estimator, as, given results from section \ref{section:comp-burnin}, the final accuracy seems to be the same accross varying burn-in periods. It might be possible for it to converge much faster, even with \nburninn{500} (for $n=3$ at least).\medbreak
 
 Another interesting question to ask in this context is if Langevin is suitable for larger $n$, as one might expect no convergence happening with a very small $\eta$ (if we suppose that the trend of decreasing it is needed). This of course also requires more experiments in order to be confirmed.
 
@@ -961,11 +955,11 @@ So far, we have settled on using \nburninn{2000} for the burn-in duration with a
     \caption{Impact of the iterations used for burn-in on the error with $n=3$ and \nitern{10000} fixed}
     \label{fig:burnin-comp}
 \end{figure}
-The duration of the burn-in very marginally impacts the final accuracy, even though a bit more for the prob-estimator. This is also a result we could have expected, as Projected Langevin converges very fast, while the prob-estimator takes time.
+The duration of the burn-in very marginally impacts the final accuracy, as it stays on the same order of magnitude of $1\text{e-}3$. There is more variation for the prob-estimator, however this a result we could have expected, as Projected Langevin converges very fast, while the prob-estimator takes time.
 
 \section{Impact of number of shots}\label{section:comp-nb-shots}
 
-As discussed in section \ref{section:numerical-exp}, the value of $m=2000$ for the number of shots was chosen as it was the number provided in the original source code for both algorithms . One however might ask how this value impacts the accuracy, as the number of shots is very information-dense: performing the measurement on a system many times (or more exactly replicating the system and measuring the clones) provides better estimates for the empirical probabilities $\hat p_{\mb a, \mb s}$. A priori, our expectation is that for any algorithm, increasing the number of shots will increase the accuracy. In this experiment, we will be increasing $m$ exponentially from $1\text{e}2$ to $1\text{e}7$, to replicate an experiment from the Langevin paper \cite{meth:bayesian:Langevin:ACMT2024}. The number of iterations, as well as the burn-in duration were reduced to \nitern{5000} and \nburninn{1000}.
+As discussed in section \ref{section:numerical-exp}, the value of $m=2000$ for the number of shots was chosen as it was the number provided in the original source code for both algorithms. One however might ask how this value impacts the accuracy, as the number of shots is very information-dense: performing the measurement on a system many times (or more exactly replicating the system and measuring the clones) provides better estimates for the empirical probabilities $\hat p_{\mb a, \mb s}$. A priori, our expectation is that for any algorithm, increasing the number of shots will increase the accuracy. In this experiment, we will be increasing $m$ exponentially from $1\text{e}2$ to $1\text{e}7$, to replicate an experiment from the Langevin paper \cite{meth:bayesian:Langevin:ACMT2024}. The number of iterations, as well as the burn-in duration were reduced to \nitern{5000} and \nburninn{1000}.
 
 \begin{figure}[H]
     \centering
@@ -987,7 +981,7 @@ As discussed in section \ref{section:numerical-exp}, the value of $m=2000$ for t
     \caption{Impact of the number of used shots on the error with $n=3$}
     \label{fig:shots-comp}
 \end{figure}
-We can see quite a surprising result: while Langevin gets the expected behaviour of scaling linearly in the loglog plot, the prob-estimator does not improve beyond a certain threshold of approximately $1\text{e-}4/1\text{e-}5$ shots. It occurs with both data generation processes, which means that it is not related to that. A possible explanation could be that the $\lambda$ parameter, which depends on the number of shots, makes the likelihood explode and that the prior is not taken into account anymore. We have therefore tried changing the value of $\lambda$ to a fixed value accross all shots' counts (only for the prob-estimator). This is what we obtained (with mixed qubit data generation):
+We can see quite a surprising result: while Langevin gets the expected behaviour of scaling linearly in the loglog plot, the prob-estimator does not improve beyond a certain threshold of approximately $1\text{e-}4/1\text{e-}5$ shots. It occurs with both data generation processes, which means that it is not related to that. A possible explanation could be that the $\lambda$ parameter, which depends on the number of shots, makes the likelihood term become very large, with the prior stopping being significant. We have therefore tried changing the value of $\lambda$ to a fixed value accross all shots' counts (only for the prob-estimator). This is what we obtained with mixed qubit data generation:
 
 \begin{figure}[H]
     % Comes from experiments/
@@ -997,10 +991,10 @@ We can see quite a surprising result: while Langevin gets the expected behaviour
     \label{fig:shots-comp-prob-var-lambda}
 \end{figure}
 
-We can see that even with a fixed $\lambda$ for the prob-estimator, the accuracy stagnates at around $1\text{e-}4$, even for large $m$. We are not exactly sure why this occurs, as we able to replicate the same behaviour with the original R code (and the authors do not provide metrics beyond $m=2000$ in their paper). The only conclusion we can draw from this result is that it is an inherent property of the method.
+We can see that even with a fixed $\lambda$ for the prob-estimator, the accuracy stagnates at around $1\text{e-}4$, even for large $m$. We are not exactly sure why this occurs, as we able to replicate the same behaviour with the original R code (the authors also do not provide metrics beyond $m=2000$ in their paper). The only conclusion we can draw from this result is that it is an inherent property of the method.
 
 \section{Impact of number of measurements}\label{section:comp-nb-meas}
-The number of measurements, or observables, is another interesting aspect to explore. While in general we assume a tomographically complete setup, here we will try to reduce the number of observables to see how both algorithms behave in this setup, and how many observables are needed in order to keep accuracy sufficiently high. We will be increasing \nmeas  from $1$ to either $4^n$ for mixed qubit or $3^n$ for separate qubit data generation, with the observables randomly chosen at each step. The number of iterations, as well as the burn-in duration were reduced to \nitern{5000} and \nburninn{1000}. Here is what we obtain:
+The number of measurements, or observables, is another interesting aspect to explore. While in general we assume a tomographically complete experiment, here we will try to reduce the number of observables to see how both algorithms behave in this setup, and how many observables are needed in order to keep accuracy sufficiently high. We will be increasing \nmeas  from $1$ to either $4^n$ for mixed qubit, or $3^n$ for separate qubit data generation, with the observables randomly chosen at each step. The number of iterations, as well as the burn-in duration were reduced to \nitern{5000} and \nburninn{1000}. Here is what we obtain:
 
 \begin{figure}[H]
     \centering
@@ -1022,7 +1016,9 @@ The number of measurements, or observables, is another interesting aspect to exp
     \caption{Impact of the number of used measurements on the error with $n=3$}
     \label{fig:meas-comp}
 \end{figure}
-We can see that both algorithms perform similarly with both data generation schemas: for mixed qubit, approximately half of the total observables (around 35) are needed to obtain most of the information; for separate qubit, this value seems to be around 10, closer to a third of the total count. This is an not an unexpected result, an approximate approach comes with the downside of being a bit less precise, or conveying less information. An interesting plot related to this one would be the cumulative information gain, which could allow us to answer a question such as ``How many observables do we need in order to be x\% accurate as the equilibrium distribution?'' or ``How many observables do we need in order to have x\% of information of the equilibrium distribution?''.
+We can see that both algorithms perform similarly with both data generation schemas: for mixed qubit, approximately half of the total observables (around 35) are needed to obtain most of the information; for separate qubit, this value seems to be around 10, closer to a third of the total count.\medbreak 
+
+This is an not an unexpected result, an approximate approach comes with the downside of being a bit less precise, or conveying less information. An interesting plot to obtain related to this one would be the cumulative information gain, which could allow us to answer questions such as ``How many observables do we need in order to be x\% accurate as the equilibrium distribution?'' or ``How many observables do we need in order to have x\% of information of the equilibrium distribution?''.
 
 \section{Impact of knowledge of rank}\label{section:comp-rank-info}
 An advantage that the Projected Langevin algorithm has is that it can also incorporate prior information through the Burer-Monteiro factorization, and in particular the rank of the factors. If we know the rank of our true matrix, we can constrain the search space by setting the upper bound of the rank of the sampled matrix $Y$ to be the one of our true matrix $\rho$. One might then ask to which degree this helps. In this experiment, we will be comparing the situation where we have information about the rank, in which case the initial sample for Langevin will be of rank of $\rho$, and otherwise we will keep it fixed as $d=8$. For both cases, we will increase \rhorank from $1$ to $d=8$ to see how accuracy changes, and use mixed qubit data generation. Here are the results:
@@ -1093,7 +1089,10 @@ We can also try this experiment for $n=4$ (hence from \rhorankn{1} to \rhorankn{
     \label{fig:rank-info-n4}
 \end{figure}
 
-These results are surprising, as it shows that the information about the rank only leads to a marginal improvement in accuracy (it stays on the same order of magnitude). The most insightful plot is figure \ref{fig:rank-info-var-theta} with the different combinations of $\theta$: we see on the left figure \ref{fig:rank-info-var-theta-sub}, where we known the rank, that the error increases for \rhorank{$\in \{1,2,3\}$} and stabilizes for other ranks around $2\text{e-}3/3\text{e-}3$ (with more variance for smaller $\theta$). On the right figure \ref{fig:rank-no-info-var-theta-sub}, some parameters have the same curve, but others, in particular $\theta \in\{1,10\}$, have a flat curve, with little variation between ranks. The overall conclusion remains however the same regardless of the parameter value: the information gain is minimal and the error is of the same order of magnitude. This results seems to generalize for higher $n$, as we see on figure \ref{fig:rank-info-n4}. There are 2 possible conclusions we can draw from this: either the upper bound that the factorization brings plays a small role in how it constrains the search space (with the prior and its parameters having much more impact), however it is also possible that the way we obtain our first sample is not correct, and even though samples are numerically of different rank, they tend to be too similar (see the appendix \ref{section:init-sample-gen} for more details on how the first sample is generated). More experiments are needed to investigate these results.\medbreak
+These results are surprising, as it shows that the information about the rank only leads to a marginal improvement in accuracy (it stays on the same order of magnitude). The most insightful plot is figure \ref{fig:rank-info-var-theta} with the different combinations of $\theta$: we see on the left figure \ref{fig:rank-info-var-theta-sub}, where we known the rank, that the error increases for \rhorank{$\in \{1,2,3\}$} and stabilizes for other ranks around $2\text{e-}3/3\text{e-}3$ (with more variance for smaller $\theta$). On the right figure \ref{fig:rank-no-info-var-theta-sub}, some parameters have the same curve, but others, in particular $\theta \in\{1,10\}$, have a flat curve, with little variation between ranks. The overall conclusion remains however the same regardless of the parameter value: the information gain is minimal and the error is of the same order of magnitude.
+This results seems to generalize for higher $n$, as we see on figure \ref{fig:rank-info-n4}. \medbreak
+
+There are 2 possible conclusions we can draw from this: either the upper bound that the factorization brings plays a small role in how it constrains the search space (with the prior and its parameters having much more impact), however it is also possible that the way we obtain our first sample is not correct, and even though samples are numerically of different rank, they tend to be too similar (see the appendix \ref{section:init-sample-gen} for more details on how the first sample is generated). More experiments are needed to investigate these results.\medbreak
 
 Another interesting insight we can draw from figures \ref{fig:rank-info}, \ref{fig:rank-info-var-theta} and \ref{fig:rank-info-n4} (for both cases, whether we know the rank of $\rho$ or not) is that approximating matrices of high rank tends to be more difficult. It is not clear if this is only linked to the fact that we use a low-rank prior, or simply a property of these matrices. Future work could explore non-low-rank priors in the experiments we propose, which would allow to estimate the usefulness of low-rank priors.
 
@@ -1102,18 +1101,18 @@ The previous experiments allows us to conclude several elements about the differ
 
 First, we can indeed confirm the hypothesis that Langevin converges faster for $n=3$ thanks to the gradient information based on the results we saw in section \ref{section:convergence-comparison}. This algorithm also seems to be more precise for larger $n$, as shown in figure \ref{fig:conv-plot-diff-n-5-sub}. This algorithm however does not seem to scale when the dimensionality increases, as the computational time becomes nearly equivalent to that of the prob-estimator, due to the small $\eta$ needed in order to converge. This asks the question whether it makes sense to use Langevin in practical applications where $n$ is large. These conclusions seem to be consistent accross the data generation processes, as we saw in figure \ref{fig:conv-plot}, as well as ranks, except rank-1 where Langevin converges even faster (as seen in figure \ref{fig:conv-plot-diff-rank-1-sub}).\medbreak
 
-Second, for both algorithms, any burn-in duration produces the same accuracy for $n=3$, assuming the total iteration count is sufficiently large (\nitern{10000} in this case). As we see in figure \ref{fig:burnin-comp}, from \nburninn{100} to \nburninn{6000}, the curves stay flat.\medbreak
+Second, for both algorithms, any burn-in duration produces the same accuracy for $n=3$, assuming the total iteration count is sufficiently large (\nitern{10000} in this case). As we see in figure \ref{fig:burnin-comp}, from \nburninn{100} to \nburninn{6000}, the curves stays close to flat.\medbreak
 
-Third, Projected Langevin scales when the number of shots increases, while the prob-estimator does not beyond a threshold. As we saw in section \ref{section:comp-nb-shots}, the prob-estimator does not get more accurate after approximately $1\text{e-}4/1\text{e-}5$ shots, while Langevin has a straight line in the loglog plot of figure \ref{fig:shots-comp}. This is further confirmed in figure \ref{fig:shots-comp-prob-var-lambda}, where $\lambda$ is fixed (not depending on shots)and tested with different combinations for the prob-estimator. This means that the prob-estimator is not suitable for obtaining high precision estimates of $\rho$ in situations when a large number of shots is done.\medbreak
+Third, Projected Langevin scales when the number of shots increases, while the prob-estimator does not beyond a threshold. As we saw in section \ref{section:comp-nb-shots}, the prob-estimator does not get more accurate after approximately $1\text{e-}4/1\text{e-}5$ shots, while Langevin has a straight line in the loglog plot of figure \ref{fig:shots-comp}. This is further confirmed in figure \ref{fig:shots-comp-prob-var-lambda}, where $\lambda$ is fixed (not depending on shots) and tested with different values for the prob-estimator. This means that the prob-estimator is not suitable for obtaining high precision estimates of $\rho$ in situations when a large number of shots is available.\medbreak
 
-Fourth, the number of measurements or observables needed in order to stay accurate is the same for both Projected Langevin and the prob-estimator. Indeed, the data generation process has much more importance and we observe mixed qubit needing on average half of the total number, while separate qubit only a third, as visible in figure \ref{fig:meas-comp}. This confirms our intuition that an exact method needs less observables than a approximate method.\medbreak
+Fourth, the number of measurements or observables needed in order to stay accurate is the same for both Projected Langevin and the prob-estimator. Indeed, the data generation process has much more importance, and we observe mixed qubit needing on average half of the total number, while separate qubit only a third, as visible in figure \ref{fig:meas-comp}. This confirms our intuition that an exact method needs less observables than a approximate method.\medbreak
 
-Finally, for Projected Langevin, having the knowledge about the true rank of $\rho$ only leads to marginally better accuracy. Indeed, figures \ref{fig:rank-info}, \ref{fig:rank-info-var-theta} and \ref{fig:rank-info-n4} all result in the same conclusion: the rank of $\rho$ has more importance on the accuracy than information about it.
+Finally, for Projected Langevin, having the knowledge about the true rank of $\rho$ only leads to marginally better accuracy. Indeed, figures \ref{fig:rank-info}, \ref{fig:rank-info-var-theta} and \ref{fig:rank-info-n4} all result in the same conclusion: the rank of $\rho$ has more importance on the accuracy than having information about it.
 
 \chapter{Algorithm vs prior: what matters the most?}\label{section:algo-vs-prior}
-The previous experiments in section \ref{section:numerical-exp} showed us that for a lower number of qubits $n$, Projected Langevin tends to converge faster in terms of iterations. This raises the question of ``why'', as \cite{meth:bayesian:Langevin:ACMT2024} not only brings a new algorithm, but also a new prior. In this chapter, we will introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS) in order to try to understand which part contributes most. By combining Metropolis-Hastings from the prob-estimator with the Student-t prior from Projected Langevin, we can estimate whether the prior is a silver bullet which can solves Bayesian Quantum Tomography, or if Langevin is still a mandatory component for it to work.\medbreak
+The previous experiments in Chapter \ref{section:numerical-exp} showed us that for a small number of qubits $n$, Projected Langevin tends to converge faster in terms of iterations. This raises the question of ``why'', as \cite{meth:bayesian:Langevin:ACMT2024} not only brings a new algorithm, but also a new prior. In this chapter, we will introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS) in order to try to understand which part contributes most. By combining Metropolis-Hastings from the prob-estimator with the Student-t prior from Projected Langevin, we can estimate whether the prior is a silver bullet which can solves Bayesian Quantum Tomography, or if Langevin is still a mandatory component for it to work.\medbreak
 
-This chapter is the second main contribution of this thesis, and is structured as followed: in \ref{section:mhs-and-mhgs} we will describe in detail both algoritms, then in section \ref{section:proposal-choice} we will talk about the choice of the proposal and finally in section \ref{section:mhs-mhgs-num-exp} we will evaluate numerically how these algorithms perform, in order to draw a meaningful conclusion.
+This chapter is the second main contribution of this thesis, and is structured as followed: in \ref{section:mhs-and-mhgs} we will describe in detail both algoritms, then in \ref{section:proposal-choice} we will talk about the choice of the proposal and finally in \ref{section:mhs-mhgs-num-exp} we will evaluate numerically how these algorithms perform, in order to draw a meaningful conclusion.
 \section{Introducing new algorithms: MHS and MHGS}\label{section:mhs-and-mhgs}
 \subsection*{Metropolis-Hastings with Student-t prior}
 \textit{Metropolis-Hastings with Student-t} (MHS), as its name suggests, is a Metropolis-Hastings based algorithm. It is a vanilla version of the algorithm, as the modifications are minor. The main difference comes from the fact that we work directly on the matrix space, rather than vectors or scalars. More precisely, we utilize the Burer-Monteiro factorization from the Projected Langevin approach (as seen in section \ref{section:projected-langevin}) to work directly with $Y \in \mathbb{R}^{2d \times 2r}$, where we do the reverse isomorphic transformation $\psi^{-1}$ to map back to $Y \in \mathbb{C}^{d\times r}$ to calculate $\hat \rho$. We also use the spectral scaled Student-t prior from Langevin (defined on $\mathbb{C}$ here):
@@ -1151,11 +1150,11 @@ In practice, we also the log-transformation trick as described in section \ref{s
     }
     \caption{Metropolis-Hastings with Student-t prior}
 \end{algorithm}\medbreak
-
+where $\lambda$ is a weight parameter for the likelihood, $\theta$ a scale parameter for the prior, $T$ the number of iterations and $Y^{(0)}$ the initial sample.\medbreak
 
 
 \subsection*{Metropolis-Hastings with Gibbs with Student-t prior}
-\textit{Metropolis-Hastings with Gibbs with Student-t prior} (MHGS) is an extension of MHS and is an attempt to imitate more closely the way the prob-estimator works. Indeed as we saw in section \ref{section:prob-estimator}, the prob-estimator resembles more Gibbs-within-Metropolis-Hastings than pure Metropolis-Hastings, as it iterates over each dimension for each MH iteration. With this in mind, MHGS works by sampling each entry of the matrix $\tilde Y \in \mathbb{R}^{2d\times 2r}$ separately. If we assume the proposal $p_2(y|\tilde Y^{(k-1)}_{ij})$ and acceptance rate $A_2$, this results in the following algorithm:\medbreak
+\textit{Metropolis-Hastings with Gibbs with Student-t prior} (MHGS) is an extension of MHS and is an attempt to imitate more closely the way the prob-estimator works. Indeed as we saw in section \ref{section:prob-estimator}, the prob-estimator resembles more Metropolis-within-Gibbs than pure Metropolis-Hastings, as it iterates over each dimension for each Metropolis-Hastings iteration. With this in mind, MHGS works by sampling each entry of the matrix $\tilde Y \in \mathbb{R}^{2d\times 2r}$ separately. If we assume the proposal $p_2(y|\tilde Y^{(k-1)}_{ij})$ and acceptance rate $A_2$, this results in the following algorithm:\medbreak
 
 \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -1163,9 +1162,9 @@ In practice, we also the log-transformation trick as described in section \ref{s
     \SetKwInOut{Output}{Output}
 
     %\underline{Prob-estimator}\;
-    \Input{$T \in \mathbb{N}, Y_0 \in \mathbb{C}^{d \times r}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    \Input{$T \in \mathbb{N}, Y^{(0)} \in \mathbb{C}^{d \times r}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
     \Output{$\tilde Y \in \mathbb{R}^{2d\times 2r}$}
-    $\tilde Y_0 \gets \psi(Y_0)$\;
+    $\tilde Y^{(0)} \gets \psi(Y^{(0)})$\;
     $\tilde Y = \mb 0$\;
     \For{$k\gets 1:T$}{
         $\tilde Y^{(k)} \gets \tilde Y^{(k-1)}$\;
@@ -1187,12 +1186,13 @@ In practice, we also the log-transformation trick as described in section \ref{s
     }
     \caption{Metropolis-Hastings with Gibbs with Student-t prior}
 \end{algorithm}\medbreak
+where $\lambda$ is a weight parameter for the likelihood, $\theta$ a scale parameter for the prior, $T$ the number of iterations and $Y^{(0)}$ the initial sample.\medbreak
 
 \section{Proposal choice}\label{section:proposal-choice}
-A very important element for these approaches is the choice of the proposal. As we are trying to be as close as possible to the prob-estimator for the algorithm part, it is not clear which proposal should be chosen. The original algorithm samples from a prior, be it a Gamma distribution for $\gamma$ or the unit sphere for $V$. Sampling from these distributions is however only relevant in the rank-1 factorization that the authors use, and not as a general proposal. Following this logic, we should be sampling from the scaled Student-t distribution, however it is not obvious how this should be done and further work is required. In the following sections, we will discuss the considered options.
+A very important element for these approaches is the choice of the proposal. As we are trying to be as close as possible to the prob-estimator for the algorithm part, it is not clear which proposal should be chosen. The original algorithm samples from a prior, be it a Gamma distribution for $\gamma$ or the unit sphere for $V$. Sampling from these distributions is however only relevant in the rank-1 factorization that the authors use, and not as a general proposal. Following this logic, we should be sampling from the scaled Student-t distribution, however it is not obvious how this should be done, with further work required to investigate it. In the following sections, we will discuss the considered options.
 
 \subsection*{Proposal for MHS}
-For the MHS algorithm, we considered 3 main options for $p_1(\tilde Y| \tilde Y ^{(k-1)})$: the normal distribution centered at the current sample (which is a very standard proposal), the normal distribution centered at 0 (hence not sampling locally) and the Gamma distribution, in the same way that is done by the prob-estimator. This last method is not the most appropriate given what we mentioned above, however we kept it as a point of comparison. We adjusted the acceptance rate for both the independent normal and the centered normal (however the numerator and denominator simplify as it is symmetric), but did not do so for the gamma distribution, as it is not clear how this should be done (even though it is asymmetrical). We summarize them below in \ref{table:proposal-comp-mhs}:
+For the MHS algorithm, we considered 3 main options for $p_1(\tilde Y| \tilde Y ^{(k-1)})$: the normal distribution centered at the current sample (which is a very common proposal), the normal distribution centered at 0 (hence not sampling locally) and the Gamma distribution, in the same way that is done by the prob-estimator. This last method is not the most appropriate given what we mentioned above, however we kept it as a point of comparison. We adjusted the acceptance rate for both the independent normal and the centered normal (however the numerator and denominator simplify as it is symmetric), but did not do so for the gamma distribution, as it is not clear how this should be done (even though it is asymmetrical). We summarize them below in \ref{table:proposal-comp-mhs}:
 \begin{table}[H]
 
     \begin{center}
@@ -1210,7 +1210,7 @@ For the MHS algorithm, we considered 3 main options for $p_1(\tilde Y| \tilde Y 
 \label{table:proposal-comp-mhs}
 \end{table}
 
-After running a grid search with parameters $\sigma\in \{0.001, 0.01, 0.05, 0.1, 0.5, 1, 10\}$ and \nitern{5000},\nburninn{1000} these are the results we obtain (sorted by error, with top 5 left): 
+After running a grid search with parameters $\sigma\in \{0.001, 0.01, 0.05, 0.1, 0.5, 1, 10\}$ and \nitern{5000}, \nburninn{1000} these are the results we obtain: 
 
 \begin{table}[H]
 
@@ -1226,7 +1226,7 @@ After running a grid search with parameters $\sigma\in \{0.001, 0.01, 0.05, 0.1,
             Gamma&1.0   &0.449\\\hline
         \end{tabular}
 \end{center}
-\caption{Grid search result over proposals and their scaling parameters for MHS}
+\caption{Grid search result over proposals and their scaling parameters for MHS, top 5 entries sorted by error}
 \label{table:proposal-grid-search-mhs}
 \end{table}
 Given this outcome, we settled on using the centered normal as our proposal with $\sigma=0.001$. Note that this choice of proposal is not the best, and as stated previously, we should ideally be sampling from the Student-t distribution to align with the prob-estimator approach. 
@@ -1249,7 +1249,7 @@ For the MHGS algorithm, we decided to remove the independent normal distribution
 \caption{Proposals considered for MHGS}
 \label{table:proposal-comp-mhgs}
 \end{table}
-We then re-ran the same gridsearch with \nitern{1000} and \nburninn{300} to obtain the following results (sorted by error, with top 5 left): 
+We then re-ran the same gridsearch with \nitern{1000} and \nburninn{300} to obtain the following results: 
 
 \begin{table}[H]
 
@@ -1265,7 +1265,7 @@ We then re-ran the same gridsearch with \nitern{1000} and \nburninn{300} to obta
             Centered normal& 1&0.166\\\hline
         \end{tabular}
 \end{center}
-\caption{Grid search result over proposals and their scaling parameters for MHGS}
+\caption{Grid search result over proposals and their scaling parameters for MHGS, top 5 entries sorted by error}
 \label{table:proposal-grid-search-mhgs}
 \end{table}
 As we can see, the centered normal is once again the best result (in this case with standard deviation $\sigma=0.1$), which confirms us that is it good default choice for proposals in MCMC.
@@ -1284,9 +1284,10 @@ With the proposals being chosen, we can now proceed to compare these 2 new algor
 %1) prior in itself is not enough, it must be paired up with a good algorithm
 As we can see, both new methods perform worse than the prob-estimator and Projected Langevin, even with a sufficiently good proposal. The MHGS algorithm seems to perform better than MHS, which validates the idea behind the prob-estimator, and other techniques such as \cite{Mai22, LLJL20}, which all sample one-dimensional distributions accross dimensions instead of directly sampling from the joint. This however comes at the expense of very long computation times, something that was also visible in section \ref{section:convergence-comparison}, figure \ref{fig:conv-plot-time-diff-n-3-sub}.\medbreak
 
-The major conclusion to draw however from this result is that the prior is not a solution on its own, as pairing it with another algorithm does not lead to better or similar accuracy. As the experiment is performed with 2 variations of Metropolis-Hastings, we must infer that it is not only related to the choice of the algorithm. This of course assumes that the proposal we use is correct and does not perform suboptimally. This also implies that if a new method is to be implemented using this prior, it is important, after choosing the algorithm well and tuning its hyperparameters, to thoroughly benchmark its performance in order to make sure it is sufficiently accurate. The prior itself does not provide any guarantees on accuracy. The prior also does not help with the convergence speed, as we can see MHGS taking a very long time to converge (and possibly not even converging). This means that, in the context of our comparison, Langevin sampling is needed. Further work is required to verify if this property comes specifically from Langevin or the gradient information in general, in which case methods such as Hamiltonian Monte Carlo may also be valid.
+The major conclusion to draw however from this result is that the prior is not a solution on its own, as pairing it with another algorithm does not lead to better or similar accuracy. The fact that we obtain similar results with 2 different algorithms implies a low chance of a coincidence. This of course makes the assumption that the proposal we use is sufficiently good and does not perform suboptimally. This also implies that if a new method is to be implemented using this prior, it is important, after choosing the algorithm well and tuning its hyperparameters, to thoroughly benchmark its performance in order to make sure it is sufficiently accurate. The prior itself does not provide any guarantees on accuracy.\medbreak
 
-TODO: perhaps run another experiments where we check how mhs and mhgs perform with different shot counts 
+The prior also does not help with the convergence speed, as we can see MHGS taking a very long time to converge (and possibly not even converging). This means that, in the context of our comparison, Langevin sampling is needed. Further work is required to verify if this property comes specifically from Langevin or the gradient information in general, in which case methods such as Hamiltonian Monte Carlo may also be valid.
+
 \chapter{Conclusion and future work}
 We have in this master thesis explored how Markov chain Monte Carlo methods can help us solve the Quantum Tomography problem. By leveraging the Bayesian framework, we can include the properties of a density matrix into the prior and approximate the posterior by sampling from it.\medbreak
 
@@ -1299,9 +1300,11 @@ In particular, we have numerically compared the prob-estimator introduced in \ci
 \end{itemize}
 By then introducing 2 new algorithms in section \ref{section:mhs-and-mhgs}, we wanted to infer what part of the Projected Langevin method, the algorithm or prior, made it perform better. The results conclude that it is probably a combination of both, and the novel low-rank prior alone is not a silver bullet for Bayesian Quantum Tomography.\medbreak 
 
-This thesis however only explores a subset of the possible experiments, and many questions remain to be answered. We have only compared the prob-estimator and the Projected Langevin algorithm, but as described in the introduction \ref{section:litterature-review}, many other algorithms exist for Bayesian Quantum Tomography. Creating a comprehensive overview of methods with their characteristics would allow researchers to make an informed choice for their use case. It would also be interesting to expand all the experiments that we have done to larger $n$ and test all ranks of $\rho$. We have also talked about convergence in a nonrigorous way, without relying on the convergence bounds that most previous work comes with (including the reference papers \cite{MA17} and \cite{meth:bayesian:Langevin:ACMT2024}). It would be interesting to quantify and compare the obtained numerical results and the expected theoretical bounds.\medbreak
+This thesis however only explores a subset of the possible experiments, and many questions remain to be answered. We have only compared the prob-estimator and the Projected Langevin algorithm, but as described in the introduction \ref{section:litterature-review}, many other algorithms exist for Bayesian Quantum Tomography. Creating a comprehensive overview of methods with their characteristics would allow researchers to make an informed choice for their use case. It would also be interesting to expand all the experiments that we have done to larger $n$ and test all ranks of $\rho$. \medbreak
 
-In Chapter \ref{section:mhs-and-mhgs} we tried to give an answer on why Projected Langevin performs better by proposing 2 new algorithms. This combination however only tests two possible combination of prior and algorithm. Exploring other low-rank priors (but also non-low-rank) and algorithms, such as Hamiltonian Monte Carlo, would greatly benefit our understanding of the correctness and robustness of our conclusions.  
+We have also talked about convergence in a nonrigorous way, without relying on the convergence bounds that most previous work comes with (including the reference papers). It would be interesting to quantify and compare the obtained numerical results and the expected theoretical bounds.\medbreak
+
+In Chapter \ref{section:algo-vs-prior} we tried to give an answer on why Projected Langevin performs better by proposing 2 new algorithms. The set of experiments we used to draw our conclusion was however very limited and expanding it to the full suite of chapter \ref{section:numerical-exp} would allow to provide more nuance to the answer. The proposed algorithms also form only a small subset of possible priors and algorithms. Exploring other low-rank priors (but also non-low-rank) and algorithms, such as Hamiltonian Monte Carlo for gradient based methods or preconditioned Crank-Nicholson for non-gradient based, would greatly benefit our understanding of the correctness and robustness of our conclusions.
 
 % \bibliographystyle{unsrt}
 % \bibliography{bibliography}
