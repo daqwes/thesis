@@ -1,0 +1,208 @@
+\documentclass{beamer}
+\setbeamercovered{transparent=25} 
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts,amsmath,oldgerm}
+\usefonttheme[onlymath]{serif}
+\usepackage{tikz}
+\usepackage{xcolor}
+
+\newcommand{\greencheck}{\color{green}\checkmark}
+\newcommand{\redcross}{\color{red}\times}
+\newcommand{\tr}{\text{tr}}
+
+\newcommand{\Tr}{\text{Tr}}
+
+\newcommand{\mb}{\mathbf}
+
+\newcommand{\bsy}{\boldsymbol}
+
+\newcommand{\tb}{\textbf}
+
+\newcommand{\ti}{\textit}
+
+\newcommand{\btheta}{\boldsymbol{\theta}}
+
+\newcommand{\brho}{\boldsymbol{\rho}}
+
+\newcommand{\nmeasn}[1]{$n_{\text{meas}}=#1$}
+
+\newcommand{\nitern}[1]{$n_{\text{iter}}=#1$}
+
+\newcommand{\nburninn}[1]{$n_{\text{burnin}}=#1$}
+
+\newcommand{\rhorankn}[1]{\text{rank}$(\rho)=#1$}
+
+\newcommand{\nmeas}[0]{$n_{\text{meas}} $ }
+
+\newcommand{\niter}[0]{$n_{\text{iter}} $ }
+
+\newcommand{\nburnin}[0]{$n_{\text{burnin}} $ }
+
+\newcommand{\rhorank}[0]{\text{rank}$(\rho) $ }
+
+\newcommand{\semitransp}[2][35]{\textcolor{fg!#1}{#2}}
+
+\usetheme{default}
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+\title{Master's thesis: Numerical comparison of MCMC methods for Quantum Tomography}
+\author[Mokeev]
+{ Danila Mokeev\\{\small Supervisors: Estelle Massart and Andrew Thompson}}
+\institute[EPL]{Ecole Polytechnique de Louvain}
+\date{21st of June 2024}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+
+\begin{frame}{Problem: quantum state reconstruction}
+    \tb{Goal}: We want to reconstitute a quantum state\medbreak
+    Unfortunately, there are some challenges: 
+    \begin{itemize}
+        \item Quantum systems are inherently probabilistic
+        \item A measurement can ony be made once
+        \item We can only measure the position or momentum, but not both
+    \end{itemize}
+\end{frame}
+\begin{frame}{Quantum Tomography}
+    Quantum tomography provides a solution to this problem.\medbreak
+    Key steps:
+    \begin{enumerate}
+        \item Replicate the initial state of the system multiple times
+        \item Measure each clone once
+        \item Calculate the empirical probabilities
+        \item Estimate the quantum state with any appropriate method
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Quantum Tomography: mathematical description (1)}
+    The Born rule states that
+    \begin{equation}
+        p(m) = \tr(\rho P_m)
+    \end{equation}
+    with
+    \begin{itemize}
+        \item $P_m$ the projector matrix associated to the eigenvalue $m$ of an \textit{observable} O
+        \item $p(m)$ the probability of occurence  of $m$
+        \item $\rho$ the \textit{density matrix} representing the quantum state
+        \begin{itemize}
+            \item positive semi-definite
+            \item Hermitian ($\rho = \rho^\dagger$)
+            \item trace$(\rho)=1$
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}{Quantum Tomography: mathematical description (2)}
+    If we flatten the matrices
+    \begin{equation}
+        A = \begin{bmatrix}
+            \vec P_1\\
+            \vec P_2\\
+            \vec P_3\\
+            \vdots
+        \end{bmatrix}
+        \quad\vec{\rho} = \begin{bmatrix}
+            \rho_{11} \\
+            \rho_{12} \\
+            \rho_{13} \\
+            \vdots
+        \end{bmatrix}
+    \end{equation}
+
+    then we can estimate $\rho$ by solving the resulting system of equations 
+    \begin{equation}
+        A\vec{\rho} = \hat p
+    \end{equation}
+\end{frame}
+\begin{frame}{Existing methods}
+    \begin{itemize}
+        \item Direct methods: \begin{equation}
+            \hat \rho = (A^TA)^{-1}A^T \hat p
+        \end{equation}
+        \item Optimization-based methods: \begin{equation}
+            \hat \rho = \text{argmin}_{\vec\rho} ||A \vec\rho - \hat p||
+        \end{equation} 
+        \item Pauli basis expansion:\begin{equation}
+            \hat \rho = \sum_{b\in\{I,x,y,z\}^n} \rho_b \sigma_b
+        \end{equation}
+        \item Bayesian methods, and in particular MCMC methods
+        \begin{equation}
+        \hat \rho = \frac{1}{N}\sum_{i=1}^N \nu_i \quad \text{with } \nu_i \sim \pi(\nu|\mb D)
+        \end{equation}
+    \end{itemize}
+\end{frame}
+\begin{frame}{Existing methods: our focus in this thesis}
+    \begin{itemize}
+        % \semitransp{
+        \item<0> Direct methods: \begin{equation}
+            \hat \rho = (A^TA)^{-1}A^T \hat p
+        \end{equation}
+        \item<0> Optimization-based methods: \begin{equation}
+            \hat \rho = \text{argmin}_{\vec\rho} ||A \vec\rho - \hat p||
+        \end{equation} 
+        \item<0> Pauli basis expansion:
+        \begin{equation}
+            \hat \rho = \sum_{b\in\{I,x,y,z\}^n} \rho_b \sigma_b
+        \end{equation}
+        % }
+        \item<1> Bayesian methods, and in particular MCMC methods
+        \begin{equation}
+        \hat \rho = \frac{1}{N}\sum_{i=1}^N \nu_i \quad \text{with } \nu_i \sim \pi(\nu|\mb D)
+        \end{equation}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Markov chain Monte Carlo methods}
+    \tb{Context}: We are working in the Bayesian framework:
+    \begin{equation}
+        \pi (\nu|\mb D) \propto \mathcal{L}(\mb D|\nu) \pi(\nu)
+    \end{equation}
+    Markov chain Monte Carlo (MCMC) methods allow us to \textit{sample} from $\pi (\nu|\mb D)$.\medbreak
+    They build a Markov chain of samples $\nu_1, \nu_2, \dots$ where at equilibrium
+    \begin{equation}
+        f(x) =\pi (\nu|\mb D)
+    \end{equation}
+    with $f(x)$ the equilibrium distribution of the Markov chain.\medbreak
+    Then, the density matrix is approximated as 
+    \begin{equation}
+        \hat \rho = \frac{1}{N}\sum_{i=1}^N \nu_i \quad \text{with } \nu_i \sim \pi(\nu|\mb D)
+    \end{equation}
+\end{frame}
+\begin{frame}{The Metropolis-Hastings algorithm}
+    The Metropolis-Hastings algorithm is one of the most common MCMC algorithms.\medbreak
+    Given a first sample $\nu^{(0)}$ and until $t=T$:
+    \begin{enumerate}
+        \item Generate a candidate $\nu^* \sim q(\nu|\nu^{(t-1)})$
+        \item Set $\nu^ {(t)} = \begin{cases}
+            \nu^{*} \hspace{1.08cm} \text{with prob. } \alpha(\nu^*, \nu^{(t-1)})\\
+            \nu^{(t-1)} \hspace{0.5cm} \text{with prob. } 1-\alpha(\nu^*, \nu^{(t-1)})
+        \end{cases}$
+    \end{enumerate}
+    with \begin{equation}
+        \alpha(\nu^*, \nu^{(t-1)}) = \frac{\pi(\nu^*|\mb D) q( \nu^{(t-1)}|\nu^*)}{\pi(\nu^{(t-1)}|\mb D) q( \nu^{*}|\nu^{(t-1)})}
+    \end{equation}
+\end{frame}
+\begin{frame}{Prob-estimator}
+    Introduced in MA17, it uses Metropolis-Hastings to , 
+\end{frame}
+\end{document}
+

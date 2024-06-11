@@ -1,0 +1,625 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts,amsmath,oldgerm}
+\usefonttheme[onlymath]{serif}
+\usepackage{tikz}
+\usepackage{xcolor}
+
+\newcommand{\greencheck}{\color{green}\checkmark}
+\newcommand{\redcross}{\color{red}\times}
+
+\usetheme{default}
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+\title{Reinforcement learning: Temporal-Difference Learning}
+\author[Noirot, Caulier, Mokeev]
+{\small  Guillaume Noirot \and Louis Caulier \and Danila Mokeev}
+\institute[EPL]{Ecole Polytechnique de Louvain}
+\date{21 of June 2024}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+% A -> Louis
+% B -> Daniel
+% C -> Guillaume
+\section{Temporal differences method} % -> A, C
+\begin{frame}{Limitations of Monte Carlo: maze example}
+\begin{figure}
+    \centering
+\includegraphics[width= 60mm]{maze.jpg}
+    \\ \footnotesize Simple maze
+    \label{fig:maze}
+\end{figure}
+Monte Carlo simulation will simulate the episode until it reaches terminal state (dead end in this case).\newline
+
+Do we really need to go all the way to the dead end to know that some paths are bad?
+\end{frame}
+\begin{frame}{Limitations of Monte Carlo: chess example}
+Three possible terminal states: win +1, loss -1, draw 0
+\begin{figure}
+    \centering
+\includegraphics[width= 60mm]{queen_sac.jpg}
+    \\ \footnotesize Queen sacrifice
+    \label{fig:maze}
+\end{figure}
+Monte Carlo simulation will keep running until the game ends in order
+to determine whether the queen was worth sacrificing.\newline
+
+Except in some (very rare cases) we can already say that sacrificing the queen is a bad idea!
+\end{frame}
+\begin{frame}{How to estimate the state value?}
+\begin{align}
+    v_{\pi}(s) &= \mathbb{E}_{\pi}[G_t \; | S_t= s ] \\
+    &= \mathbb{E}_{\pi}[\sum_{k=0}^{\infty} \gamma^{k}R_{t+k+1} \; | \; S_t = s] \\
+    &= \mathbb{E}_{\pi}[R_{t+1} + \gamma \sum_{k=0}^{\infty} \gamma^{k}R_{t+k+2} \; | \; S_t = s] \\
+    &= \mathbb{E}_{\pi}[R_{t+1} + \gamma v_{\pi}(S_{t+1}) \; | \; S_t = s] 
+\end{align}
+\begin{itemize}
+    \item Monte Carlo methods estimate (2)
+    \item Dynamic Programming uses bootstrapping in (4) (i.e. using $v_{\pi}(S_{t+1})$ to compute $v_{\pi}(S_{t})$, the expectation is directly computed using transition probabilities)
+    \item Temporal-differences \textbf{approximate} (4) (as it does not know transition probabilities)
+
+\end{itemize}
+\newline
+    
+\end{frame}
+\begin{frame}{Temporal-differences}
+% C
+\begin{equation*}
+    \small
+    \begin{cases}
+    V(S_t) \longleftarrow \sum_{r, s'} P(s', r | s, \; \pi(s))(r+\gamma V(s')) & \text{Dynamic programming} \\
+    V(S_t) \longleftarrow V(S_t) + \alpha (G_t - V(S_t)) & \text{Monte Carlo}\\
+    V(S_t) \longleftarrow V(S_t) + \alpha(R_{t+1} + \gamma V(S_{t+1}) - V(S_t)) & \text{1-step TD (=TD(0))} 
+    \end{cases}
+\end{equation*}
+\newline
+
+\begin{tabular}{|c|c|c|}
+\hline
+ & \textbf{Boostrapping} & \textbf{Model Free}  \\
+\hline
+\textbf{Monte Carlo} & $\redcross$ & $\greencheck$ \\
+\hline
+\textbf{Dynamic Programming} & $\greencheck$ & $\redcross$ \\
+\hline
+\textbf{Temporal-difference learning} & $\greencheck$ & $\greencheck$ \\
+\hline
+\end{tabular}
+\newline
+\newline
+TD takes the best of both worlds!
+\end{frame}
+\section{Example: Random walk}
+\begin{frame}{Example: Random walk}%{Comparison of TD(0) vs $\alpha$-MC}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{random_walk.png}
+    \end{figure}
+\begin{itemize}
+    \item 5 states: A, B, C, D, E with $p(s, s') = \frac{1}{2}$
+    \item Initial state C
+    \item Terminal states on both ends, and reward of 1 only on the right
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Applying TD(0) on the random walk}%{Comparison of TD(0) vs $\alpha$-MC}
+\begin{figure}
+    \includegraphics[width=\textwidth]{random_walk.png}
+\end{figure}
+Solving Bellman equations for this problem would give the exact solution: 
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&1/6 & 2/6 & 3/6 & 4/6 & 5/6\\
+         \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+Now let's apply TD(0): \[V(S_t) = V(S_t) + \alpha(R_{t+1} + \gamma V(S_{t+1}) - V(S_t))\]
+with $V_0(S) = 0.5$ and $\alpha = 0.1, \gamma = 1$
+% \begin{itemize}
+%     \item
+% \end{itemize}
+\end{frame}
+    
+\begin{frame}{Applying TD(0) on the random walk}
+        \begin{figure}
+        \includegraphics[width=\textwidth]{random_walk.png}
+    \end{figure}
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 0} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&1/2 & 1/2 & 1/2 & 1/2 & 1/2\\
+         \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+
+% \begin{center}
+    \begin{center}
+        $\Downarrow$ \dots
+    \end{center}
+% \end{center}
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 100} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&0.5 &0.52& 0.55 & 0.64 & 0.86\\
+         \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+\end{frame}
+
+\begin{frame}{Applying TD(0) on the random walk}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{random_walk_arrow1.png}
+\end{figure}
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 100} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&0.5 &0.52& 0.55 & 0.64 & 0.86\\
+         \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+
+% \begin{center}
+    \begin{center}
+        $\Downarrow$ \\
+        $\underbrace{V(S_t)}_{V(C)} = \underbrace{V(S_t)}_{V(C)} + \alpha(\underbrace{R_{t+1}}_{0} + \gamma \underbrace{V(S_{t+1})}_{V(D)} - \underbrace{V(S_t)}_{V(C)})$ \\
+    \end{center}
+% \end{center}
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 101} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&0.5 &0.52& \textbf{0.559} & 0.64 & 0.86\\
+         \hline
+    \end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Applying TD(0) on the random walk}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{random_walk_arrow2.png}
+\end{figure}
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 101} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&0.5 &0.52& 0.559 & 0.64 & 0.86\\
+         \hline
+    \end{tabular}
+\end{table}
+
+% \begin{center}
+    \begin{center}
+        $\Downarrow$ 
+    \end{center}
+% \end{center}
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 102} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&0.5 &0.52& 0.559 & \textbf{0.662} & 0.86\\
+         \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+\end{frame}
+
+\begin{frame}{Applying TD(0) on the random walk}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{random_walk_arrow3.png}
+\end{figure}
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 102} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&0.5 &0.52& 0.559 & 0.662 & 0.86\\
+         \hline
+    \end{tabular}
+\end{table}
+
+% \begin{center}
+    \begin{center}
+        $\Downarrow$ 
+    \end{center}
+% \end{center}
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         \textbf{t = 103} &A   & B   & C   & D   & E\\
+         \hline
+         V(S)&0.5 &0.52& 0.559 & 0.662 & \textbf{0.92}\\
+         \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+\end{frame}
+\begin{frame}{TD(0) on the random walk: analysis}
+
+\begin{columns}
+\begin{column}{0.7\textwidth}
+    \begin{figure}
+    \includegraphics[width=\textwidth]{random_walk_states.png}
+\end{figure}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+    \item Convergence is not exact
+    \item Needs more iterations?
+    \item Better than MC?
+\end{itemize}
+\end{column}
+\end{columns}    
+\end{frame}
+
+\begin{frame}{TD(0) on the random walk: analysis}
+\begin{columns}
+    
+\begin{column}{0.6\textwidth}
+\begin{figure}
+    \includegraphics[width=\textwidth]{RMSE_book.png}
+\end{figure}
+\end{column}
+\begin{column}{0.5\textwidth}
+    \begin{figure}
+    \includegraphics[width=\textwidth]{random_walk_rmse_v0_0.5.png}
+\end{figure}
+\end{column}
+\end{columns}
+\begin{itemize}
+    \item TD(0) is better than MC with all stepsizes
+    \item More episodes do not help
+\end{itemize}
+\end{frame}
+\begin{frame}{Exercise 6.4}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{ex_6.4.png}
+    \end{figure}
+\begin{itemize}
+    \item What could have caused this?
+    \item Does the initial state have an impact?
+\end{itemize}
+\end{frame}
+\begin{frame}{Exercise 6.4}
+    \begin{itemize}
+        \item What could have caused this?
+    \end{itemize}
+    With higher values of $\alpha$, we see a bouncing effect: first, states A, B, D and E are getting updates (as they are far from their true value), but then C as well, and because $\alpha$ is big (even though the updates are small), it will move away from its true and initial value $1/2$
+    \begin{figure}
+        \centering
+\includegraphics[width=0.7\textwidth]{incremental_states_updates.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Exercise 6.4}
+\begin{itemize}
+        \item Does the initial state have an impact?
+\end{itemize}
+Yes, no more bouncing effect!
+
+\begin{columns}
+    \begin{column}{0.5\textwidth}
+        \begin{figure}
+            \includegraphics[width=\textwidth]{random_walk_rmse_v0_0.25.png}
+        \end{figure}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+        \begin{figure}
+            \includegraphics[width=\textwidth]{random_walk_rmse_v0_1.0.png}
+        \end{figure}
+    \end{column}
+\end{columns}
+\end{frame}
+
+% A, B
+
+\section{TD(0) Optimality}
+
+\begin{frame}{TD(0) vs MC}
+
+\textbf{Batch updating}: Given a fixed set of episodes, iteratively train the algorithm on the same data until convergence.\\\\\\
+If we use TD(0) and MC with a batch updating approach:
+
+\begin{figure}
+    % \centering
+    \includegraphics[width=0.7\textwidth]{batch_updating.png}
+\end{figure}
+But why?
+\end{frame}
+
+\begin{frame}{TD(0) vs MC}
+
+Let's see through an example:
+\begin{columns}
+    
+\begin{column}{0.6\textwidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{predictor_states.png}
+\end{figure}
+\end{column}
+\begin{column}{0.5\textwidth}
+    \begin{figure}
+    \includegraphics[width=\textwidth]{predictor_mrp.png}
+\end{figure}
+\end{column}
+\end{columns}    
+
+If we see these 8 episodes, what conclusion can we draw about V(A) and V(B)?
+
+\begin{itemize}
+    \item V(B) = $3/4$ as 6 times out of 8 we get a reward of 1 following B and end the episode
+    \item How should we calculate V(A)?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Calculating V(A)}
+    \begin{itemize}
+        \item Approach 1: For all episodes (only one here), we obtain a 0 reward after visiting A $\rightarrow$ V(A) = 0 
+        \item Approach 2: For all episodes, we get to B. As we know B, V(A) = 3/4 
+    \end{itemize}
+These 2 approaches represent our 2 methods:
+\begin{itemize}
+    \item $\alpha$-MC: \[\underbrace{V(S)}_{V(A)} = \underbrace{V(S)}_{=0} + \alpha(\underbrace{G(S)}_{=0} - \underbrace{V(S)}_{=0}) = 0\]
+    % \[V(A) = V(A) + (G(A)  - V(A)) = G(A) = 0\]
+    \item TD(0): \[\underbrace{V(S)}_{V(A)} = \underbrace{V(S)}_{=0} + \alpha(\underbrace{R}_{=0} + \gamma \underbrace{V(S')}_{=3/4} - \underbrace{V(S)}_{=0}) = 3/4\]
+    %\[V(A) = V(A) +(R +V(B) - V(A)) = R + V(B) = 3/4\] 
+\end{itemize}
+with $\alpha = \gamma = 1$
+\end{frame}
+\begin{frame}{TD(0) vs MC: conclusions}
+    \begin{itemize}
+        \item Monte Carlo methods minimize MSE on the training set
+        \item TD(0) computes the Maximum Likelihood estimator
+        \item One method is not better that the other, just 2 different objectives  
+        %In other words, it calculates $v(s) = \mathbb{E}[G_t | S_t = s]$ with $\hat{p}(s',r|s) = \frac{\text{Count of } s \rightarrow s', r}{\text{Count of } s}$
+    \end{itemize}
+\end{frame}
+
+%B 
+\section{SARSA vs Q-learning}
+\begin{frame}{Off-policy vs On-policy methods}
+\begin{itemize}
+    \item \textbf{On-policy methods:} Learns the optimal policy by following the same policy being evaluated.
+    \bigskip
+    \item \textbf{Off-policy methods:} Learns the optimal policy by evaluating a different policy than the one used to generate the data.
+\end{itemize}
+    
+\end{frame}
+%C
+\begin{frame}{SARSA algorithm}
+Iteration:
+  \begin{equation*}
+     R, S' \text{ observed from Env}(S,A)
+   \end{equation*}
+   %Update rule : 
+  \begin{equation*}
+     A' \xleftarrow{} Q_{\pi}(S', \cdot)
+   \end{equation*}
+   \begin{equation*}
+        Q(S, A) \xleftarrow{} Q(S, A) + \alpha(R + \gamma Q(S', A') - Q(S, A))
+   \end{equation*}
+   \begin{equation*}
+      S \xleftarrow{} S', A \xleftarrow{} A'
+   \end{equation*}
+    SARSA uses same policy for generating data and updating $Q(s, a) \rightarrow$ \textbf{on-policy}!
+\end{frame}
+\begin{frame}{Convergence of SARSA}
+
+SARSA learns Q values for the behavior policy, not for the optimal policy!
+
+If using $\epsilon$- greedy policy (therefore with exploration) with $\epsilon \xrightarrow{} 0$ and all pairs state-action visited $+\infty$ times, SARSA converges to optimal policy.\newline
+
+Why not directly set $\epsilon = 0$ to learn the optimal policy?
+
+    
+\end{frame}
+
+
+\begin{frame}{Q-learning algorithm}
+%Very similar to SARSA, but with key differences in the update rule:
+Iteration:
+\begin{equation*}
+    A \xleftarrow{} Q_{\pi}(S,\cdot)
+\end{equation*}
+\begin{equation*}
+    R, S' \text{ observed from Env}(S,A)
+\end{equation*}
+\begin{equation*}
+    Q(S, A) \xleftarrow{} Q(S, A) + \alpha(R + \gamma \, \textbf{max}_{\mathbf{a}} Q(S', \mathbf{a}) - Q(S, A))
+\end{equation*}
+\begin{equation*}
+    S \xleftarrow{} S'
+\end{equation*}
+Notice that:
+\begin{itemize}
+    \item $A$ is not updated at time $t$ with $A'$, but only at the next iteration using our policy (for example $\epsilon$-greedy)
+    \item The policy used to update the current $Q(S,A)$ is the greedy policy, not the one we use to generate $A$. This means that $Q$ approximates $q*$, the optimal action-value function. \\$\rightarrow$ \textbf{off-policy} method
+\end{itemize}
+\end{frame}
+\begin{frame}{Convergence of Q-learning}
+    If all $Q(S,A)$ pairs continue to get updated (or we continue to visit all states and take all actions), then we are guaranteed with probability 1 to converge to $q*$. 
+\end{frame}
+
+
+\begin{frame}{Q-learning}
+    \begin{figure}
+        \includegraphics[width=90mm]{q_learning_diagram.jpg}
+        \\ Blue arrows when generating data, 
+        red arrows when updating Q values
+    \end{figure}
+\end{frame}
+
+\begin{frame}{SARSA}
+        \begin{figure}
+        \includegraphics[width=80mm]{sarsa_diagram.jpg}
+        \\ Blue arrows when generating data, 
+        red arrows when updating Q values
+    \end{figure}
+\end{frame}
+
+\section{Example: Cliff walking}
+\begin{frame}{Example: Cliff walking}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=80mm]{Cliff_diagram.jpg}
+    %\caption{Cliff walking image from book}
+    %\label{fig:my_label}
+\end{figure}
+
+\textbf{Goal:} go from S to G without falling from the cliff.
+\begin{itemize}
+    \item SARSA: converges to the safer path when trained with a constant $\epsilon$
+    \item Q-learning: converges to the optimal path (i.e. the shortest path)
+\end{itemize}
+    
+\end{frame}
+
+\begin{frame}{SARSA: cliff walking}
+
+\begin{figure}[ht]
+        \begin{minipage}[b]{0.49\linewidth}
+            \centering
+            \includegraphics[width=\textwidth]{Sarsa(eps=0.01,alpha=0.3)_corrected.png}
+            \\ \footnotesize{$\epsilon = 0.01$, $\alpha = 0.3$}
+            \label{fig:a}
+        \end{minipage}
+        %\hspace{0.1cm}
+        \begin{minipage}[b]{0.49\linewidth}
+            \centering
+            \includegraphics[width=\textwidth]{Sarsa(eps=0.3,alpha=0.3)_corrected.png}
+            \\ \footnotesize{$\epsilon = 0.3$, $\alpha = 0.3$}
+            \label{fig:b}
+        \end{minipage}
+    \end{figure}
+
+We can see that the SARSA algorithm tends to find the safest path. %With a higher value of $\epsilon$, we can observe that there is more exploration because of the $\epsilon$-greedy policy. 
+\end{frame}
+
+\begin{frame}{SARSA convergence: cliff walking}
+
+\begin{figure}[ht]
+        \begin{minipage}[b]{0.49\linewidth}
+            \centering
+            \includegraphics[width=\textwidth]{Sarsa_convergece(eps=0.01).png}
+            \label{fig:a}
+        \end{minipage}
+        %\hspace{0.1cm}
+        \begin{minipage}[b]{0.49\linewidth}
+            \centering
+            \includegraphics[width=\textwidth]{Sarsa_convergece(eps=0.3).png}
+            \label{fig:b}
+        \end{minipage}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}{Q-learning: cliff walking}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=80mm]{QLearning(eps=0.3,alpha=0.3)_corrected.png}
+    \\ \footnotesize{Results of the Q-learning algorithm with $\epsilon = 0.3$, $\alpha = 0.3$ after 1000 episodes}
+    %\label{fig:my_label}
+\end{figure}
+
+We can see that optimal path found by the Q-learning algorithm is the shortest path. 
+    
+\end{frame}
+
+\begin{frame}{Q-learning convergence: cliff walking}
+
+\begin{figure}[ht]
+        \begin{minipage}[b]{0.49\linewidth}
+            \centering
+            \includegraphics[width=\textwidth]{Q-learning_convergence(eps=0.3).png}
+            %\caption{$\epsilon = 0.01$, $\alpha = 0.3$}
+            \label{fig:a}
+        \end{minipage}
+        %\hspace{0.1cm}
+        \begin{minipage}[b]{0.49\linewidth}
+            \centering
+            \includegraphics[width=\textwidth]{Q-learning_divergence(eps=0.3).png}
+            %\caption{$\epsilon = 0.3$, $\alpha = 0.3$}
+            \label{fig:b}
+        \end{minipage}
+    \end{figure}
+
+For $\alpha \geq 1$, we can observe irregular behaviour and divergence for $\alpha \geq 1.4$ with $\epsilon = 0.3$.
+
+\end{frame}
+
+
+%C
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+    \begin{itemize}
+    \item TD methods are a mix between the Dynamic Programming and Monte Carlo approach
+    \item TD methods are often more used in reality, as they are faster, do not need to wait until the end of an episode and do not need the environment
+    \item SARSA is a 1-step on-policy TD algorithm
+    \item Q-learning is a 1-step off-policy TD algorithm 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{References}
+
+\begin{itemize}
+    \item Chapter 6 - Sutton, Richard S. and Barto, Andrew G.. Reinforcement Learning: An Introduction. Second : The MIT Press, 2015. 
+\end{itemize}
+\end{frame}
+\end{document}
+

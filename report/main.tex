@@ -367,7 +367,7 @@ In Chapter \ref{section:relevant-methods}, we will review in detail the 2 main a
 
 In Chapter \ref{section:numerical-exp}, we will numerically compare the accuracy of both algorithms across various experimental setups.\medbreak
 
-Finally, in Chapter \ref{section:algo-vs-prior}, we will introduce 2 new algorithms, MHS and MHGS, to better understand how the choice of the algorithm and prior impacts the accuracy. This will allow us to shine light on the potential benefits of the gradient information and the Student-t prior, brought by the Projected Langevin method.
+Finally, in Chapter \ref{section:algo-vs-prior}, we will introduce 2 new algorithms, MHS and MHGS, to better understand how the choice of the algorithm and prior impacts the accuracy. This will allow us to shine a light on the potential benefits of the gradient information and the Student-t prior, brought by the Projected Langevin method.
 
 
 
@@ -420,7 +420,7 @@ An intuitive way to visualize a qubit is to use a \ti{Bloch sphere}. First, we m
     \ket \psi = e^{i\gamma}\left( \cos\left(\frac{\theta}{2}\right)\ket 0 + e^{i\phi} \sin\left(\frac{\theta}{2}\right)\ket 1\right)
 \end{equation}
 
-with $\theta,\gamma,\phi \in \mathbb{R}$. The term $e^{i\gamma}$ has no observable effects, allowing us to remove it\footnote{This is due to the fact that the projective measurement calculates the probability amplitude \textit{squared}}. This leaves us with 2 parameters $\theta$ and $\phi$, which finally allows us to represent the qubit on a sphere:
+with $\theta,\gamma,\phi \in \mathbb{R}$. The term $e^{i\gamma}$ has no observable effects, allowing us to remove it\footnote{This is because the projective measurement calculates the probability amplitude \textit{squared}}. This leaves us with 2 parameters $\theta$ and $\phi$, which finally allows us to represent the qubit on a sphere:
 
 
 \begin{figure}[H]
@@ -667,7 +667,7 @@ This corresponds to saying that our chain admits a \ti{stationary} distribution,
         \Pr(\tau_j < \infty |\mb x^{(0)} = j) = \Pr(\mb X^{(r)} = j \text{ for infinitely many } r | \mb x^{(0)}=j) = 1
     \end{equation}
 
-    In other words, it means that this state is visited infinitely often. If we have all the states that are recurrent, then the chain is called recurrent. If additionally, this chain admits an invariant distribution, then it is Harris positive (also called positive recurrent).
+    In other words, it means that this state is visited infinitely often. If all states are recurrent, then the chain is called recurrent. If additionally, this chain admits an invariant distribution, then it is Harris positive (also called positive recurrent).
 
     \item \tb{Ergodicity}: a Markov chain in \ti{ergodic} if every state is ergodic. A state $j$ is ergodic if it is aperiodic and positive recurrent. Intuitively, this property means that we can reach every state with a probability greater than 0.
 
@@ -874,7 +874,7 @@ where $\mb X_t$ is the position of a particle in a potential $V(\mb x)$ and $\mb
 \end{equation}
 
 
-Of course, to simulate, we must discretize the SDE in some way, and in this case the \textit{Euler-Maruyama approximation} is what is commonly used. This results in
+Of course, to simulate, we must discretize the SDE in some way, and in this case, the \textit{Euler-Maruyama approximation} is what is commonly used. This results in
 \begin{equation}
     \mb X^{(k+1)} - \mb X^{(k)} = \tau \nabla \log\pi(\mb X^{(k)}) + \sqrt{2\tau}(\mb B^{(k+1)} - \mb B^{(k)})
 \end{equation}
@@ -973,7 +973,10 @@ where $\lambda$ is a weight parameter for the likelihood and $\ell(\nu, \mb D)$ 
     \ell(\nu, \mb D) = \sum_{\mb a \in \mathcal{E}^n} \sum_{\mb s \in \mathcal{R}^n} \left[\tr(\nu P^{\mb a}_{\mb s}) - \hat p_{\mb a,\mb s}\right]^2
 \end{equation}\medbreak
 
-They use separate qubit data generation, thus all details regarding notation can be checked in \ref{section:sep-qub-dg}. The prior $\pi(\nu) = \pi_1(V_1, \dots, V_d) \pi_2(\gamma_1, \dots, \gamma_d)$ is defined in 2 parts:
+The authors use separate qubit data generation, thus all details regarding notation can be checked in \ref{section:sep-qub-dg}. Note that the name ``prob-estimator'' comes from using this particular loss, as it quantifies how far the probabilities and the
+empirical frequencies in the sample are.\medbreak 
+
+The prior $\pi(\nu) = \pi_1(V_1, \dots, V_d) \pi_2(\gamma_1, \dots, \gamma_d)$ is defined in 2 parts:
 
 \begin{itemize}
     \item For $\pi_1(V_1, \dots, V_d)$, the set $V_1, \dots, V_d$ is i.i.d uniformly distributed on the unit sphere. In practice, this involves first sampling from a standard normal multivariate $\tilde V_i \sim N(\mb 0, \mb I)$, and then normalizing it $V_i = \tilde V_i/||\tilde V_i||$.
@@ -1117,7 +1120,7 @@ however this only works in the case where $t \in \mathbb{N}$. The Wikipedia page
 
 \newpage
 
-\section{Projected Langevin}\label{section:projected-langevin}
+\section{Projected Langevin algorithm}\label{section:projected-langevin}
 
 
 Introduced in the \cite{meth:bayesian:Langevin:ACMT2024} paper (unpublished at the moment of submission of this thesis), the Projected Langevin algorithm is based on an Unadjusted Langevin algorithm (ULA) (more details about it can be found in section \ref{section:ula}). The authors utilize the Burer-Monteiro factorization (introduced in \cite{proj-langevin:Burer2003}) $\rho = Y Y^\dagger$ with $Y \in \mathbb{C}^{d \times r}$ (with $d=2^n$ and $n$ the number of qubits), which corresponds to a low rank (of rank $r$) factorization of $\rho$. This corresponds to considering that the density matrix has a maximum rank of $r$. This also allows us to reduce the dimension of the parameter space from $2d^2$ to $2dr$ by running the MCMC method directly on the $Y$ space. It is important to note that the physical constraints of the problem are still respected, as we assume the matrix $Y$ to belong to the complex hypersphere $C \mathbb{S}^{d\times r} = \{ Y \in \mathbb{C}^{d\times r}: ||Y||_F = 1\}$, leading to a unit trace. The Hermitian and positive semi-definite properties of the density matrix are obtained by construction.\medbreak
@@ -1138,14 +1141,14 @@ The used likelihood is similar to the prob-estimator, and is written as
 L(Y, \mb D) = \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2
 \end{equation}
 
-with $A_m$ the Hermitian matrix characterizing the $m^{th}$ experiment and $\hat p_m \in [-1, 1]$ a measured value, whcih together correspond to the data $\mb D$. The authors use mixed qubit data generation, for which more details can be found in section \ref{section:mixed-qub-dg}. \medbreak
+with $A_m$ the Hermitian matrix characterizing the $m^{th}$ measurement (or observable) and $\hat p_m \in [-1, 1]$ a measured value, which together correspond to the data $\mb D$. The authors use mixed qubit data generation, for which more details can be found in section \ref{section:mixed-qub-dg}. \medbreak
 
 Combining these terms, we can obtain a posterior $\hat \nu_{\lambda, \theta}(Y, \mb D) = \exp(-f_{\lambda, \theta}(Y, \mb D))$ with
 \begin{equation}
     f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^\dagger)
 \end{equation}
 
-The exponential in this case is useful to us because it allows us to simplify the calculations. ULA requires us to set the potential $V(\mb x) = -\log(\pi(x))$ where $\pi(x)$ is the posterior from which we want to sample, and using this formulation we obtain a $\log(\exp)$ simplification.\medbreak
+The exponential in this case is useful to us because it allows us to simplify the calculations. ULA requires us to set the potential $V(x) = -\log(\pi(x))$ where $\pi(x)$ is the posterior from which we want to sample, and using this formulation we obtain a $\log(\exp)$ simplification.\medbreak
 
 The authors also avoid dealing with complex values by using an isomorphism $\psi: \mathbb{C}^{d\times r}\rightarrow \mathbb{R}^{2d\times 2r}$
 \begin{equation}
@@ -1217,7 +1220,7 @@ where $\eta^{(k)}$ is the step size, $\theta$ a scaling parameter for the prior,
 The main differences from the original algorithm described in \ref{section:ula} are that instead of doing ascent, we are doing descent, and that we sample $ d\times r$ scalar entries from a standard normal distribution, instead of sampling $r$ $d$-dimensional vectors from a multivariate normal. Note that we also use a running average in this version (this was not done is the original paper), to have a fairer comparison with the prob-estimator.\medbreak
 
 
-The main motivation behind this approach comes from the faster convergence times, especially in high-dimensional settings where Metropolis-Hastings suffers. The proposed prior allows for a computable gradient in reasonable time, which bootstraps the use of Langevin sampling. A second benefit comes from the Burer-Monteiro factorization, which allows to use, if available, the information about the rank of the density matrix. In general, the parameter $r$ in this factorization corresponds to an upper bound on the rank of $\hat \rho$, the approximation of the true density matrix $\rho$. This however also means that we may give too much freedom to the approximation if we know that the true $\rho$ is of low rank. Setting $r$ to the true rank allows us to constrain the search space.\medbreak
+The main motivation behind this approach comes from the faster convergence times, especially in high-dimensional settings where Metropolis-Hastings suffers. The proposed prior allows for a computable gradient in a reasonable time, which bootstraps the use of Langevin sampling. A second benefit comes from the Burer-Monteiro factorization, which allows to use, if available, the information about the rank of the density matrix. In general, the parameter $r$ in this factorization corresponds to an upper bound on the rank of $\hat \rho$, the approximation of the true density matrix $\rho$. This however also means that we may give too much freedom to the approximation if we know that the true $\rho$ is of low rank. Setting $r$ to the true rank allows us to constrain the search space.\medbreak
 
 
 
@@ -1269,6 +1272,7 @@ We will start the comparison with a simple convergence plot:
     \centering
 
     \begin{subfigure}[b]{0.49\textwidth}
+        %experiments/iterations_no_avg
         \centering
         \includegraphics[width=\textwidth]{figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png}
         \caption{Mixed qubit}
@@ -1276,6 +1280,7 @@ We will start the comparison with a simple convergence plot:
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49\textwidth}
+        %experiments/iterations_no_avg_sep
         \centering
         \includegraphics[width=\textwidth]{figures/experiments/baseline/iters_acc_comp_iters_no_avg_sep.png}
         \caption{Separate qubit}
@@ -1421,7 +1426,7 @@ One important aspect this conclusion however omits is the computation time (in s
 
     \begin{subfigure}[b]{0.49\textwidth}
 
-        % experiments/iterations_no_avg_rank1
+        % experiments/iterations_no_avg
 
         \centering
 
@@ -1477,7 +1482,7 @@ These results hint at the potential advantages of Langevin: it is a method that 
 Another interesting question to ask in this context is if Langevin is suitable for larger $n$, as one might expect no convergence to happen with a very small $\eta$ (if we suppose that decreasing it will be needed to obtain convergence). This also requires more experiments to be confirmed.
 
 
-\section{Impact of burn-in duration}\label{section:comp-burnin}
+\section{Impact of the burn-in duration}\label{section:comp-burnin}
 
 So far, we have settled on using \nburninn{2000} for the burn-in duration with a large number of iterations \nitern{10000}. An interesting question to ask ourselves in this situation is to which degree this value determines the convergence speed, and whether in general convergence will happen if, for example, we reduce \nburnin. For this experiment, we fix \nitern{10000} but we vary \nburnin from $100$ to $6000$. Here are the results we obtained (with mixed qubit data generation):
 
@@ -1523,7 +1528,7 @@ So far, we have settled on using \nburninn{2000} for the burn-in duration with a
 The duration of the burn-in very marginally impacts the final accuracy, as it stays on the same order of magnitude of $1\text{e-}3$. There is more variation for the prob-estimator, however, this is a result we could have expected, as Projected Langevin converges very fast, while the prob-estimator takes time.
 
 
-\section{Impact of number of shots}\label{section:comp-nb-shots}
+\section{Impact of the number of shots}\label{section:comp-nb-shots}
 
 
 As discussed in section \ref{section:numerical-exp}, the value of $m=2000$ for the number of shots was chosen as it was the number provided in the original source code for both algorithms. One however might ask how this value impacts the accuracy, as the number of shots is very information-dense: performing the measurement on a system many times (or more exactly replicating the system and measuring the clones) provides better estimates for the empirical probabilities $\hat p_{\mb a, \mb s}$. A priori, we expect that for any algorithm, increasing the number of shots will increase the accuracy. In this experiment, we will be increasing $m$ exponentially from $1\text{e}2$ to $1\text{e}7$, to replicate an experiment from the Langevin paper \cite{meth:bayesian:Langevin:ACMT2024}. The number of iterations, as well as the burn-in duration, were reduced to \nitern{5000} and \nburninn{1000}.
@@ -1571,24 +1576,18 @@ We can see quite a surprising result: while Langevin gets the expected behaviour
 
 
 \begin{figure}[H]
-
-    % Comes from experiments/
-
+    %experiments/shots_lambda_prob_with_var_lambda
     \centering
-
     \includegraphics[width=0.7\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png}
-
     \caption{Impact of the number of used shots on the error with varying parameter $\lambda$ for the prob-estimator with $n=3$}
-
     \label{fig:shots-comp-prob-var-lambda}
-
 \end{figure}
 
 
 We can see that even with a fixed $\lambda$ for the prob-estimator, the accuracy stagnates at around $1\text{e-}4$, even for large $m$. We are not exactly sure why this occurs, as we are able to replicate the same behaviour with the original R code (the authors also do not provide metrics beyond $m=2000$ in their paper). The only conclusion we can draw from this result is that it is an inherent property of the method.
 
 
-\section{Impact of number of measurements}\label{section:comp-nb-meas}
+\section{Impact of the number of measurements}\label{section:comp-nb-meas}
 
 The number of measurements, or observables, is another interesting aspect to explore. While in general, we assume a complete measurement experiment, here we will try to reduce the number of observables to see how both algorithms behave in this setup, and how many observables are needed in order to keep accuracy sufficiently high. Note that inferring the state based on a subset of all measurements is analogous to solving an underdetermined system of equations, and can be seen as compressed sensing. We will be increasing \nmeas from $1$ to either $4^n$ for mixed qubit, or $3^n$ for separate qubit data generation, with the observables randomly chosen at each step. The number of iterations, as well as the burn-in duration, were reduced to \nitern{5000} and \nburninn{1000}. Here is what we obtain:
 
@@ -1619,7 +1618,7 @@ We can see that both algorithms perform similarly with both data generation sche
 This is not an unexpected result, an approximate approach comes with the downside of being a bit less precise or conveying less information. An interesting plot to obtain related to this one would be the cumulative information gain, which could allow us to answer questions such as ``How many observables do we need in order to be x\% accurate as the equilibrium distribution?'' or ``How many observables do we need in order to have x\% of information of the equilibrium distribution?''.
 
 
-\section{Impact of knowledge of rank}\label{section:comp-rank-info}
+\section{Impact of knowing the rank}\label{section:comp-rank-info}
 
 An advantage that the Projected Langevin algorithm has is that it can also incorporate prior information through the Burer-Monteiro factorization, and in particular the rank of the factors. If we know the rank of our true matrix, we can constrain the search space by setting the upper bound of the rank of the sampled matrix $Y$ to be the one of our true matrix $\rho$. In this experiment, we will be comparing the situation where we have information about the rank, in which case the initial sample for Langevin will be of rank of $\rho$, and otherwise, we will keep it fixed as $d=8$. For both cases, we will increase \rhorank from $1$ to $d=8$ to see how accuracy changes, and use mixed qubit data generation. Here are the results:
 
@@ -1965,7 +1964,7 @@ After running a grid search with parameters $\sigma\in \{0.001, 0.01, 0.05, 0.1,
 
 
 \begin{table}[H]
-
+%experiments/prop_search_mh_studentt_run_avg
 
     \begin{center}
 
@@ -2038,7 +2037,7 @@ We then re-ran the same grid search with \nitern{1000} and \nburninn{300} to obt
 
 
 \begin{table}[H]
-
+%experiments/prop_search_mhgs
 
     \begin{center}
 
@@ -2079,7 +2078,7 @@ With the proposals being chosen, we can now proceed to compare these 2 new algor
 
 
 \begin{figure}[H]
-
+%experiments/iterations_no_avg_sep_prob_pl_mhs_mhgs
     \centering
 
     \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
@@ -2097,7 +2096,7 @@ With the proposals being chosen, we can now proceed to compare these 2 new algor
 As we can see, both new methods perform worse than the prob-estimator and Projected Langevin, even with a sufficiently good proposal. The MHGS algorithm seems to perform better than MHS, which validates the idea behind the prob-estimator, and other techniques such as \cite{Mai22, LLJL20}, which all sample one-dimensional distributions across dimensions instead of directly sampling from the joint. This however comes at the expense of very long computation times, something that was also visible in section \ref{section:convergence-comparison}, figure \ref{fig:conv-plot-time-diff-n-3-sub}.\medbreak
 
 
-The major conclusion to draw however from this result is that the prior is not a solution on its own, as pairing it with another algorithm does not lead to better or similar accuracy. The similar results obtained from two different algorithms indicate that it is unlikely to be a coincidence. This of course makes the assumption that the proposal we use is sufficiently good and does not perform suboptimally. This also implies that if a new method is to be implemented using this prior, it is important, after choosing the algorithm well and tuning its hyperparameters, to thoroughly benchmark its performance in order to make sure it is sufficiently accurate. The prior itself does not provide any guarantees on accuracy.\medbreak
+The major conclusion to draw however from this result is that the prior is not a solution on its own, as pairing it with another algorithm does not lead to better or similar accuracy. The similar results obtained from two different algorithms indicate that it is unlikely to be a coincidence. This of course makes the assumption that the proposal we use is sufficiently good and does not perform suboptimally. This also implies that if a new method is to be implemented using this prior, it is important, after choosing the algorithm well and tuning its hyperparameters, to thoroughly benchmark its performance in order to make sure it is sufficiently accurate. The prior itself does not provide any guarantees of accuracy.\medbreak
 
 
 The prior also does not help with the convergence speed, as we can see MHGS taking a very long time to converge (and possibly not even converging). This means that Langevin sampling is needed in the context of our comparison. Further work is required to verify if this property comes specifically from Langevin or the gradient information in general, in which case methods such as Hamiltonian Monte Carlo may also be valid.
