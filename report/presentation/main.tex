@@ -1,10 +1,32 @@
 \documentclass{beamer}
+\usetheme{metropolis}
 \setbeamercovered{transparent=25} 
 \usepackage[utf8]{inputenc}
 \usepackage{amsfonts,amsmath,oldgerm}
 \usefonttheme[onlymath]{serif}
 \usepackage{tikz}
 \usepackage{xcolor}
+
+\usepackage[linesnumbered,ruled]{algorithm2e}
+
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=blue,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+    }
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+
+\addbibresource{bibliography.bib}
 
 \newcommand{\greencheck}{\color{green}\checkmark}
 \newcommand{\redcross}{\color{red}\times}
@@ -72,9 +94,9 @@
 \tableofcontents
 \end{frame}
 
-
+\section{Brief introduction to Quantum tomography}
 \begin{frame}{Problem: quantum state reconstruction}
-    \tb{Goal}: We want to reconstitute a quantum state\medbreak
+    \tb{Goal}: Reconstitute a quantum state\medbreak
     Unfortunately, there are some challenges: 
     \begin{itemize}
         \item Quantum systems are inherently probabilistic
@@ -146,7 +168,7 @@
         \end{equation}
         \item Bayesian methods, and in particular MCMC methods
         \begin{equation}
-        \hat \rho = \frac{1}{N}\sum_{i=1}^N \nu_i \quad \text{with } \nu_i \sim \pi(\nu|\mb D)
+        \hat \rho = \frac{1}{N}\sum_{i=1}^N \rho_i \quad \text{with } \rho_i \sim \pi(\rho|\mb D)
         \end{equation}
     \end{itemize}
 \end{frame}
@@ -166,43 +188,192 @@
         % }
         \item<1> Bayesian methods, and in particular MCMC methods
         \begin{equation}
-        \hat \rho = \frac{1}{N}\sum_{i=1}^N \nu_i \quad \text{with } \nu_i \sim \pi(\nu|\mb D)
+        \hat \rho = \frac{1}{N}\sum_{i=1}^N \rho_i \quad \text{with } \rho_i \sim \pi(\rho|\mb D)
+        \end{equation}
+    \end{itemize}
+\end{frame}
+\section{Markov chain Monte Carlo methods}
+\begin{frame}{Bayesian inference}
+    \tb{Context}: We are working in the Bayesian framework:
+    \begin{equation}
+        \pi (\rho|\mb D) \propto \mathcal{L}(\mb D|\rho) \pi(\rho)
+    \end{equation}
+    In the context of Quantum Tomography:
+    \begin{itemize}
+        \item Likelihood $\mathcal{L}(\mb D|\rho) = ||A \vec\rho - \hat p||$
+        \item Prior $\pi(\rho)$ is method specific
+        \item Posterior $\pi (\rho|\mb D)$ corresponds to a distribution over density matrices $\rho$ 
+    \end{itemize}
+\end{frame}
+\begin{frame}{Markov chain Monte Carlo methods}
+    \begin{itemize}
+        \item Markov chain Monte Carlo (MCMC) methods \textit{sample} from $\pi (\rho|\mb D)$.
+        \item They build a Markov chain of samples $\rho_1, \rho_2, \dots$ such that
+        \begin{equation}
+            f(x) =\pi (\rho|\mb D)
+        \end{equation}
+        with the equilibrium distribution $f(x)$ of the chain
+        \item The density matrix is then approximated as 
+        \begin{equation}
+            \hat \rho = \frac{1}{N}\sum_{i=1}^N \rho_i \quad \text{with } \rho_i \sim \pi(\rho|\mb D)
         \end{equation}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Markov chain Monte Carlo methods}
-    \tb{Context}: We are working in the Bayesian framework:
-    \begin{equation}
-        \pi (\nu|\mb D) \propto \mathcal{L}(\mb D|\nu) \pi(\nu)
-    \end{equation}
-    Markov chain Monte Carlo (MCMC) methods allow us to \textit{sample} from $\pi (\nu|\mb D)$.\medbreak
-    They build a Markov chain of samples $\nu_1, \nu_2, \dots$ where at equilibrium
-    \begin{equation}
-        f(x) =\pi (\nu|\mb D)
-    \end{equation}
-    with $f(x)$ the equilibrium distribution of the Markov chain.\medbreak
-    Then, the density matrix is approximated as 
-    \begin{equation}
-        \hat \rho = \frac{1}{N}\sum_{i=1}^N \nu_i \quad \text{with } \nu_i \sim \pi(\nu|\mb D)
-    \end{equation}
-\end{frame}
 \begin{frame}{The Metropolis-Hastings algorithm}
-    The Metropolis-Hastings algorithm is one of the most common MCMC algorithms.\medbreak
-    Given a first sample $\nu^{(0)}$ and until $t=T$:
-    \begin{enumerate}
-        \item Generate a candidate $\nu^* \sim q(\nu|\nu^{(t-1)})$
-        \item Set $\nu^ {(t)} = \begin{cases}
-            \nu^{*} \hspace{1.08cm} \text{with prob. } \alpha(\nu^*, \nu^{(t-1)})\\
-            \nu^{(t-1)} \hspace{0.5cm} \text{with prob. } 1-\alpha(\nu^*, \nu^{(t-1)})
-        \end{cases}$
-    \end{enumerate}
-    with \begin{equation}
-        \alpha(\nu^*, \nu^{(t-1)}) = \frac{\pi(\nu^*|\mb D) q( \nu^{(t-1)}|\nu^*)}{\pi(\nu^{(t-1)}|\mb D) q( \nu^{*}|\nu^{(t-1)})}
-    \end{equation}
+    % \begin{itemize}
+    %     \item One of the most common MCMC algorithms
+    % \end{itemize}
+    \begin{algorithm}[H]\label{code:prob}
+
+        \DontPrintSemicolon
+    
+        % \SetKwInOut{Input}{Input}
+    
+        % \SetKwInOut{Output}{Output}
+    
+    
+        % %\underline{Prob-estimator}\;
+    
+        % \Input{$d = 2^n, \lambda \in \mathbb{R}, \alpha \in \mathbb{R}, T \in \mathbb{N}, V^{(0)} \in \mathbb{C}^{d \times d}, Y^{(0)} \in \mathbb{C}^{d\times 1}$}
+    
+        % \Output{$\hat \rho \in \mathbb{C}^{d\times d}$}
+    
+        % $\hat \rho \gets \mb 0$\;
+    
+        % $\gamma^{(0)} \in \mathbb{R}^{d\times1} \gets Y^{(0)} /(\sum_{i=1}^d Y_i^{(0)})$\;
+    
+        \For{$t\gets 1:T$}{
+            \begin{enumerate}
+                \item Generate a candidate $\rho^* \sim \overbrace{q(\rho|\rho^{(t-1)})}^{\text{proposal}}$
+                \item Set $\rho^ {(t)} = \begin{cases}
+                    \rho^{*} \hspace{1.08cm} \text{with prob. } \alpha(\rho^*, \rho^{(t-1)})\\
+                    \rho^{(t-1)} \hspace{0.5cm} \text{with prob. } 1-\alpha(\rho^*, \rho^{(t-1)})
+                \end{cases}$
+            \end{enumerate}
+            with \begin{equation}
+                \underbrace{\alpha(\rho^*, \rho^{(t-1)})}_{\text{acceptance ratio}} = \frac{\pi(\rho^*|\mb D) q( \rho^{(t-1)}|\rho^*)}{\pi(\rho^{(t-1)}|\mb D) q( \rho^{*}|\rho^{(t-1)})}
+            \end{equation}
+        }
+        \caption{Metropolis-Hastings algorithm}
+
+    \end{algorithm}
+
 \end{frame}
-\begin{frame}{Prob-estimator}
-    Introduced in MA17, it uses Metropolis-Hastings to , 
+
+\begin{frame}{Illustration of the Metropolis-Hastings algorithm}
+    \href{run:./mcmc.gif}{mcmc.gif}
+
+\end{frame}
+
+\begin{frame}{Advantages of MCMC algorithms}
+    Why are we interested in MCMC methods?
+    \begin{itemize}
+        \item Prior $\pi(\rho)$: additional information about the density matrix - low-rank for example
+        \item Uncertainty quantification: working with distributions instead of point estimates
+    \end{itemize} 
+\end{frame}
+
+\begin{frame}{Prob-estimator (1)}
+    Introduced in \cite{MA17}, it combines Metropolis-within-Gibbs sampling with a low-rank prior.
+    \begin{itemize}
+        \item Analogous to eigenvector factorization: $\rho = \sum_{i=1}^{d} \gamma_i V_i V_i^\dagger$
+        \item $\pi_1(\gamma_1 \dots \gamma_d)$ is a Dirichlet distribution with a small, constant parameter, leading to sparse values 
+        \item $\pi_2(V_1 \dots V_d)$ is a unit sphere distribution
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Prob-estimator (2)}
+    Algorithm: combination between Metropolis-Hastings and Gibbs sampling\medbreak
+    
+\begin{algorithm}[H]
+
+    \DontPrintSemicolon
+
+    \For{$t\gets 1:T$}{
+
+            \For{$i\gets 1:d$}{
+
+            \begin{enumerate}
+                \item Sample $ \gamma_i^*$ from $\pi_1(\gamma_1, \dots, \gamma_d)$
+                \item Update $\gamma^{(t)}$ with accept/reject step
+            \end{enumerate}
+
+            }
+
+            \For{$i\gets 1:d$}{
+                \begin{enumerate}
+                    \item Sample $V_i^*$ from $\pi_2(V_1, \dots, V_d)$
+                    \item Update $V^{(t)}$ with an accept/reject step
+                \end{enumerate}
+    
+        }
+    }
+
+    \caption{Prob-estimator algorithm}
+
+\end{algorithm}\medbreak
+
+\end{frame}
+\begin{frame}{Projected Langevin algorithm (1)}
+    Introduced in \cite{ACMT2024}, it combines the Unadjusted Langevin algorithm with a different low-rank prior.
+    \begin{itemize}
+        \item Burer-Monteiro factorization: $\rho = YY^\dagger$, with rank$(Y)=r$ 
+        \item Low-rank prior: spectral scaled Student-t distribution
+        \begin{equation}
+            \pi(Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
+        \end{equation}
+        equivalent to 
+        \begin{equation}
+            \pi(Y) = \prod_{j=1}^r (\theta^2 + s_j(Y)^2)^{-(2d+r+2)/2}
+        \end{equation}
+        with $s_j$ the $j$th largest eigenvalue
+    \end{itemize} 
+\end{frame}
+
+\begin{frame}{Projected Langevin algorithm (2)}
+    Note that there is no accept/reject step!
+
+    \begin{algorithm}[H]
+
+        \DontPrintSemicolon
+    
+        \For{$t\gets 1:T$}{
+            % \begin{equation}
+            \begin{enumerate}
+                \item Sample $\tilde w^{(t)} \sim N(\mb 0, \mb I)$
+                \item $\tilde Y^{(t)} \gets \tilde Y^{(t-1)} - \eta^{(t)} \nabla f  (\tilde Y^{(t-1)}, \mb D) + \cfrac{\sqrt{2\eta^{(t)}}}{\beta} \tilde w^{(t)}
+            $\medbreak with $\pi(Y|\mb D) = \exp(-f(Y, \mb D))$
+        \end{enumerate}
+        }
+    
+        \caption{Projected Langevin algorithm}
+    
+    \end{algorithm}
+\end{frame}
+
+\begin{frame}{Thesis contributions}
+    \begin{enumerate}
+        \item Numerically compare the prob-estimator and the Projected Langevin algorithm
+        \item Propose 2 new algorithms to understand the impact of the prior vs the algorithm on the accuracy
+    \end{enumerate}
+\end{frame}
+\begin{frame}{Numerical comparison: convergence}
+    
+\begin{figure}[H]
+    %experiments/iterations_no_avg_sep_prob_pl_mhs_mhgs
+        \centering
+    
+        \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
+    
+        \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
+    
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{References}
+    \printbibliography
 \end{frame}
 \end{document}
 

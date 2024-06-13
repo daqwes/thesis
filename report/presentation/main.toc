@@ -1,0 +1,2 @@
+\beamer@sectionintoc {1}{Brief introduction to Quantum tomography}{3}{0}{1}
+\beamer@sectionintoc {2}{Markov chain Monte Carlo methods}{10}{0}{2}
