@@ -66,6 +66,46 @@
       \verb http://dx.doi.org/10.1016/j.jspi.2016.11.003
       \endverb
     \endentry
+    \entry{ACMT2024}{unpublished}{}{}
+      \name{author}{4}{}{%
+        {{hash=ef3a35058774218363d1a5d0597f150d}{%
+           family={Adel},
+           familyi={A\bibinitperiod},
+           given={Tameem},
+           giveni={T\bibinitperiod}}}%
+        {{hash=86104a24cfb4b0fdf3c4f72d506b37b1}{%
+           family={Chrétien},
+           familyi={C\bibinitperiod},
+           given={Stéphane},
+           giveni={S\bibinitperiod}}}%
+        {{hash=15e302fae5dc6dbd50d2ec3af9f7c73a}{%
+           family={Massart},
+           familyi={M\bibinitperiod},
+           given={Estelle},
+           giveni={E\bibinitperiod}}}%
+        {{hash=fa5884e9abbc8cd23f6cc06bf6a5e3aa}{%
+           family={Thompson},
+           familyi={T\bibinitperiod},
+           given={Andrew},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{26109d181e18c514792cce83505c1b58}
+      \strng{fullhash}{5dd41dab7b651ed1acf5b1e427845d19}
+      \strng{fullhashraw}{5dd41dab7b651ed1acf5b1e427845d19}
+      \strng{bibnamehash}{26109d181e18c514792cce83505c1b58}
+      \strng{authorbibnamehash}{26109d181e18c514792cce83505c1b58}
+      \strng{authornamehash}{26109d181e18c514792cce83505c1b58}
+      \strng{authorfullhash}{5dd41dab7b651ed1acf5b1e427845d19}
+      \strng{authorfullhashraw}{5dd41dab7b651ed1acf5b1e427845d19}
+      \field{labelalpha}{Ade+24}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{unpublished}
+      \field{title}{A projected Langevin sampling algorithm for quantum tomography}
+      \field{year}{2024}
+    \endentry
   \enddatalist
 \endrefsection
 \endinput

@@ -7,6 +7,12 @@
 \usepackage{tikz}
 \usepackage{xcolor}
 
+\usepackage{subcaption}
+% \usepackage{float}
+% \usepackage{floatrow}
+% \usepackage{subfig}
+\usepackage{floatrow}
+
 \usepackage[linesnumbered,ruled]{algorithm2e}
 
 
@@ -27,6 +33,8 @@ sorting=ynt
 ]{biblatex}
 
 \addbibresource{bibliography.bib}
+% \usepackage{xargs}
+% \usepackage[export]{adjustbox}
 
 \newcommand{\greencheck}{\color{green}\checkmark}
 \newcommand{\redcross}{\color{red}\times}
@@ -89,6 +97,16 @@ sorting=ynt
 
 \frame{\titlepage}
 
+\begin{frame}{Plan of this thesis}
+    \begin{itemize}
+        \item This thesis main problem is Quantum Tomography
+        \item We talk about algorithms that solve that problem, in particular MCMC
+        \item In our experiments, we numerically compare 2 methods in different experimental setups
+        \item We also introduce the 2 new algorithms to understand why one algorithm might work better than the other 
+    \end{itemize}
+\end{frame}
+
+
 \begin{frame}
 \frametitle{Table of Contents}
 \tableofcontents
@@ -123,7 +141,7 @@ sorting=ynt
     \end{equation}
     with
     \begin{itemize}
-        \item $P_m$ the projector matrix associated to the eigenvalue $m$ of an \textit{observable} O
+        \item $P_m$ the projector matrix associated to the eigenvalue $m$ of an \textit{observable} $O$
         \item $p(m)$ the probability of occurence  of $m$
         \item $\rho$ the \textit{density matrix} representing the quantum state
         \begin{itemize}
@@ -351,6 +369,7 @@ sorting=ynt
     
     \end{algorithm}
 \end{frame}
+\section{Thesis contributions}
 
 \begin{frame}{Thesis contributions}
     \begin{enumerate}
@@ -358,20 +377,199 @@ sorting=ynt
         \item Propose 2 new algorithms to understand the impact of the prior vs the algorithm on the accuracy
     \end{enumerate}
 \end{frame}
+
 \begin{frame}{Numerical comparison: convergence}
     
 \begin{figure}[H]
     %experiments/iterations_no_avg_sep_prob_pl_mhs_mhgs
         \centering
+        \includegraphics[width=0.7\textwidth]{figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png}
+        % \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
     
-        \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
+        % \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
+    \end{figure}
+    $\Longrightarrow$ Projected Langevin converges faster
+\end{frame}
+
+\begin{frame}{Numerical comparison: convergence across qubits (1)}
     
-        \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
+    \begin{figure}[H]
+
+        \centering
+    
+        \begin{subfigure}[b]{0.4\textwidth}
+    
+            % experiments/iterations_no_avg_rank1
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png}
+    
+            \caption{$n=3$}
+        
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.4\textwidth}
+    
+            % experiments/iterations_no_avg_n4
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png}
+    
+            \caption{$n=4$}
+        
+        \end{subfigure}
+    
+        \begin{subfigure}[b]{0.4\textwidth}
+    
+            % experiments/iterations_no_avg_n5
+    
+            \centering
+            \includegraphics[width=\linewidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png}
+        \end{subfigure}
+            \quad
+            \begin{minipage}[b]{.1\textwidth}
+            \subcaption{$n=5$}
+            \end{minipage}
+        
+    \end{figure}
+\end{frame}
+    
+
+\begin{frame}{Numerical comparison: computation time across qubits (2)}
+    
+    \begin{figure}[H]
+
+        \centering
+    
+        \begin{subfigure}[b]{0.4\textwidth}
+    
+            % experiments/iterations_no_avg_rank1
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png}
+    
+            \caption{$n=3$}
+    
+            \label{fig:conv-plot-diff-n-3-sub}
+    
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.4\textwidth}
+    
+            % experiments/iterations_no_avg_n4
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png}
+    
+            \caption{$n=4$}
+    
+            \label{fig:conv-plot-diff-n-4-sub}
+    
+        \end{subfigure}
+    
+        \begin{subfigure}[b]{0.4\textwidth}
+    
+            % experiments/iterations_no_avg_n5
+    
+            \centering
+            \includegraphics[width=\linewidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png}
+        \end{subfigure}
+            \quad
+            \begin{minipage}[b]{.1\textwidth}
+            \subcaption{$n=5$}
+            \end{minipage}
+    
+        \label{fig:conv-plot-diff-n}
     
     \end{figure}
 \end{frame}
+\begin{frame}{Numerical comparison: number of shots}
+    Shot: measurement we perform on a clone of the state
+    \begin{figure}[H]
 
+        \centering
+    
+        \begin{subfigure}[b]{0.49\textwidth}
+    
+            % experiments/shots
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png}
+    
+            \caption{Mixed qubit}
+    
+            \label{fig:shots-comp-mixed-sub}
+    
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.49\textwidth}
+    
+            % experiments/shots_sep
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_sep_loglog-1.png}
+    
+            \caption{Separate qubit}
+    
+            \label{fig:shots-comp-sep-sub}
+    
+        \end{subfigure}
+        
+        \label{fig:shots-comp}
+    
+    \end{figure}
+    $\Longrightarrow$ The prob-estimator does not scale!
+\end{frame}
 
+\begin{frame}{Numerical experiments: impact of knowledge of rank}
+    \begin{figure}[H]
+
+        \centering
+    
+        \begin{subfigure}[b]{0.49\textwidth}
+    
+            % experiments/rank_known
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/rank_info/rank_known-1.png}
+    
+            \caption{Rank of $\rho$ known}
+    
+            \label{fig:rank-info-sub}
+    
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.49\textwidth}
+    
+            % experiments/rank_not_known
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/rank_info/rank_not_known-1.png}
+    
+            \caption{Rank of $\rho$ not known}
+    
+            \label{fig:rank-no-info-sub}
+    
+        \end{subfigure}
+    
+        \caption{Rank knowledge plot for $n=3$}
+    
+        \label{fig:rank-info}
+    
+    \end{figure}
+    $\Longrightarrow$ For Projected Langevin, the information about the rank only marginally affects the accuracy
+\end{frame}
+\begin{frame}
+    
+\end{frame}
 \begin{frame}{References}
     \printbibliography
 \end{frame}
