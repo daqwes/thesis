@@ -1,3 +1,4 @@
-\beamer@sectionintoc {1}{Brief introduction to Quantum tomography}{4}{0}{1}
-\beamer@sectionintoc {2}{Markov chain Monte Carlo methods}{11}{0}{2}
-\beamer@sectionintoc {3}{Thesis contributions}{21}{0}{3}
+\beamer@sectionintoc {1}{Brief introduction to Quantum tomography}{5}{0}{1}
+\beamer@sectionintoc {2}{Markov chain Monte Carlo methods}{12}{0}{2}
+\beamer@sectionintoc {3}{Main algorithms}{17}{0}{3}
+\beamer@sectionintoc {4}{Experiments and results}{22}{0}{4}

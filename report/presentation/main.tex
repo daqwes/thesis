@@ -79,9 +79,9 @@ sorting=ynt
     \hspace{1em}%
     \insertframenumber/\inserttotalframenumber
 }
-\title{Master's thesis: Numerical comparison of MCMC methods for Quantum Tomography}
+\title{Master's thesis: Numerical comparison of MCMC methods for Quantum tomography}
 \author[Mokeev]
-{ Danila Mokeev\\{\small Supervisors: Estelle Massart and Andrew Thompson}}
+{ Danila Mokeev\\{\small Supervisors: Estelle Massart, Andrew Thompson and Tameem Adel}}
 \institute[EPL]{Ecole Polytechnique de Louvain}
 \date{21st of June 2024}
 
@@ -98,14 +98,24 @@ sorting=ynt
 \frame{\titlepage}
 
 \begin{frame}{Plan of this thesis}
+    \tb{Topic}: Markov chain Monte Carlo (MCMC) methods in Quantum tomography\medbreak
+    \tb{Research questions:} 
+    \begin{enumerate}
+        \item How do these methods perform in different experimental setups?
+        \item Why do some methods perform better than others?
+    \end{enumerate}
+    \tb{Purpose:}
     \begin{itemize}
-        \item This thesis main problem is Quantum Tomography
-        \item We talk about algorithms that solve that problem, in particular MCMC
-        \item In our experiments, we numerically compare 2 methods in different experimental setups
-        \item We also introduce the 2 new algorithms to understand why one algorithm might work better than the other 
+        \item Enable new directions of research
+        \item Help researchers make an informed choice for their use case 
     \end{itemize}
 \end{frame}
-
+\begin{frame}{Thesis contributions}
+    \begin{enumerate}
+        \item Numerically compare 2 MCMC algorithms, the prob-estimator and the Projected Langevin algorithm
+        \item Propose 2 new algorithms to understand the impact of the prior and the algorithm on the accuracy
+    \end{enumerate}
+\end{frame}
 
 \begin{frame}
 \frametitle{Table of Contents}
@@ -113,28 +123,36 @@ sorting=ynt
 \end{frame}
 
 \section{Brief introduction to Quantum tomography}
-\begin{frame}{Problem: quantum state reconstruction}
-    \tb{Goal}: Reconstitute a quantum state\medbreak
-    Unfortunately, there are some challenges: 
+\begin{frame}{Motivation behind Quantum tomography}
+    Quantum tomography is a process to reconstruct the quantum state of a system.\medbreak
+    There are some challenges to consider: 
     \begin{itemize}
         \item Quantum systems are inherently probabilistic
-        \item A measurement can ony be made once
+        \item A measurement can only be made once
         \item We can only measure the position or momentum, but not both
     \end{itemize}
 \end{frame}
-\begin{frame}{Quantum Tomography}
-    Quantum tomography provides a solution to this problem.\medbreak
-    Key steps:
-    \begin{enumerate}
-        \item Replicate the initial state of the system multiple times
-        \item Measure each clone once
-        \item Calculate the empirical probabilities
-        \item Estimate the quantum state with any appropriate method
-    \end{enumerate}
+\begin{frame}{Quantum tomography: a diagram}
+    Quantum tomography allows to address the existing challenges\medbreak %provides a solution to this problem.\medbreak
+    % Key steps:
+    % \begin{enumerate}
+    %     \item Replicate the initial state of the system multiple times
+    %     \item Measure each clone once
+    %     \item Calculate the empirical probabilities
+    %     \item Estimate the quantum state with any appropriate method
+    % \end{enumerate}
+    \begin{figure}[H]
+        %experiments/iterations_no_avg_sep_prob_pl_mhs_mhgs
+            \centering
+            \includegraphics[width=\textwidth]{figures/diagram_qt_zoom_final.png}
+            % \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
+        
+            % \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
+        \end{figure}
 
 \end{frame}
 
-\begin{frame}{Quantum Tomography: mathematical description (1)}
+\begin{frame}{Quantum tomography: mathematical description (1)}
     The Born rule states that
     \begin{equation}
         p(m) = \tr(\rho P_m)
@@ -148,10 +166,11 @@ sorting=ynt
             \item positive semi-definite
             \item Hermitian ($\rho = \rho^\dagger$)
             \item trace$(\rho)=1$
+            \item size $2^n \times 2^n$ with $n$ the number of qubits
         \end{itemize}
     \end{itemize}
 \end{frame}
-\begin{frame}{Quantum Tomography: mathematical description (2)}
+\begin{frame}{Quantum tomography: mathematical description (2)}
     If we flatten the matrices
     \begin{equation}
         A = \begin{bmatrix}
@@ -173,7 +192,7 @@ sorting=ynt
         A\vec{\rho} = \hat p
     \end{equation}
 \end{frame}
-\begin{frame}{Existing methods}
+\begin{frame}{Most common methods}
     \begin{itemize}
         \item Direct methods: \begin{equation}
             \hat \rho = (A^TA)^{-1}A^T \hat p
@@ -212,15 +231,16 @@ sorting=ynt
 \end{frame}
 \section{Markov chain Monte Carlo methods}
 \begin{frame}{Bayesian inference}
-    \tb{Context}: We are working in the Bayesian framework:
+    \tb{Context}: We are working in the Bayesian framework
     \begin{equation}
         \pi (\rho|\mb D) \propto \mathcal{L}(\mb D|\rho) \pi(\rho)
     \end{equation}
-    In the context of Quantum Tomography:
+    Each term is a distribution\medbreak
+    In the context of Quantum tomography:
     \begin{itemize}
-        \item Likelihood $\mathcal{L}(\mb D|\rho) = ||A \vec\rho - \hat p||$
+        \item Likelihood $\mathcal{L}(\mb D|\rho) = \exp(-||A \vec\rho - \hat p||)$
         \item Prior $\pi(\rho)$ is method specific
-        \item Posterior $\pi (\rho|\mb D)$ corresponds to a distribution over density matrices $\rho$ 
+        % \item Posterior $\pi (\rho|\mb D)$ corresponds to a distribution over density matrices $\rho$ after being fitted on the data
     \end{itemize}
 \end{frame}
 \begin{frame}{Markov chain Monte Carlo methods}
@@ -231,53 +251,60 @@ sorting=ynt
             f(x) =\pi (\rho|\mb D)
         \end{equation}
         with the equilibrium distribution $f(x)$ of the chain
-        \item The density matrix is then approximated as 
-        \begin{equation}
-            \hat \rho = \frac{1}{N}\sum_{i=1}^N \rho_i \quad \text{with } \rho_i \sim \pi(\rho|\mb D)
-        \end{equation}
+        \item The density matrix is then calculated as
+        \begin{align}
+            \rho &= \int \nu \pi(\nu|\mb D) d\nu\\
+            \Leftrightarrow \hat \rho &= \frac{1}{N}\sum_{i=1}^N \rho_i \quad \text{with } \rho_i \sim \pi(\rho|\mb D)
+        \end{align}
+        % \begin{equation}
+            
+        % \end{equation}
+        % \begin{equation}
+        %     \hat \rho = \frac{1}{N}\sum_{i=1}^N \rho_i \quad \text{with } \rho_i \sim \pi(\rho|\mb D)
+        % \end{equation}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{The Metropolis-Hastings algorithm}
-    % \begin{itemize}
-    %     \item One of the most common MCMC algorithms
-    % \end{itemize}
-    \begin{algorithm}[H]\label{code:prob}
+% \begin{frame}{The Metropolis-Hastings algorithm}
+%     % \begin{itemize}
+%     %     \item One of the most common MCMC algorithms
+%     % \end{itemize}
+%     \begin{algorithm}[H]\label{code:prob}
 
-        \DontPrintSemicolon
+%         \DontPrintSemicolon
     
-        % \SetKwInOut{Input}{Input}
+%         % \SetKwInOut{Input}{Input}
     
-        % \SetKwInOut{Output}{Output}
+%         % \SetKwInOut{Output}{Output}
     
     
-        % %\underline{Prob-estimator}\;
+%         % %\underline{Prob-estimator}\;
     
-        % \Input{$d = 2^n, \lambda \in \mathbb{R}, \alpha \in \mathbb{R}, T \in \mathbb{N}, V^{(0)} \in \mathbb{C}^{d \times d}, Y^{(0)} \in \mathbb{C}^{d\times 1}$}
+%         % \Input{$d = 2^n, \lambda \in \mathbb{R}, \alpha \in \mathbb{R}, T \in \mathbb{N}, V^{(0)} \in \mathbb{C}^{d \times d}, Y^{(0)} \in \mathbb{C}^{d\times 1}$}
     
-        % \Output{$\hat \rho \in \mathbb{C}^{d\times d}$}
+%         % \Output{$\hat \rho \in \mathbb{C}^{d\times d}$}
     
-        % $\hat \rho \gets \mb 0$\;
+%         % $\hat \rho \gets \mb 0$\;
     
-        % $\gamma^{(0)} \in \mathbb{R}^{d\times1} \gets Y^{(0)} /(\sum_{i=1}^d Y_i^{(0)})$\;
+%         % $\gamma^{(0)} \in \mathbb{R}^{d\times1} \gets Y^{(0)} /(\sum_{i=1}^d Y_i^{(0)})$\;
     
-        \For{$t\gets 1:T$}{
-            \begin{enumerate}
-                \item Generate a candidate $\rho^* \sim \overbrace{q(\rho|\rho^{(t-1)})}^{\text{proposal}}$
-                \item Set $\rho^ {(t)} = \begin{cases}
-                    \rho^{*} \hspace{1.08cm} \text{with prob. } \alpha(\rho^*, \rho^{(t-1)})\\
-                    \rho^{(t-1)} \hspace{0.5cm} \text{with prob. } 1-\alpha(\rho^*, \rho^{(t-1)})
-                \end{cases}$
-            \end{enumerate}
-            with \begin{equation}
-                \underbrace{\alpha(\rho^*, \rho^{(t-1)})}_{\text{acceptance ratio}} = \frac{\pi(\rho^*|\mb D) q( \rho^{(t-1)}|\rho^*)}{\pi(\rho^{(t-1)}|\mb D) q( \rho^{*}|\rho^{(t-1)})}
-            \end{equation}
-        }
-        \caption{Metropolis-Hastings algorithm}
+%         \For{$t\gets 1:T$}{
+%             \begin{enumerate}
+%                 \item Generate a candidate $\rho^* \sim \overbrace{q(\rho|\rho^{(t-1)})}^{\text{proposal}}$
+%                 \item Set $\rho^ {(t)} = \begin{cases}
+%                     \rho^{*} \hspace{1.08cm} \text{with prob. } \alpha(\rho^*, \rho^{(t-1)})\\
+%                     \rho^{(t-1)} \hspace{0.5cm} \text{with prob. } 1-\alpha(\rho^*, \rho^{(t-1)})
+%                 \end{cases}$
+%             \end{enumerate}
+%             with \begin{equation}
+%                 \underbrace{\alpha(\rho^*, \rho^{(t-1)})}_{\text{acceptance ratio}} = \frac{\pi(\rho^*|\mb D) q( \rho^{(t-1)}|\rho^*)}{\pi(\rho^{(t-1)}|\mb D) q( \rho^{*}|\rho^{(t-1)})}
+%             \end{equation}
+%         }
+%         \caption{Metropolis-Hastings algorithm}
 
-    \end{algorithm}
+%     \end{algorithm}
 
-\end{frame}
+% \end{frame}
 
 \begin{frame}{Illustration of the Metropolis-Hastings algorithm}
     \href{run:./mcmc.gif}{mcmc.gif}
@@ -291,7 +318,7 @@ sorting=ynt
         \item Uncertainty quantification: working with distributions instead of point estimates
     \end{itemize} 
 \end{frame}
-
+\section{Main algorithms}
 \begin{frame}{Prob-estimator (1)}
     Introduced in \cite{MA17}, it combines Metropolis-within-Gibbs sampling with a low-rank prior.
     \begin{itemize}
@@ -334,7 +361,7 @@ sorting=ynt
 
 \end{frame}
 \begin{frame}{Projected Langevin algorithm (1)}
-    Introduced in \cite{ACMT2024}, it combines the Unadjusted Langevin algorithm with a different low-rank prior.
+    Introduced in \cite{ACMT2024}, it combines the Unadjusted Langevin algorithm with a \textit{different} low-rank prior.
     \begin{itemize}
         \item Burer-Monteiro factorization: $\rho = YY^\dagger$, with rank$(Y)=r$ 
         \item Low-rank prior: spectral scaled Student-t distribution
@@ -350,7 +377,6 @@ sorting=ynt
 \end{frame}
 
 \begin{frame}{Projected Langevin algorithm (2)}
-    Note that there is no accept/reject step!
 
     \begin{algorithm}[H]
 
@@ -360,7 +386,7 @@ sorting=ynt
             % \begin{equation}
             \begin{enumerate}
                 \item Sample $\tilde w^{(t)} \sim N(\mb 0, \mb I)$
-                \item $\tilde Y^{(t)} \gets \tilde Y^{(t-1)} - \eta^{(t)} \nabla f  (\tilde Y^{(t-1)}, \mb D) + \cfrac{\sqrt{2\eta^{(t)}}}{\beta} \tilde w^{(t)}
+                \item $\tilde Y^{(t)} \gets \tilde Y^{(t-1)} - \eta^{(t)} \underbrace{\nabla f  (\tilde Y^{(t-1)}, \mb D)}_{\text{gradient}} + \cfrac{\sqrt{2\eta^{(t)}}}{\beta} \tilde w^{(t)}
             $\medbreak with $\pi(Y|\mb D) = \exp(-f(Y, \mb D))$
         \end{enumerate}
         }
@@ -368,17 +394,16 @@ sorting=ynt
         \caption{Projected Langevin algorithm}
     
     \end{algorithm}
+    Observe that 
+    \begin{itemize}
+        \item There is no accept/reject step
+        \item We use the gradient of the posterior
+    \end{itemize}
 \end{frame}
-\section{Thesis contributions}
+\section{Experiments and results}
 
-\begin{frame}{Thesis contributions}
-    \begin{enumerate}
-        \item Numerically compare the prob-estimator and the Projected Langevin algorithm
-        \item Propose 2 new algorithms to understand the impact of the prior vs the algorithm on the accuracy
-    \end{enumerate}
-\end{frame}
 
-\begin{frame}{Numerical comparison: convergence}
+\begin{frame}{Convergence plot}
     
 \begin{figure}[H]
     %experiments/iterations_no_avg_sep_prob_pl_mhs_mhgs
@@ -387,17 +412,17 @@ sorting=ynt
         % \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
     
         % \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
-    \end{figure}
-    $\Longrightarrow$ Projected Langevin converges faster
+\end{figure}
+$\Longrightarrow$ Projected Langevin converges faster
 \end{frame}
 
-\begin{frame}{Numerical comparison: convergence across qubits (1)}
-    
+\begin{frame}{Convergence across qubits (1)}
+    Reminder: $n$ is the number of qubits
     \begin{figure}[H]
 
         \centering
     
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.38\textwidth}
     
             % experiments/iterations_no_avg_rank1
     
@@ -409,7 +434,7 @@ sorting=ynt
         
         \end{subfigure}
         \hfill
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.38\textwidth}
     
             % experiments/iterations_no_avg_n4
     
@@ -421,7 +446,7 @@ sorting=ynt
         
         \end{subfigure}
     
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.38\textwidth}
     
             % experiments/iterations_no_avg_n5
     
@@ -432,12 +457,18 @@ sorting=ynt
             \begin{minipage}[b]{.1\textwidth}
             \subcaption{$n=5$}
             \end{minipage}
-        
+            \hspace*{\fill}
+            \raisebox{10ex}{
+            \begin{minipage}{.4\textwidth}
+                Projected Langevin converges faster and is more accurate for higher $n$! But..
+            \end{minipage}
+            }
+            % \hspace*{\fill}
     \end{figure}
 \end{frame}
     
 
-\begin{frame}{Numerical comparison: computation time across qubits (2)}
+\begin{frame}{Computation time across qubits (2)}
     
     \begin{figure}[H]
 
@@ -470,58 +501,86 @@ sorting=ynt
             \label{fig:conv-plot-diff-n-4-sub}
     
         \end{subfigure}
-    
         \begin{subfigure}[b]{0.4\textwidth}
     
             % experiments/iterations_no_avg_n5
     
-            \centering
+            
             \includegraphics[width=\linewidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png}
         \end{subfigure}
             \quad
             \begin{minipage}[b]{.1\textwidth}
             \subcaption{$n=5$}
             \end{minipage}
-    
+            \hspace*{\fill}
+            \raisebox{10ex}{
+            \begin{minipage}{.4\textwidth}
+                When $n$ increases, the computation time does too!
+            \end{minipage}
+            }
         \label{fig:conv-plot-diff-n}
     
     \end{figure}
 \end{frame}
+
+\begin{frame}{Introducing 2 new methods}
+    % Not happy about the slide
+    What makes Projected Langevin perform better ?\medbreak
+    To answer this question, we introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS)\medbreak
+    They combine:
+    \begin{itemize}
+        \item The algorithm from the prob-estimator
+        \item The prior from the Projected Langevin algorithm
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Convergence comparison}
+    \begin{figure}[H]
+        %experiments/iterations_no_avg_sep_prob_pl_mhs_mhgs
+            \centering
+            \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
+            % \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
+        
+            % \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
+        \end{figure}
+        $\Longrightarrow$ The prior itself is not a solution, and must be paired with a fast algorithm
+\end{frame}
+
 \begin{frame}{Numerical comparison: number of shots}
     Shot: measurement we perform on a clone of the state
     \begin{figure}[H]
 
         \centering
+        \includegraphics[width=0.7\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png}
+        % \begin{subfigure}[b]{0.49\textwidth}
     
-        \begin{subfigure}[b]{0.49\textwidth}
+        %     % experiments/shots
     
-            % experiments/shots
+        %     \centering
     
-            \centering
+        %     \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png}
     
-            \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png}
+        %     \caption{Mixed qubit}
     
-            \caption{Mixed qubit}
+        %     \label{fig:shots-comp-mixed-sub}
     
-            \label{fig:shots-comp-mixed-sub}
+        % \end{subfigure}
+        % \hfill
+        % \begin{subfigure}[b]{0.49\textwidth}
     
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.49\textwidth}
+        %     % experiments/shots_sep
     
-            % experiments/shots_sep
+        %     \centering
     
-            \centering
+        %     \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_sep_loglog-1.png}
     
-            \includegraphics[width=\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_sep_loglog-1.png}
+        %     \caption{Separate qubit}
     
-            \caption{Separate qubit}
+        %     \label{fig:shots-comp-sep-sub}
     
-            \label{fig:shots-comp-sep-sub}
-    
-        \end{subfigure}
+        % \end{subfigure}
         
-        \label{fig:shots-comp}
+        % \label{fig:shots-comp}
     
     \end{figure}
     $\Longrightarrow$ The prob-estimator does not scale!
@@ -559,16 +618,22 @@ sorting=ynt
             \label{fig:rank-no-info-sub}
     
         \end{subfigure}
-    
-        \caption{Rank knowledge plot for $n=3$}
-    
+        
         \label{fig:rank-info}
     
     \end{figure}
     $\Longrightarrow$ For Projected Langevin, the information about the rank only marginally affects the accuracy
 \end{frame}
-\begin{frame}
-    
+
+\begin{frame}{Summary and future work}
+    \begin{itemize}
+        \item Quantum tomography is not yet a solved problem, especially for large  systems
+        \item MCMC methods are a promising direction of research, thanks to uncertainty quantification and prior information 
+        \item The choice of the algorithm might have more impact on the scalability of a method than the prior
+        \item More experiments are needed to investigate the exact reasons of performance and scalability (for example Hamiltonian Monte Carlo)
+    \end{itemize}
+    % - The Projected Langevin algorithm requires less iterations and is more accurate for larger $n$ than the prob-estimator, however it does not scale in terms of computation time
+    % - Its convergence speed and accuracy are due to a combination of prior \textit{algorithm}, not just the prior
 \end{frame}
 \begin{frame}{References}
     \printbibliography
