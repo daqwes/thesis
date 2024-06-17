@@ -233,9 +233,9 @@ sorting=ynt
 \begin{frame}{Bayesian inference}
     \tb{Context}: We are working in the Bayesian framework
     \begin{equation}
-        \pi (\rho|\mb D) \propto \mathcal{L}(\mb D|\rho) \pi(\rho)
+        \underbrace{\pi (\rho|\mb D)}_{\text{Posterior}} \propto \underbrace{\mathcal{L}(\mb D|\rho)}_{\text{Likelihood}} \underbrace{\pi(\rho)}_{\text{Prior}}
     \end{equation}
-    Each term is a distribution\medbreak
+    Recall that each term is a distribution!\medbreak
     In the context of Quantum tomography:
     \begin{itemize}
         \item Likelihood $\mathcal{L}(\mb D|\rho) = \exp(-||A \vec\rho - \hat p||)$
@@ -253,7 +253,7 @@ sorting=ynt
         with the equilibrium distribution $f(x)$ of the chain
         \item The density matrix is then calculated as
         \begin{align}
-            \rho &= \int \nu \pi(\nu|\mb D) d\nu\\
+            \tilde \rho &= \mathbb{E}[\rho]= \int \rho \pi(\rho|\mb D) d\rho\\
             \Leftrightarrow \hat \rho &= \frac{1}{N}\sum_{i=1}^N \rho_i \quad \text{with } \rho_i \sim \pi(\rho|\mb D)
         \end{align}
         % \begin{equation}
@@ -306,7 +306,7 @@ sorting=ynt
 
 % \end{frame}
 
-\begin{frame}{Illustration of the Metropolis-Hastings algorithm}
+\begin{frame}{An example: Metropolis-Hastings algorithm}
     \href{run:./mcmc.gif}{mcmc.gif}
 
 \end{frame}
@@ -322,14 +322,22 @@ sorting=ynt
 \begin{frame}{Prob-estimator (1)}
     Introduced in \cite{MA17}, it combines Metropolis-within-Gibbs sampling with a low-rank prior.
     \begin{itemize}
-        \item Analogous to eigenvector factorization: $\rho = \sum_{i=1}^{d} \gamma_i V_i V_i^\dagger$
-        \item $\pi_1(\gamma_1 \dots \gamma_d)$ is a Dirichlet distribution with a small, constant parameter, leading to sparse values 
-        \item $\pi_2(V_1 \dots V_d)$ is a unit sphere distribution
+        \item Sum of rank-1 matrices: \[\rho = \sum_{i=1}^{d} \gamma_i V_i {V_i}^\dagger\]
+        \item $\pi_1(\gamma_1 \dots \gamma_d)$ is a Dirichlet distribution with a small, constant parameter, leading to sparse values
+        \begin{equation*}
+            \gamma = \begin{bmatrix}
+                0 & \cdots & 1 & \cdots & 0
+            \end{bmatrix}
+        \end{equation*}
+        \item $\pi_2(V_i)$ is a unit sphere distribution
+        \begin{equation*}
+            ||V_i|| = 1
+        \end{equation*}
     \end{itemize}
 \end{frame}
 
 \begin{frame}{Prob-estimator (2)}
-    Algorithm: combination between Metropolis-Hastings and Gibbs sampling\medbreak
+    Mix between Metropolis-Hastings and Gibbs sampling\medbreak
     
 \begin{algorithm}[H]
 
@@ -340,7 +348,7 @@ sorting=ynt
             \For{$i\gets 1:d$}{
 
             \begin{enumerate}
-                \item Sample $ \gamma_i^*$ from $\pi_1(\gamma_1, \dots, \gamma_d)$
+                \item Sample $ \gamma_i^*$ from $\pi_1(\gamma_i)$
                 \item Update $\gamma^{(t)}$ with accept/reject step
             \end{enumerate}
 
@@ -348,7 +356,7 @@ sorting=ynt
 
             \For{$i\gets 1:d$}{
                 \begin{enumerate}
-                    \item Sample $V_i^*$ from $\pi_2(V_1, \dots, V_d)$
+                    \item Sample $V_i^*$ from $\pi_2(V_i)$
                     \item Update $V^{(t)}$ with an accept/reject step
                 \end{enumerate}
     
@@ -365,14 +373,17 @@ sorting=ynt
     \begin{itemize}
         \item Burer-Monteiro factorization: $\rho = YY^\dagger$, with rank$(Y)=r$ 
         \item Low-rank prior: spectral scaled Student-t distribution
+        % \begin{equation}
+        %     \pi(Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
+        % \end{equation}
         \begin{equation}
-            \pi(Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
+            \pi(Y) = \prod_{j=1}^r (\theta^2 + \smash{\underbrace{s_j(Y)^2}_{j\text{th eigenvalue of } Y}})^{-(2d+r+2)/2}
         \end{equation}
-        equivalent to 
-        \begin{equation}
-            \pi(Y) = \prod_{j=1}^r (\theta^2 + s_j(Y)^2)^{-(2d+r+2)/2}
-        \end{equation}
-        with $s_j$ the $j$th largest eigenvalue
+        \item Promotes sparsity among the eigenvalues leading to a low rank
+        \item Very similar to the Student-t distribution
+        % \begin{itemize}
+  
+        % \end{itemize}
     \end{itemize} 
 \end{frame}
 
@@ -394,7 +405,7 @@ sorting=ynt
         \caption{Projected Langevin algorithm}
     
     \end{algorithm}
-    Observe that 
+    Observe that:
     \begin{itemize}
         \item There is no accept/reject step
         \item We use the gradient of the posterior
@@ -526,7 +537,11 @@ $\Longrightarrow$ Projected Langevin converges faster
 \begin{frame}{Introducing 2 new methods}
     % Not happy about the slide
     What makes Projected Langevin perform better ?\medbreak
-    To answer this question, we introduce 2 new algorithms, Metropolis-Hastings with Student-t prior (MHS) and Metropolis-Hastings with Gibbs with Student-t prior (MHGS)\medbreak
+    To answer this question, we introduce 2 new algorithms:
+    \begin{enumerate} 
+    \item Metropolis-Hastings with Student-t prior (MHS)
+    \item Metropolis-Hastings with Gibbs with Student-t prior (MHGS)
+    \end{enumerate}
     They combine:
     \begin{itemize}
         \item The algorithm from the prob-estimator
@@ -546,7 +561,7 @@ $\Longrightarrow$ Projected Langevin converges faster
         $\Longrightarrow$ The prior itself is not a solution, and must be paired with a fast algorithm
 \end{frame}
 
-\begin{frame}{Numerical comparison: number of shots}
+\begin{frame}{Impact of the number of shots}
     Shot: measurement we perform on a clone of the state
     \begin{figure}[H]
 
@@ -586,7 +601,8 @@ $\Longrightarrow$ Projected Langevin converges faster
     $\Longrightarrow$ The prob-estimator does not scale!
 \end{frame}
 
-\begin{frame}{Numerical experiments: impact of knowledge of rank}
+\begin{frame}{Impact of knowing the rank of $\rho$}
+    Reminder: for Projected Langevin, $\rho = YY^\dagger$, with rank$(Y)=r$ 
     \begin{figure}[H]
 
         \centering
@@ -622,7 +638,7 @@ $\Longrightarrow$ Projected Langevin converges faster
         \label{fig:rank-info}
     
     \end{figure}
-    $\Longrightarrow$ For Projected Langevin, the information about the rank only marginally affects the accuracy
+    $\Longrightarrow$ The information about the rank only marginally affects the accuracy
 \end{frame}
 
 \begin{frame}{Summary and future work}
@@ -630,7 +646,7 @@ $\Longrightarrow$ Projected Langevin converges faster
         \item Quantum tomography is not yet a solved problem, especially for large  systems
         \item MCMC methods are a promising direction of research, thanks to uncertainty quantification and prior information 
         \item The choice of the algorithm might have more impact on the scalability of a method than the prior
-        \item More experiments are needed to investigate the exact reasons of performance and scalability (for example Hamiltonian Monte Carlo)
+        \item More experiments are needed to investigate the performance and scalability (for example with other gradient-based methods and priors)
     \end{itemize}
     % - The Projected Langevin algorithm requires less iterations and is more accurate for larger $n$ than the prob-estimator, however it does not scale in terms of computation time
     % - Its convergence speed and accuracy are due to a combination of prior \textit{algorithm}, not just the prior
