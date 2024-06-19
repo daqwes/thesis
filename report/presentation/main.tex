@@ -8,13 +8,16 @@
 \usepackage{xcolor}
 
 \usepackage{subcaption}
-% \usepackage{float}
+\usepackage{float}
 % \usepackage{floatrow}
 % \usepackage{subfig}
-\usepackage{floatrow}
+% \usepackage{floatrow}
 
-\usepackage[linesnumbered,ruled]{algorithm2e}
-
+\usepackage[ruled]{algorithm2e}
+\makeatletter
+\newcommand{\RemoveAlgoNumber}{\renewcommand{\fnum@algocf}{\AlCapSty{\AlCapFnt\algorithmcfname}}}
+\newcommand{\RevertAlgoNumber}{\algocf@resetfnum}
+\makeatother
 
 \usepackage{hyperref}
 \hypersetup{
@@ -84,7 +87,9 @@ sorting=ynt
 { Danila Mokeev\\{\small Supervisors: Estelle Massart, Andrew Thompson and Tameem Adel}}
 \institute[EPL]{Ecole Polytechnique de Louvain}
 \date{21st of June 2024}
-
+\titlegraphic{%\includegraphics[width=2cm]{logopolito}\hspace*{4.75cm}~%
+   \includegraphics[width=4cm]{figures/logo_ucl.jpg}
+}
 \AtBeginSection[]
 {
   \begin{frame}
@@ -97,7 +102,7 @@ sorting=ynt
 
 \frame{\titlepage}
 
-\begin{frame}{Plan of this thesis}
+\begin{frame}{Scope of this thesis}
     \tb{Topic}: Markov chain Monte Carlo (MCMC) methods in Quantum tomography\medbreak
     \tb{Research questions:} 
     \begin{enumerate}
@@ -159,25 +164,20 @@ sorting=ynt
     \end{equation}
     with
     \begin{itemize}
-        \item $P_m$ the projector matrix associated to the eigenvalue $m$ of an \textit{observable} $O$
         \item $p(m)$ the probability of occurence  of $m$
-        \item $\rho$ the \textit{density matrix} representing the quantum state
-        \begin{itemize}
-            \item positive semi-definite
-            \item Hermitian ($\rho = \rho^\dagger$)
-            \item trace$(\rho)=1$
-            \item size $2^n \times 2^n$ with $n$ the number of qubits
-        \end{itemize}
-    \end{itemize}
+        \item $P_m$ the projector matrix associated to the eigenvalue $m$ of an \textit{observable} $O$
+        \item $\rho$ the \textit{density matrix} representing the quantum state 
+    \end{itemize}\medbreak
+    The size of $\rho$ is  $2^n \times 2^n$ with $n$ the number of qubits.
 \end{frame}
 \begin{frame}{Quantum tomography: mathematical description (2)}
     If we flatten the matrices
     \begin{equation}
         A = \begin{bmatrix}
-            \vec P_1\\
-            \vec P_2\\
-            \vec P_3\\
-            \vdots
+            P_{11} & P_{12} & P_{13} \cdots\\
+            P_{21} & P_{22} & P_{23} \cdots\\
+            \vdots & \vdots & \vdots \\
+            P_{m1} & P_{m2} & P_{m3} \cdots
         \end{bmatrix}
         \quad\vec{\rho} = \begin{bmatrix}
             \rho_{11} \\
@@ -230,15 +230,15 @@ sorting=ynt
     \end{itemize}
 \end{frame}
 \section{Markov chain Monte Carlo methods}
-\begin{frame}{Bayesian inference}
-    \tb{Context}: We are working in the Bayesian framework
+\begin{frame}{Bayesian framework}
+    In the Bayesian framework:
     \begin{equation}
-        \underbrace{\pi (\rho|\mb D)}_{\text{Posterior}} \propto \underbrace{\mathcal{L}(\mb D|\rho)}_{\text{Likelihood}} \underbrace{\pi(\rho)}_{\text{Prior}}
+        \underbrace{\pi (\rho|\mb D)}_{\text{Posterior}} \propto \underbrace{\pi(\mb D|\rho)}_{\text{Likelihood}} \underbrace{\pi(\rho)}_{\text{Prior}}
     \end{equation}
     Recall that each term is a distribution!\medbreak
     In the context of Quantum tomography:
     \begin{itemize}
-        \item Likelihood $\mathcal{L}(\mb D|\rho) = \exp(-||A \vec\rho - \hat p||)$
+        \item Likelihood $\pi(\mb D|\rho) = \exp(-||A \vec\rho - \hat p||)$
         \item Prior $\pi(\rho)$ is method specific
         % \item Posterior $\pi (\rho|\mb D)$ corresponds to a distribution over density matrices $\rho$ after being fitted on the data
     \end{itemize}
@@ -319,57 +319,79 @@ sorting=ynt
     \end{itemize} 
 \end{frame}
 \section{Main algorithms}
-\begin{frame}{Prob-estimator (1)}
-    Introduced in \cite{MA17}, it combines Metropolis-within-Gibbs sampling with a low-rank prior.
+\begin{frame}{Prob-estimator: prior}
+    % Introduced in \cite{MA17}, it combines Metropolis-within-Gibbs sampling with a low-rank prior.
     \begin{itemize}
         \item Sum of rank-1 matrices: \[\rho = \sum_{i=1}^{d} \gamma_i V_i {V_i}^\dagger\]
-        \item $\pi_1(\gamma_1 \dots \gamma_d)$ is a Dirichlet distribution with a small, constant parameter, leading to sparse values
+        \item The prior $\pi_1(\gamma_1 \dots \gamma_d)$ is a Dirichlet distribution. A typical draw leads to a sparse vector.
         \begin{equation*}
             \gamma = \begin{bmatrix}
                 0 & \cdots & 1 & \cdots & 0
             \end{bmatrix}
         \end{equation*}
-        \item $\pi_2(V_i)$ is a unit sphere distribution
+        \item The prior $\pi_2(V_i)$ is a unit sphere distribution
         \begin{equation*}
             ||V_i|| = 1
         \end{equation*}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Prob-estimator (2)}
-    Mix between Metropolis-Hastings and Gibbs sampling\medbreak
-    
+\begin{frame}{Prob-estimator: algorithm}
+    % Mix between Metropolis-Hastings and Gibbs sampling\medbreak
+    % \begin{example}{this is a block}
+    %     \begin{quote}
+    %         Notice
+    %     \end{quote}
+    % \end{example}
 \begin{algorithm}[H]
+    \RemoveAlgoNumber
 
     \DontPrintSemicolon
-
+    
     \For{$t\gets 1:T$}{
+        \alert<1>{}
+    \pause
+    % \alert<1>{
+    %     \For{$i\gets 1:d$}{
+    %         \pause
+    %         \alert<2>{
+    %     \begin{enumerate}
+    %         \item Sample $ \gamma_i^*$ from $\pi_1(\gamma_i)$
+    %         \item Update $\gamma^{(t)}$ with {accept/reject step}
+    %     \end{enumerate}
+    %         }\pause
 
+    %     }} 
+    \alert<2>{\tcp*[l]{Iterate over each dimension $i$}}\pause
             \For{$i\gets 1:d$}{
 
             \begin{enumerate}
-                \item Sample $ \gamma_i^*$ from $\pi_1(\gamma_i)$
-                \item Update $\gamma^{(t)}$ with accept/reject step
+                \alert<3>{\item Sample $ \gamma_i^*$ from $\pi_1(\gamma_i)$}\pause % \alert<2>{\tcp*[l]{Sample from the prior}}\pause
+                \alert<4>{\item Update $\gamma^{(t)}$ with {accept/reject step}}\pause
             \end{enumerate}
 
             }
-
+            \alert<5>{
             \For{$i\gets 1:d$}{
                 \begin{enumerate}
                     \item Sample $V_i^*$ from $\pi_2(V_i)$
                     \item Update $V^{(t)}$ with an accept/reject step
                 \end{enumerate}
-    
-        }
+        }}
     }
 
-    \caption{Prob-estimator algorithm}
+    \caption*{Prob-estimator algorithm}
 
-\end{algorithm}\medbreak
-
+\end{algorithm}
+% Observe that:
+% \begin{itemize}
+%     \item There \textit{is} an accept/reject step
+%     \item We iterate over each dimension for each iteration $t$
+% \end{itemize}
 \end{frame}
-\begin{frame}{Projected Langevin algorithm (1)}
-    Introduced in \cite{ACMT2024}, it combines the Unadjusted Langevin algorithm with a \textit{different} low-rank prior.
+\begin{frame}{Projected Langevin: prior}
+    % Introduced in \cite{ACMT2024}, it combines the Unadjusted Langevin algorithm with a \textit{different} low-rank prior.
+    
     \begin{itemize}
         \item Burer-Monteiro factorization: $\rho = YY^\dagger$, with rank$(Y)=r$ 
         \item Low-rank prior: spectral scaled Student-t distribution
@@ -387,29 +409,26 @@ sorting=ynt
     \end{itemize} 
 \end{frame}
 
-\begin{frame}{Projected Langevin algorithm (2)}
+\begin{frame}{Projected Langevin: algorithm}
 
     \begin{algorithm}[H]
-
+        \RemoveAlgoNumber
         \DontPrintSemicolon
     
         \For{$t\gets 1:T$}{
             % \begin{equation}
             \begin{enumerate}
-                \item Sample $\tilde w^{(t)} \sim N(\mb 0, \mb I)$
-                \item $\tilde Y^{(t)} \gets \tilde Y^{(t-1)} - \eta^{(t)} \underbrace{\nabla f  (\tilde Y^{(t-1)}, \mb D)}_{\text{gradient}} + \cfrac{\sqrt{2\eta^{(t)}}}{\beta} \tilde w^{(t)}
-            $\medbreak with $\pi(Y|\mb D) = \exp(-f(Y, \mb D))$
+                \alert<1>{
+                \item Sample $\tilde w^{(t)} \sim N(\mb 0, \mb I)$}\pause
+                \alert<2>{
+                \item $\tilde Y^{(t)} \gets \tilde Y^{(t-1)} - \eta^{(t)} \underbrace{\nabla \pi(\tilde Y^{(t-1)}| \mb D)}_{\text{\tb {gradient} }} + \cfrac{\sqrt{2\eta^{(t)}}}{\beta} \tilde w^{(t)}$}\pause
         \end{enumerate}
         }
     
-        \caption{Projected Langevin algorithm}
+        \caption*{Projected Langevin algorithm}
     
     \end{algorithm}
-    Observe that:
-    \begin{itemize}
-        \item There is no accept/reject step
-        \item We use the gradient of the posterior
-    \end{itemize}
+    The gradient allows us to explore the regions of high density faster.
 \end{frame}
 \section{Experiments and results}
 
@@ -423,29 +442,30 @@ sorting=ynt
         % \includegraphics[width=0.7\textwidth]{figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png}
     
         % \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
+        % \caption{$n=3$}
 \end{figure}
-$\Longrightarrow$ Projected Langevin converges faster
+$\Longrightarrow$ Projected Langevin converges faster for $n=3$ qubits
 \end{frame}
 
-\begin{frame}{Convergence across qubits (1)}
-    Reminder: $n$ is the number of qubits
-    \begin{figure}[H]
+\begin{frame}{Convergence speed for $n=4,5$}
+    Reminder: a larger $n$ means a larger density matrix
+    \begin{figure}[ht]
 
         \centering
     
-        \begin{subfigure}[b]{0.38\textwidth}
+        % \begin{subfigure}[t]{0.3\textwidth}
     
-            % experiments/iterations_no_avg_rank1
+        %     % experiments/iterations_no_avg_rank1
     
-            \centering
+        %     \centering
     
-            \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png}
+        %     \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png}
     
-            \caption{$n=3$}
+        %     \caption{$n=3$}
         
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.38\textwidth}
+        % \end{subfigure}
+        
+        \begin{subfigure}[b]{0.49\textwidth}
     
             % experiments/iterations_no_avg_n4
     
@@ -456,50 +476,42 @@ $\Longrightarrow$ Projected Langevin converges faster
             \caption{$n=4$}
         
         \end{subfigure}
-    
-        \begin{subfigure}[b]{0.38\textwidth}
+        \hfill
+        \begin{subfigure}[b]{0.49\textwidth}
     
             % experiments/iterations_no_avg_n5
     
             \centering
             \includegraphics[width=\linewidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png}
+            \caption{$n=5$}
         \end{subfigure}
-            \quad
-            \begin{minipage}[b]{.1\textwidth}
-            \subcaption{$n=5$}
-            \end{minipage}
-            \hspace*{\fill}
-            \raisebox{10ex}{
-            \begin{minipage}{.4\textwidth}
-                Projected Langevin converges faster and is more accurate for higher $n$! But..
-            \end{minipage}
-            }
+   
             % \hspace*{\fill}
     \end{figure}
+    $\Longrightarrow$ Projected Langevin converges slower than previously
 \end{frame}
     
+\begin{frame}{Computation time for $n=3$}
+    
+    \begin{figure}[H]
+        \centering
+    
+        \includegraphics[width=0.7\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png}
 
-\begin{frame}{Computation time across qubits (2)}
+        % \caption*{$n=3$}
+
+        % \label{fig:conv-plot-diff-n-3-sub}
+    \end{figure}
+    $\Longrightarrow$ For $n=3$, Projected Langevin takes much less time
+\end{frame}
+
+\begin{frame}{Computation time for $n=4,5$}
     
     \begin{figure}[H]
 
         \centering
     
-        \begin{subfigure}[b]{0.4\textwidth}
-    
-            % experiments/iterations_no_avg_rank1
-    
-            \centering
-    
-            \includegraphics[width=\textwidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png}
-    
-            \caption{$n=3$}
-    
-            \label{fig:conv-plot-diff-n-3-sub}
-    
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{subfigure}[b]{0.49\textwidth}
     
             % experiments/iterations_no_avg_n4
     
@@ -512,26 +524,19 @@ $\Longrightarrow$ Projected Langevin converges faster
             \label{fig:conv-plot-diff-n-4-sub}
     
         \end{subfigure}
-        \begin{subfigure}[b]{0.4\textwidth}
+        \hfill
+        \begin{subfigure}[b]{0.49\textwidth}
     
             % experiments/iterations_no_avg_n5
     
             
             \includegraphics[width=\linewidth]{figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png}
-        \end{subfigure}
-            \quad
-            \begin{minipage}[b]{.1\textwidth}
             \subcaption{$n=5$}
-            \end{minipage}
-            \hspace*{\fill}
-            \raisebox{10ex}{
-            \begin{minipage}{.4\textwidth}
-                When $n$ increases, the computation time does too!
-            \end{minipage}
-            }
+        \end{subfigure}
         \label{fig:conv-plot-diff-n}
-    
     \end{figure}
+    $\Longrightarrow$ When $n$ increases, Projected Langevin becomes as slow as the prob-estimator due to the gradient cost.
+
 \end{frame}
 
 \begin{frame}{Introducing 2 new methods}
@@ -558,7 +563,7 @@ $\Longrightarrow$ Projected Langevin converges faster
         
             % \caption{Convergence plot with the prob-estimator, Projected Langevin, MHS, and MHGS with $n=3$ and separate qubit data generation}
         \end{figure}
-        $\Longrightarrow$ The prior itself is not a solution, and must be paired with a fast algorithm
+        $\Longrightarrow$ The prior itself is not a solution, and must be paired with the right algorithm to be fast and accurate
 \end{frame}
 
 \begin{frame}{Impact of the number of shots}
@@ -641,18 +646,73 @@ $\Longrightarrow$ Projected Langevin converges faster
     $\Longrightarrow$ The information about the rank only marginally affects the accuracy
 \end{frame}
 
-\begin{frame}{Summary and future work}
+\begin{frame}{Summary}
     \begin{itemize}
         \item Quantum tomography is not yet a solved problem, especially for large  systems
         \item MCMC methods are a promising direction of research, thanks to uncertainty quantification and prior information 
-        \item The choice of the algorithm might have more impact on the scalability of a method than the prior
-        \item More experiments are needed to investigate the performance and scalability (for example with other gradient-based methods and priors)
+        \item The choice of the algorithm might have more impact on the convergence speed and accuracy than the prior
     \end{itemize}
     % - The Projected Langevin algorithm requires less iterations and is more accurate for larger $n$ than the prob-estimator, however it does not scale in terms of computation time
     % - Its convergence speed and accuracy are due to a combination of prior \textit{algorithm}, not just the prior
 \end{frame}
+\begin{frame}{Future work}
+    \begin{itemize}
+        \item Extend tests to larger $n$ to check for robustness of conclusions
+        \item Try other gradient-based algorithms to see the impact on convergence speed (for example HMC)
+        \item Try other priors to see the impact on computation time (the gradient may be faster to compute) and accuracy
+    \end{itemize}
+\end{frame}
 \begin{frame}{References}
     \printbibliography
 \end{frame}
+\begin{frame}{Prob-estimator: full}
+    It can be seen as eigendecomposition, without the orthogonality property:
+    \begin{equation}
+        \rho = U\Lambda U^\dagger
+    \end{equation}
+    Prior:
+    \begin{equation}
+        \pi(\rho) = \pi_1(\gamma_1, \dots, \gamma_d) \prod_{i=1}^d \pi_{2, i}(V_i)
+    \end{equation}
+    Likelihood:
+    \begin{equation}
+        \pi(\tb D| \rho) = \pi(\rho, \mb D) = \exp(-\lambda \ell(\rho,\mb D))
+    \end{equation}
+    with:
+    \begin{equation}
+        \ell(\rho, \mb D) = \sum_{\mb a \in \mathcal{E}^n} \sum_{\mb s \in \mathcal{R}^n} \left[\tr(\rho P^{\mb a}_{\mb s}) - \hat p_{\mb a,\mb s}\right]^2
+    \end{equation}
+    Posterior:
+    \begin{equation}
+        \pi(\nu|\tb D) \propto \exp(-\lambda\ell(\nu, \mb D)) \pi(\nu)
+    \end{equation}
+\end{frame}
+\begin{frame}{Projected Langevin: full}
+    Prior:
+    \begin{equation}
+        \nu_{\theta} (Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
+    \end{equation}
+    Likelihood: 
+    \begin{equation}
+        L(Y, \mb D) = \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2
+    \end{equation}
+    Posterior:
+    \begin{equation}
+        \hat \nu_{\lambda, \theta}(Y, \mb D) = \exp(-f_{\lambda, \theta}(Y, \mb D))
+    \end{equation}
+    with \begin{equation}
+        f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^\dagger)
+    \end{equation} 
+
+\end{frame}
+\begin{frame}{Potential future experiments}
+    \begin{itemize}
+        \item Try experiemnts with more qubits to draw more robust conclusions
+        \item Test with other algorithms and priors to see if its a property of this prior in particular, or it generalizes (The calculation of the graidient is going to be more costly in all cases)
+        \item Try to use HMC to see if it still converges as fast for higher dimensions
+    \end{itemize}
+    
+\end{frame}
+
 \end{document}
 

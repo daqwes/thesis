@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.10)  17 JUN 2024 22:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.10)  19 JUN 2024 23:54
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/daniel/Documents/thesis/report/presentation/main.tex
+**/home/daniel/Documents/thesis/report/presentation/main
 (/home/daniel/Documents/thesis/report/presentation/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-04-11>
@@ -663,159 +663,130 @@ Package caption Info: New subtype `subfigure' on input line 238.
 \c@subfigure=\count352
 Package caption Info: New subtype `subtable' on input line 238.
 \c@subtable=\count353
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/floatrow/floatrow.sty
-Package: floatrow 2008/08/02 v0.3b floatrow: float package extension
+) (/usr/local/texlive/2024/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count354
 \float@exts=\toks52
 \float@box=\box81
+\@float@everytoks=\toks53
 \@floatcapt=\box82
-Package floatrow Info: Modified float package code loaded on input line 455.
-Package floatrow Info: Modified rotfloat package code loaded on input line 473.
-\FR@everyfloat=\toks53
-\flrow@foot=\insert252
-\FB@wd=\dimen317
-\FBo@wd=\dimen318
-\FBc@wd=\dimen319
-\FBo@ht=\skip77
-\FBc@ht=\skip78
-\FBf@ht=\skip79
-\FBo@max=\skip80
-\FBc@max=\skip81
-\FBf@max=\skip82
-\c@FBl@b=\count355
-\floatbox@depth=\count356
-\c@FRobj=\count357
-\c@FRsobj=\count358
-\Xhsize=\skip83
-\sXhsize=\skip84
-\Zhsize=\skip85
-\sZhsize=\skip86
-\flrow@rowbox=\box83
-\FR@Zunitlength=\dimen320
-\c@FBcnt=\count359
-\FPOScnt=\count360
-\LTleft=\skip87
-\LTright=\skip88
-\LTleft=\skip89
-\LTright=\skip90
-\flrow@types=\toks54
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/algorithm2e/algorithm2e.sty
 Package: algorithm2e 2017/07/18 v5.2 algorithms environments
-\c@AlgoLine=\count361
+\c@AlgoLine=\count355
  (/usr/local/texlive/2024/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
 )
-\algocf@hangindent=\skip91
+\algocf@hangindent=\skip77
  (/usr/local/texlive/2024/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
 Package: ifoddpage 2022/10/18 v1.2 Conditionals for odd/even page detection
-\c@checkoddpage=\count362
+\c@checkoddpage=\count356
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/tools/xspace.sty
 Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/relsize/relsize.sty
 Package: relsize 2013/03/29 ver 4.1
 )
-\skiptotal=\skip92
-\skiplinenumber=\skip93
-\skiprule=\skip94
-\skiphlne=\skip95
-\skiptext=\skip96
-\skiplength=\skip97
-\algomargin=\skip98
-\skipalgocfslide=\skip99
-\algowidth=\dimen321
-\inoutsize=\dimen322
-\inoutindent=\dimen323
-\interspacetitleruled=\dimen324
-\interspacealgoruled=\dimen325
-\interspacetitleboxruled=\dimen326
-\algocf@ruledwidth=\skip100
-\algocf@inoutbox=\box84
-\algocf@inputbox=\box85
-\AlCapSkip=\skip101
-\AlCapHSkip=\skip102
-\algoskipindent=\skip103
-\algocf@nlbox=\box86
-\algocf@hangingbox=\box87
-\algocf@untilbox=\box88
-\algocf@skipuntil=\skip104
-\algocf@capbox=\box89
-\algocf@lcaptionbox=\skip105
-\algoheightruledefault=\skip106
-\algoheightrule=\skip107
-\algotitleheightruledefault=\skip108
-\algotitleheightrule=\skip109
-\c@algocfline=\count363
-\c@algocfproc=\count364
-\c@algocf=\count365
-\algocf@algoframe=\box90
-\algocf@algobox=\box91
+\skiptotal=\skip78
+\skiplinenumber=\skip79
+\skiprule=\skip80
+\skiphlne=\skip81
+\skiptext=\skip82
+\skiplength=\skip83
+\algomargin=\skip84
+\skipalgocfslide=\skip85
+\algowidth=\dimen317
+\inoutsize=\dimen318
+\inoutindent=\dimen319
+\interspacetitleruled=\dimen320
+\interspacealgoruled=\dimen321
+\interspacetitleboxruled=\dimen322
+\algocf@ruledwidth=\skip86
+\algocf@inoutbox=\box83
+\algocf@inputbox=\box84
+\AlCapSkip=\skip87
+\AlCapHSkip=\skip88
+\algoskipindent=\skip89
+\algocf@nlbox=\box85
+\algocf@hangingbox=\box86
+\algocf@untilbox=\box87
+\algocf@skipuntil=\skip90
+\algocf@capbox=\box88
+\algocf@lcaptionbox=\skip91
+\algoheightruledefault=\skip92
+\algoheightrule=\skip93
+\algotitleheightruledefault=\skip94
+\algotitleheightrule=\skip95
+\c@algocfline=\count357
+\c@algocfproc=\count358
+\c@algocf=\count359
+\algocf@algoframe=\box89
+\algocf@algobox=\box90
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 28.
+Package hyperref Info: Option `colorlinks' set `true' on input line 31.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/biblatex/biblatex.sty
 Package: biblatex 2024/03/21 v3.20 programmable bibliographies (PK/MW)
  (/usr/local/texlive/2024/texmf-dist/tex/latex/logreq/logreq.sty
 Package: logreq 2010/08/04 v1.0 xml request logger
-\lrq@indent=\count366
+\lrq@indent=\count360
  (/usr/local/texlive/2024/texmf-dist/tex/latex/logreq/logreq.def
 File: logreq.def 2010/08/04 v1.0 logreq spec v1.0
 ))
-\c@tabx@nest=\count367
-\c@listtotal=\count368
-\c@listcount=\count369
-\c@liststart=\count370
-\c@liststop=\count371
-\c@citecount=\count372
-\c@citetotal=\count373
-\c@multicitecount=\count374
-\c@multicitetotal=\count375
-\c@instcount=\count376
-\c@maxnames=\count377
-\c@minnames=\count378
-\c@maxitems=\count379
-\c@minitems=\count380
-\c@citecounter=\count381
-\c@maxcitecounter=\count382
-\c@savedcitecounter=\count383
-\c@uniquelist=\count384
-\c@uniquename=\count385
-\c@refsection=\count386
-\c@refsegment=\count387
-\c@maxextratitle=\count388
-\c@maxextratitleyear=\count389
-\c@maxextraname=\count390
-\c@maxextradate=\count391
-\c@maxextraalpha=\count392
-\c@abbrvpenalty=\count393
-\c@highnamepenalty=\count394
-\c@lownamepenalty=\count395
-\c@maxparens=\count396
-\c@parenlevel=\count397
-\blx@tempcnta=\count398
-\blx@tempcntb=\count399
-\blx@tempcntc=\count400
-\c@blx@maxsection=\count401
-\blx@maxsegment@0=\count402
-\blx@notetype=\count403
-\blx@parenlevel@text=\count404
-\blx@parenlevel@foot=\count405
-\blx@sectionciteorder@0=\count406
-\blx@sectionciteorderinternal@0=\count407
-\blx@entrysetcounter=\count408
-\blx@biblioinstance=\count409
-\labelnumberwidth=\skip110
-\labelalphawidth=\skip111
-\biblabelsep=\skip112
-\bibitemsep=\skip113
-\bibnamesep=\skip114
-\bibinitsep=\skip115
-\bibparsep=\skip116
-\bibhang=\skip117
+\c@tabx@nest=\count361
+\c@listtotal=\count362
+\c@listcount=\count363
+\c@liststart=\count364
+\c@liststop=\count365
+\c@citecount=\count366
+\c@citetotal=\count367
+\c@multicitecount=\count368
+\c@multicitetotal=\count369
+\c@instcount=\count370
+\c@maxnames=\count371
+\c@minnames=\count372
+\c@maxitems=\count373
+\c@minitems=\count374
+\c@citecounter=\count375
+\c@maxcitecounter=\count376
+\c@savedcitecounter=\count377
+\c@uniquelist=\count378
+\c@uniquename=\count379
+\c@refsection=\count380
+\c@refsegment=\count381
+\c@maxextratitle=\count382
+\c@maxextratitleyear=\count383
+\c@maxextraname=\count384
+\c@maxextradate=\count385
+\c@maxextraalpha=\count386
+\c@abbrvpenalty=\count387
+\c@highnamepenalty=\count388
+\c@lownamepenalty=\count389
+\c@maxparens=\count390
+\c@parenlevel=\count391
+\blx@tempcnta=\count392
+\blx@tempcntb=\count393
+\blx@tempcntc=\count394
+\c@blx@maxsection=\count395
+\blx@maxsegment@0=\count396
+\blx@notetype=\count397
+\blx@parenlevel@text=\count398
+\blx@parenlevel@foot=\count399
+\blx@sectionciteorder@0=\count400
+\blx@sectionciteorderinternal@0=\count401
+\blx@entrysetcounter=\count402
+\blx@biblioinstance=\count403
+\labelnumberwidth=\skip96
+\labelalphawidth=\skip97
+\biblabelsep=\skip98
+\bibitemsep=\skip99
+\bibnamesep=\skip100
+\bibinitsep=\skip101
+\bibparsep=\skip102
+\bibhang=\skip103
 \blx@bcfin=\read3
 \blx@bcfout=\write5
 \blx@langwohyphens=\language89
-\c@mincomprange=\count410
-\c@maxcomprange=\count411
-\c@mincompwidth=\count412
+\c@mincomprange=\count404
+\c@maxcomprange=\count405
+\c@mincompwidth=\count406
 Package biblatex Info: Trying to load biblatex default data model...
 Package biblatex Info: ... file 'blx-dm.def' found.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/biblatex/blx-dm.def
@@ -825,88 +796,88 @@ Package biblatex Info: Trying to load biblatex style data model...
 Package biblatex Info: ... file 'alphabetic.dbx' not found.
 Package biblatex Info: Trying to load biblatex custom data model...
 Package biblatex Info: ... file 'biblatex-dm.cfg' not found.
-\c@afterword=\count413
-\c@savedafterword=\count414
-\c@annotator=\count415
-\c@savedannotator=\count416
-\c@author=\count417
-\c@savedauthor=\count418
-\c@bookauthor=\count419
-\c@savedbookauthor=\count420
-\c@commentator=\count421
-\c@savedcommentator=\count422
-\c@editor=\count423
-\c@savededitor=\count424
-\c@editora=\count425
-\c@savededitora=\count426
-\c@editorb=\count427
-\c@savededitorb=\count428
-\c@editorc=\count429
-\c@savededitorc=\count430
-\c@foreword=\count431
-\c@savedforeword=\count432
-\c@holder=\count433
-\c@savedholder=\count434
-\c@introduction=\count435
-\c@savedintroduction=\count436
-\c@namea=\count437
-\c@savednamea=\count438
-\c@nameb=\count439
-\c@savednameb=\count440
-\c@namec=\count441
-\c@savednamec=\count442
-\c@translator=\count443
-\c@savedtranslator=\count444
-\c@shortauthor=\count445
-\c@savedshortauthor=\count446
-\c@shorteditor=\count447
-\c@savedshorteditor=\count448
-\c@labelname=\count449
-\c@savedlabelname=\count450
-\c@institution=\count451
-\c@savedinstitution=\count452
-\c@lista=\count453
-\c@savedlista=\count454
-\c@listb=\count455
-\c@savedlistb=\count456
-\c@listc=\count457
-\c@savedlistc=\count458
-\c@listd=\count459
-\c@savedlistd=\count460
-\c@liste=\count461
-\c@savedliste=\count462
-\c@listf=\count463
-\c@savedlistf=\count464
-\c@location=\count465
-\c@savedlocation=\count466
-\c@organization=\count467
-\c@savedorganization=\count468
-\c@origlocation=\count469
-\c@savedoriglocation=\count470
-\c@origpublisher=\count471
-\c@savedorigpublisher=\count472
-\c@publisher=\count473
-\c@savedpublisher=\count474
-\c@language=\count475
-\c@savedlanguage=\count476
-\c@origlanguage=\count477
-\c@savedoriglanguage=\count478
-\c@pageref=\count479
-\c@savedpageref=\count480
-\shorthandwidth=\skip118
-\shortjournalwidth=\skip119
-\shortserieswidth=\skip120
-\shorttitlewidth=\skip121
-\shortauthorwidth=\skip122
-\shorteditorwidth=\skip123
-\locallabelnumberwidth=\skip124
-\locallabelalphawidth=\skip125
-\localshorthandwidth=\skip126
-\localshortjournalwidth=\skip127
-\localshortserieswidth=\skip128
-\localshorttitlewidth=\skip129
-\localshortauthorwidth=\skip130
-\localshorteditorwidth=\skip131
+\c@afterword=\count407
+\c@savedafterword=\count408
+\c@annotator=\count409
+\c@savedannotator=\count410
+\c@author=\count411
+\c@savedauthor=\count412
+\c@bookauthor=\count413
+\c@savedbookauthor=\count414
+\c@commentator=\count415
+\c@savedcommentator=\count416
+\c@editor=\count417
+\c@savededitor=\count418
+\c@editora=\count419
+\c@savededitora=\count420
+\c@editorb=\count421
+\c@savededitorb=\count422
+\c@editorc=\count423
+\c@savededitorc=\count424
+\c@foreword=\count425
+\c@savedforeword=\count426
+\c@holder=\count427
+\c@savedholder=\count428
+\c@introduction=\count429
+\c@savedintroduction=\count430
+\c@namea=\count431
+\c@savednamea=\count432
+\c@nameb=\count433
+\c@savednameb=\count434
+\c@namec=\count435
+\c@savednamec=\count436
+\c@translator=\count437
+\c@savedtranslator=\count438
+\c@shortauthor=\count439
+\c@savedshortauthor=\count440
+\c@shorteditor=\count441
+\c@savedshorteditor=\count442
+\c@labelname=\count443
+\c@savedlabelname=\count444
+\c@institution=\count445
+\c@savedinstitution=\count446
+\c@lista=\count447
+\c@savedlista=\count448
+\c@listb=\count449
+\c@savedlistb=\count450
+\c@listc=\count451
+\c@savedlistc=\count452
+\c@listd=\count453
+\c@savedlistd=\count454
+\c@liste=\count455
+\c@savedliste=\count456
+\c@listf=\count457
+\c@savedlistf=\count458
+\c@location=\count459
+\c@savedlocation=\count460
+\c@organization=\count461
+\c@savedorganization=\count462
+\c@origlocation=\count463
+\c@savedoriglocation=\count464
+\c@origpublisher=\count465
+\c@savedorigpublisher=\count466
+\c@publisher=\count467
+\c@savedpublisher=\count468
+\c@language=\count469
+\c@savedlanguage=\count470
+\c@origlanguage=\count471
+\c@savedoriglanguage=\count472
+\c@pageref=\count473
+\c@savedpageref=\count474
+\shorthandwidth=\skip104
+\shortjournalwidth=\skip105
+\shortserieswidth=\skip106
+\shorttitlewidth=\skip107
+\shortauthorwidth=\skip108
+\shorteditorwidth=\skip109
+\locallabelnumberwidth=\skip110
+\locallabelalphawidth=\skip111
+\localshorthandwidth=\skip112
+\localshortjournalwidth=\skip113
+\localshortserieswidth=\skip114
+\localshorttitlewidth=\skip115
+\localshortauthorwidth=\skip116
+\localshorteditorwidth=\skip117
 Package biblatex Info: Trying to load compatibility code...
 Package biblatex Info: ... file 'blx-compat.def' found.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/biblatex/blx-compat.def
@@ -916,19 +887,19 @@ Package biblatex Info: Trying to load generic definitions...
 Package biblatex Info: ... file 'biblatex.def' found.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/biblatex/biblatex.def
 File: biblatex.def 2024/03/21 v3.20 biblatex compatibility (PK/MW)
-\c@textcitecount=\count481
-\c@textcitetotal=\count482
-\c@textcitemaxnames=\count483
-\c@biburlbigbreakpenalty=\count484
-\c@biburlbreakpenalty=\count485
-\c@biburlnumpenalty=\count486
-\c@biburlucpenalty=\count487
-\c@biburllcpenalty=\count488
+\c@textcitecount=\count475
+\c@textcitetotal=\count476
+\c@textcitemaxnames=\count477
+\c@biburlbigbreakpenalty=\count478
+\c@biburlbreakpenalty=\count479
+\c@biburlnumpenalty=\count480
+\c@biburlucpenalty=\count481
+\c@biburllcpenalty=\count482
 \biburlbigskip=\muskip18
 \biburlnumskip=\muskip19
 \biburlucskip=\muskip20
 \biburllcskip=\muskip21
-\c@smartand=\count489
+\c@smartand=\count483
 )
 Package biblatex Info: Trying to load bibliography style 'alphabetic'...
 Package biblatex Info: ... file 'alphabetic.bbx' found.
@@ -938,8 +909,8 @@ Package biblatex Info: Trying to load bibliography style 'standard'...
 Package biblatex Info: ... file 'standard.bbx' found.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/biblatex/bbx/standard.bbx
 File: standard.bbx 2024/03/21 v3.20 biblatex bibliography style (PK/MW)
-\c@bbx:relatedcount=\count490
-\c@bbx:relatedtotal=\count491
+\c@bbx:relatedcount=\count484
+\c@bbx:relatedtotal=\count485
 ))
 Package biblatex Info: Trying to load citation style 'alphabetic'...
 Package biblatex Info: ... file 'alphabetic.cbx' found.
@@ -967,8 +938,8 @@ Package biblatex Info: Document encoding is UTF8 ....
 Package: expl3 2024-04-11 L3 programming layer (loader) 
  (/usr/local/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-04-11 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count492
-\l__pdf_internal_box=\box92
+\l__color_backend_stack_int=\count486
+\l__pdf_internal_box=\box91
 ))
 Package biblatex Info: ... and expl3
 (biblatex)             2024-04-11 L3 programming layer (loader) 
@@ -981,31 +952,31 @@ Package: blx-case-expl3 2024/03/21 v3.20 expl3 case changing code for biblatex
 ))
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\\' on input line 84.
+(hyperref)                removing `\\' on input line 87.
 
-\@quotelevel=\count493
-\@quotereset=\count494
+\@quotelevel=\count487
+\@quotereset=\count488
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1043,24 +1014,24 @@ LaTeX Font Info:    ... okay on input line 96.
 
 (/usr/local/texlive/2024/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count495
-\scratchdimen=\dimen327
-\scratchbox=\box93
-\nofMPsegments=\count496
-\nofMParguments=\count497
-\everyMPshowfont=\toks55
-\MPscratchCnt=\count498
-\MPscratchDim=\dimen328
-\MPnumerator=\count499
-\makeMPintoPDFobject=\count500
-\everyMPtoPDFconversion=\toks56
+\scratchcounter=\count489
+\scratchdimen=\dimen323
+\scratchbox=\box92
+\nofMPsegments=\count490
+\nofMParguments=\count491
+\everyMPshowfont=\toks54
+\MPscratchCnt=\count492
+\MPscratchDim=\dimen324
+\MPnumerator=\count493
+\makeMPintoPDFobject=\count494
+\everyMPtoPDFconversion=\toks55
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 96.
+Package hyperref Info: Link coloring ON on input line 101.
  (./main.out) (./main.out)
 \@outlinefile=\write6
 \openout6 = `main.out'.
@@ -1080,8 +1051,6 @@ Dictionary: translator-theorem-dictionary, Language: English
 )
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
-Package caption Info: floatrow package is loaded.
-Package caption Info: floatrow package is loaded.
 Package caption Info: End \AtBeginDocument code.
 Package biblatex Info: Trying to load language 'english'...
 Package biblatex Info: ... file 'english.lbx' found.
@@ -1094,18 +1063,29 @@ Package biblatex Info: Automatic encoding selection.
 \openout5 = `main.bcf'.
 
 Package biblatex Info: Trying to load bibliographic data...
-Package biblatex Info: ... file 'main.bbl' found.
- (./main.bbl)
-Package biblatex Info: Reference section=0 on input line 96.
-Package biblatex Info: Reference segment=0 on input line 96.
- (./main.nav)
-Overfull \vbox (44.55656pt too high) detected at line 98
+Package biblatex Info: ... file 'main.bbl' not found.
+
+No file main.bbl.
+Package biblatex Info: Reference section=0 on input line 101.
+Package biblatex Info: Reference segment=0 on input line 101.
+(./main.nav)
+<figures/logo_ucl.jpg, id=29, 597.432pt x 138.0357pt>
+File: figures/logo_ucl.jpg Graphic file (type jpg)
+<use figures/logo_ucl.jpg>
+Package pdftex.def Info: figures/logo_ucl.jpg  used on input line 103.
+(pdftex.def)             Requested size: 113.81102pt x 26.29445pt.
+
+Overfull \vbox (48.1945pt too high) detected at line 103
+ []
+
+
+Overfull \vbox (44.55656pt too high) detected at line 103
  []
 
 [1{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
-]
-LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 112.
+ <./figures/logo_ucl.jpg>]
+LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 117.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/base/ts1cmss.fd
 File: ts1cmss.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 ) [2
@@ -1119,10 +1099,10 @@ File: ts1cmss.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 ] [6
 
 ]
-<figures/diagram_qt_zoom_final.png, id=79, 987.69pt x 465.74pt>
+<figures/diagram_qt_zoom_final.png, id=76, 987.69pt x 465.74pt>
 File: figures/diagram_qt_zoom_final.png Graphic file (type png)
 <use figures/diagram_qt_zoom_final.png>
-Package pdftex.def Info: figures/diagram_qt_zoom_final.png  used on input line 153.
+Package pdftex.def Info: figures/diagram_qt_zoom_final.png  used on input line 158.
 (pdftex.def)             Requested size: 307.28987pt x 144.89668pt.
  [7
 
@@ -1157,150 +1137,170 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ] [18
 
 ]
-Overfull \hbox (33.65005pt too wide) detected at line 370
+Overfull \hbox (33.65005pt too wide) detected at line 391
 [][] 
- []
-
-
-Overfull \vbox (10.65079pt too high) detected at line 370
  []
 
 [19
 
-] [20
+]
+Overfull \hbox (33.65005pt too wide) detected at line 391
+[][] 
+ []
+
+[20
 
 ]
-Overfull \hbox (16.82503pt too wide) detected at line 413
+Overfull \hbox (33.65005pt too wide) detected at line 391
 [][] 
  []
 
 [21
 
-] (./main.toc) [22
+]
+Overfull \hbox (33.65005pt too wide) detected at line 391
+[][] 
+ []
+
+[22
 
 ]
-<figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png, id=194, 419.166pt x 327.624pt>
-File: figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png Graphic file (type png)
-<use figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png>
-Package pdftex.def Info: figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png  used on input line 428.
-(pdftex.def)             Requested size: 215.10196pt x 168.12584pt.
- [23
-
- <./figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png (PNG copy)>]
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png, id=200, 419.166pt x 327.624pt>
-File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png Graphic file (type png)
-<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png  used on input line 479.
-(pdftex.def)             Requested size: 116.77164pt x 91.26917pt.
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png, id=201, 419.166pt x 327.624pt>
-File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png Graphic file (type png)
-<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png  used on input line 479.
-(pdftex.def)             Requested size: 116.77164pt x 91.26917pt.
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png, id=202, 419.166pt x 327.624pt>
-File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png Graphic file (type png)
-<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png  used on input line 479.
-(pdftex.def)             Requested size: 116.77164pt x 91.26917pt.
-
-Underfull \hbox (badness 3646) in paragraph at lines 479--479
-[]\OT1/cmss/m/n/10.95 Projected Langevin con-
+Overfull \hbox (33.65005pt too wide) detected at line 391
+[][] 
  []
 
+[23
 
-Underfull \hbox (badness 7540) in paragraph at lines 479--479
-\OT1/cmss/m/n/10.95 ac-cu-rate for higher $\OML/cmm/m/it/10.95 n$\OT1/cmss/m/n/10.95 !
- []
+] [24
 
-
-Overfull \vbox (35.21143pt too high) detected at line 479
- []
-
-[24
-
- <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png (PNG copy)>]
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png, id=210, 419.166pt x 327.624pt>
-File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png Graphic file (type png)
-<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png  used on input line 535.
-(pdftex.def)             Requested size: 122.91406pt x 96.06833pt.
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png, id=211, 419.166pt x 327.624pt>
-File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png Graphic file (type png)
-<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png  used on input line 535.
-(pdftex.def)             Requested size: 122.91406pt x 96.06833pt.
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png, id=212, 425.4294pt x 327.624pt>
-File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png Graphic file (type png)
-<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png  used on input line 535.
-(pdftex.def)             Requested size: 122.91406pt x 94.65358pt.
-
-Underfull \hbox (badness 4479) in paragraph at lines 535--535
-[]\OT1/cmss/m/n/10.95 When $\OML/cmm/m/it/10.95 n$ \OT1/cmss/m/n/10.95 in-creases, the
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 535--535
-\OT1/cmss/m/n/10.95 com-pu-ta-tion time does
- []
-
-
-Overfull \vbox (35.79083pt too high) detected at line 535
+]
+Overfull \hbox (16.82503pt too wide) detected at line 432
+[][] 
  []
 
 [25
 
- <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png (PNG copy)>] [26
+]
+Overfull \hbox (16.82503pt too wide) detected at line 432
+[][] 
+ []
+
+[26
 
 ]
-<figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png, id=229, 421.0932pt x 327.624pt>
-File: figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png Graphic file (type png)
-<use figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png>
-Package pdftex.def Info: figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png  used on input line 562.
-(pdftex.def)             Requested size: 215.10196pt x 167.36096pt.
-
-Overfull \vbox (9.02406pt too high) detected at line 562
+Overfull \hbox (16.82503pt too wide) detected at line 432
+[][] 
  []
 
 [27
 
+] (./main.toc) [28
+
+]
+<figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png, id=216, 419.166pt x 327.624pt>
+File: figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png Graphic file (type png)
+<use figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png>
+Package pdftex.def Info: figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png  used on input line 448.
+(pdftex.def)             Requested size: 215.10196pt x 168.12584pt.
+ [29
+
+ <./figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png (PNG copy)>]
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png, id=222, 419.166pt x 327.624pt>
+File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png Graphic file (type png)
+<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png>
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png  used on input line 492.
+(pdftex.def)             Requested size: 150.57372pt x 117.68959pt.
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png, id=223, 419.166pt x 327.624pt>
+File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png Graphic file (type png)
+<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png>
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png  used on input line 492.
+(pdftex.def)             Requested size: 150.57372pt x 117.68959pt.
+ [30
+
+ <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png (PNG copy)>]
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png, id=233, 419.166pt x 327.624pt>
+File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png Graphic file (type png)
+<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png>
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png  used on input line 506.
+(pdftex.def)             Requested size: 215.10196pt x 168.12584pt.
+ [31
+
+ <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png (PNG copy)>]
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png, id=240, 419.166pt x 327.624pt>
+File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png Graphic file (type png)
+<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png>
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png  used on input line 540.
+(pdftex.def)             Requested size: 150.57372pt x 117.68959pt.
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png, id=241, 425.4294pt x 327.624pt>
+File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png Graphic file (type png)
+<use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png>
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png  used on input line 540.
+(pdftex.def)             Requested size: 150.57372pt x 115.95488pt.
+ [32
+
+ <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png (PNG copy)>] [33
+
+]
+<figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png, id=255, 421.0932pt x 327.624pt>
+File: figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png Graphic file (type png)
+<use figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png>
+Package pdftex.def Info: figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png  used on input line 567.
+(pdftex.def)             Requested size: 215.10196pt x 167.36096pt.
+
+Overfull \vbox (2.49907pt too high) detected at line 567
+ []
+
+[34
+
  <./figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png (PNG copy)>]
-<figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png, id=235, 419.166pt x 328.5876pt>
+<figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png, id=261, 419.166pt x 328.5876pt>
 File: figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png Graphic file (type png)
 <use figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png>
-Package pdftex.def Info: figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png  used on input line 602.
+Package pdftex.def Info: figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png  used on input line 607.
 (pdftex.def)             Requested size: 215.10196pt x 168.62033pt.
 
-Overfull \vbox (17.8876pt too high) detected at line 602
+Overfull \vbox (11.36261pt too high) detected at line 607
  []
 
-[28
+[35
 
  <./figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png (PNG copy)>]
-<figures/experiments/rank_info/rank_known-1.png, id=241, 436.9926pt x 328.5876pt>
+<figures/experiments/rank_info/rank_known-1.png, id=267, 436.9926pt x 328.5876pt>
 File: figures/experiments/rank_info/rank_known-1.png Graphic file (type png)
 <use figures/experiments/rank_info/rank_known-1.png>
-Package pdftex.def Info: figures/experiments/rank_info/rank_known-1.png  used on input line 642.
+Package pdftex.def Info: figures/experiments/rank_info/rank_known-1.png  used on input line 647.
 (pdftex.def)             Requested size: 150.57372pt x 113.22244pt.
-<figures/experiments/rank_info/rank_not_known-1.png, id=242, 436.9926pt x 328.5876pt>
+<figures/experiments/rank_info/rank_not_known-1.png, id=268, 436.9926pt x 328.5876pt>
 File: figures/experiments/rank_info/rank_not_known-1.png Graphic file (type png)
 <use figures/experiments/rank_info/rank_not_known-1.png>
-Package pdftex.def Info: figures/experiments/rank_info/rank_not_known-1.png  used on input line 642.
+Package pdftex.def Info: figures/experiments/rank_info/rank_not_known-1.png  used on input line 647.
 (pdftex.def)             Requested size: 150.57372pt x 113.22244pt.
+ [36
 
-Overfull \vbox (4.38788pt too high) detected at line 642
- []
+ <./figures/experiments/rank_info/rank_known-1.png (PNG copy)> <./figures/experiments/rank_info/rank_not_known-1.png (PNG copy)>] [37
 
-[29
-
- <./figures/experiments/rank_info/rank_known-1.png (PNG copy)> <./figures/experiments/rank_info/rank_not_known-1.png (PNG copy)>] [30
+] [38
 
 ]
 
-LaTeX Font Warning: Font shape `OT1/cmss/m/sc' in size <10> not available
-(Font)              Font shape `OT1/cmr/m/sc' tried instead on input line 656.
+LaTeX Warning: Empty bibliography on input line 667.
 
-[31
+[39
+
+]
+Overfull \vbox (6.80289pt too high) detected at line 689
+ []
+
+[40
+
+]
+Overfull \hbox (18.4931pt too wide) detected at line 707
+[]\OML/cmm/m/it/10.95 f[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 Y; \OT1/cmr/bx/n/10.95 D\OT1/cmr/m/n/10.95 ) = \OML/cmm/m/it/10.95 ^^U []\OT1/cmr/m/n/10.95 ([] \OMS/cmsy/m/n/10.95 ^^@ []\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 A[]YY[]\OT1/cmr/m/n/10.95 ))[] + [] [] [](\OML/cmm/m/it/10.95 ^^R[]I[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 YY[]\OT1/cmr/m/n/10.95 )
+ []
+
+[41
+
+] [42
 
 ]
 \tf@nav=\write7
@@ -1318,24 +1318,24 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-04-11>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: F7755926B958C96BC15BE392C9AE1023;848.
+(rerunfilecheck)             Checksum: ABC75BD4F0AE950A17DE60C6AB08A101;755.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 35613 strings out of 474050
- 716249 string characters out of 5742269
+ 34899 strings out of 474050
+ 702956 string characters out of 5742269
  1936751 words of memory out of 5000000
- 57333 multiletter control sequences out of 15000+600000
- 576038 words of font info for 102 fonts, out of 8000000 for 9000
+ 56606 multiletter control sequences out of 15000+600000
+ 573368 words of font info for 92 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,20n,123p,1961b,1566s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
-Output written on main.pdf (31 pages, 652517 bytes).
+ 128i,20n,123p,1957b,803s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
+Output written on main.pdf (42 pages, 1499732 bytes).
 PDF statistics:
- 391 PDF objects out of 1000 (max. 8388607)
- 288 compressed objects within 3 object streams
- 80 named destinations out of 1000 (max. 500000)
- 143 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 431 PDF objects out of 1000 (max. 8388607)
+ 320 compressed objects within 4 object streams
+ 97 named destinations out of 1000 (max. 500000)
+ 135 words of extra memory for PDF output out of 10000 (max. 10000000)
 
