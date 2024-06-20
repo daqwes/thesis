@@ -6,3 +6,9 @@
 \beamer@slide {fig:rank-no-info-sub}{36}
 \beamer@slide {sub@fig:rank-no-info-sub}{36}
 \beamer@slide {fig:rank-info}{36}
+\beamer@slide {code:prob}{42}
+\beamer@slide {fig:rank-info-var-theta-sub}{47}
+\beamer@slide {sub@fig:rank-info-var-theta-sub}{47}
+\beamer@slide {fig:rank-no-info-var-theta-sub}{47}
+\beamer@slide {sub@fig:rank-no-info-var-theta-sub}{47}
+\beamer@slide {fig:rank-info-var-theta}{47}

@@ -32,7 +32,8 @@
 \usepackage[
 backend=biber,
 style=alphabetic,
-sorting=ynt
+sorting=ynt,
+maxnames=10
 ]{biblatex}
 
 \addbibresource{bibliography.bib}
@@ -129,7 +130,7 @@ sorting=ynt
 
 \section{Brief introduction to Quantum tomography}
 \begin{frame}{Motivation behind Quantum tomography}
-    Quantum tomography is a process to reconstruct the quantum state of a system.\medbreak
+    Quantum tomography is a process to reconstruct the state of a quantum system.\medbreak
     There are some challenges to consider: 
     \begin{itemize}
         \item Quantum systems are inherently probabilistic
@@ -167,17 +168,35 @@ sorting=ynt
         \item $p(m)$ the probability of occurence  of $m$
         \item $P_m$ the projector matrix associated to the eigenvalue $m$ of an \textit{observable} $O$
         \item $\rho$ the \textit{density matrix} representing the quantum state 
-    \end{itemize}\medbreak
+    \end{itemize}
+    % For example, we could have 
+    % \begin{equation}
+    %     p(1) = \tr\begin{pmatrix}
+    %         \rho_{11} & \rho_{12}\\
+    %         \rho_{21} & \rho_{22}
+    %     \end{pmatrix}\begin{pmatrix}
+    %         1 & 0\\
+    %         0 & 1
+    %     \end{pmatrix}
+    % \end{equation}
+    
     The size of $\rho$ is  $2^n \times 2^n$ with $n$ the number of qubits.
 \end{frame}
 \begin{frame}{Quantum tomography: mathematical description (2)}
     If we flatten the matrices
+
+    \begin{equation}
+        \vec P = \begin{bmatrix}
+            P_{11} & P_{12} & \cdots
+        \end{bmatrix}
+    \end{equation}
+
     \begin{equation}
         A = \begin{bmatrix}
-            P_{11} & P_{12} & P_{13} \cdots\\
-            P_{21} & P_{22} & P_{23} \cdots\\
-            \vdots & \vdots & \vdots \\
-            P_{m1} & P_{m2} & P_{m3} \cdots
+            \vec P_{1}\\
+            \vec P_{2}\\
+            \vec P_{3}\\
+            \vdots  \\
         \end{bmatrix}
         \quad\vec{\rho} = \begin{bmatrix}
             \rho_{11} \\
@@ -198,7 +217,7 @@ sorting=ynt
             \hat \rho = (A^TA)^{-1}A^T \hat p
         \end{equation}
         \item Optimization-based methods: \begin{equation}
-            \hat \rho = \text{argmin}_{\vec\rho} ||A \vec\rho - \hat p||
+            \hat \rho = \text{argmin}_{\vec\rho} ||A \vec\rho - \hat p||_2
         \end{equation} 
         \item Pauli basis expansion:\begin{equation}
             \hat \rho = \sum_{b\in\{I,x,y,z\}^n} \rho_b \sigma_b
@@ -238,7 +257,7 @@ sorting=ynt
     Recall that each term is a distribution!\medbreak
     In the context of Quantum tomography:
     \begin{itemize}
-        \item Likelihood $\pi(\mb D|\rho) = \exp(-||A \vec\rho - \hat p||)$
+        \item Likelihood $\pi(\mb D|\rho) = \exp(-||A \vec\rho - \hat p||_2^2)$
         \item Prior $\pi(\rho)$ is method specific
         % \item Posterior $\pi (\rho|\mb D)$ corresponds to a distribution over density matrices $\rho$ after being fitted on the data
     \end{itemize}
@@ -320,8 +339,13 @@ sorting=ynt
 \end{frame}
 \section{Main algorithms}
 \begin{frame}{Prob-estimator: prior}
+    % \begin{block}{Reference paper}
+    %     \fullcite{MA17}
+    % \end{block}
+
     % Introduced in \cite{MA17}, it combines Metropolis-within-Gibbs sampling with a low-rank prior.
     \begin{itemize}
+        \item Introduced by Mai and Alquier in 2017 \cite{MA17}
         \item Sum of rank-1 matrices: \[\rho = \sum_{i=1}^{d} \gamma_i V_i {V_i}^\dagger\]
         \item The prior $\pi_1(\gamma_1 \dots \gamma_d)$ is a Dirichlet distribution. A typical draw leads to a sparse vector.
         \begin{equation*}
@@ -331,7 +355,7 @@ sorting=ynt
         \end{equation*}
         \item The prior $\pi_2(V_i)$ is a unit sphere distribution
         \begin{equation*}
-            ||V_i|| = 1
+            \|V_i\|_2 = 1 
         \end{equation*}
     \end{itemize}
 \end{frame}
@@ -393,13 +417,14 @@ sorting=ynt
     % Introduced in \cite{ACMT2024}, it combines the Unadjusted Langevin algorithm with a \textit{different} low-rank prior.
     
     \begin{itemize}
+        \item Introduced by Adel, Chrétien, Massart, Thompson in 2024 \cite{ACMT2024}
         \item Burer-Monteiro factorization: $\rho = YY^\dagger$, with rank$(Y)=r$ 
         \item Low-rank prior: spectral scaled Student-t distribution
         % \begin{equation}
         %     \pi(Y) = C_\theta \det(\theta^2I_d + YY^\dagger)^{-(2d+r+2)/2}
         % \end{equation}
         \begin{equation}
-            \pi(Y) = \prod_{j=1}^r (\theta^2 + \smash{\underbrace{s_j(Y)^2}_{j\text{th eigenvalue of } Y}})^{-(2d+r+2)/2}
+            \pi(Y) = \prod_{j=1}^r (\theta^2 + \smash{\underbrace{s_j(Y)^2}_{j\text{th singular value of } Y}})^{-(2d+r+2)/2}
         \end{equation}
         \item Promotes sparsity among the eigenvalues leading to a low rank
         \item Very similar to the Student-t distribution
@@ -434,7 +459,7 @@ sorting=ynt
 
 
 \begin{frame}{Convergence plot}
-    
+Note: the error corresponds to $||\rho - \hat \rho||_2^2$
 \begin{figure}[H]
     %experiments/iterations_no_avg_sep_prob_pl_mhs_mhgs
         \centering
@@ -665,6 +690,7 @@ $\Longrightarrow$ Projected Langevin converges faster for $n=3$ qubits
 \begin{frame}{References}
     \printbibliography
 \end{frame}
+
 \begin{frame}{Prob-estimator: full}
     It can be seen as eigendecomposition, without the orthogonality property:
     \begin{equation}
@@ -703,16 +729,279 @@ $\Longrightarrow$ Projected Langevin converges faster for $n=3$ qubits
     with \begin{equation}
         f_{\lambda, \theta}(Y, \mb D) = \lambda \sum^{M}_{i=1} (\hat p_m - \tr(A_mYY^\dagger))^2 + \cfrac{2d + r + 2}{2}\log \det(\theta^2I_d + YY^\dagger)
     \end{equation} 
+\end{frame}
 
-\end{frame}
-\begin{frame}{Potential future experiments}
-    \begin{itemize}
-        \item Try experiemnts with more qubits to draw more robust conclusions
-        \item Test with other algorithms and priors to see if its a property of this prior in particular, or it generalizes (The calculation of the graidient is going to be more costly in all cases)
-        \item Try to use HMC to see if it still converges as fast for higher dimensions
-    \end{itemize}
+\begin{frame}{Prob-estimator: full algorithm}
+    \begin{algorithm}[H]\label{code:prob}
+
+        \DontPrintSemicolon
     
+    
+        $\gamma^{(0)} \in \mathbb{R}^{d\times1} \gets Y^{(0)} /(\sum_{i=1}^d Y_i^{(0)})$\;
+    
+        \For{$t\gets 1:T$}{
+    
+        $Y^{(t)} \gets Y^{(t-1)}$\;
+    
+    
+                \For{$i\gets 1:d$}{
+    
+                $\tilde Y \gets Y^{(t)}$\;
+    
+                Sample $y \sim U(-0.5, 0.5)$\;
+    
+                $\tilde Y_i \gets Y_i^{(t)} \exp (y)$ \;
+    
+                $\tilde \gamma \gets \tilde Y /(\sum_{j=1}^d \tilde Y_j)$\;
+    
+                $Y_i^{(t)} \gets \begin{cases}
+    
+                    \tilde Y_i \hspace{0.96cm} \text{with probability} \min\{R(\tilde Y, Y^{(t)}, \tilde \gamma, \gamma^{(t)}, V^{(t-1)}, \lambda, \alpha), 1\} \tcp*[l]{$R$ defined below}\\
+    
+                    Y_i^{(t)} \hspace{0.63cm}\text{otherwise}
+    
+                \end{cases}$
+    
+                $\gamma^{(t)} \gets Y^{(t)} /(\sum_{k=1}^d Y_k^{(t)})$ 
+    
+                }
+    
+                \;
+    
+                $V^{(t)} \gets V^{(t-1)}$\;
+    
+                \tcp*[l]{Update $V$}
+    
+               
+    
+                \For{$i\gets 1:d$}{
+    
+                $\tilde V \gets V^{(t)}$\;
+    
+                Sample $V \sim N(\mathbf{0}, \mathbf{I})$\;
+    
+         
+    
+                $\tilde V_i \gets (V + V_i^{(t)})/||V + V_i^{(t)}||_2$\tcp*[l]{Sample from the unit sphere}
+    
+               
+    
+                $V_i^{(t)} \gets \begin{cases}
+    
+                    \tilde V_i \hspace{0.96cm} \text{with probability} \min\{A(\tilde V, V^{(t)}, \gamma^{(t)}, \lambda), 1\} \tcp*[l]{$A$ defined below}\\
+    
+                    V_i^{(t)} \hspace{0.63cm}\text{otherwise}
+    
+                \end{cases}$
+    
+            }
+    
+            \;
+    
+            \tcp*[l]{Compute a running average estimate}
+    
+            $\hat \rho \gets \frac{1}{t}\sum_{i=1}^{d} \gamma_i^{(t)} V_i^{(t)} (V_i^{(t)})^\dagger  + (1 - \frac{1}{t})\hat \rho $
+    
+        }
+    
+        \caption{Prob-estimator algorithm}
+    
+    \end{algorithm}\medbreak
 \end{frame}
+
+\begin{frame}{Projected Langevin: full algorithm}
+    \begin{algorithm}[H]
+
+        \DontPrintSemicolon
+    
+        \SetKwInOut{Input}{Input}
+    
+        \SetKwInOut{Output}{Output}
+    
+    
+        %\underline{Prob-estimator}\;
+    
+        \Input{$T \in \mathbb{N}, Y^{(0)} \in \mathbb{C}^{d \times r}, \{\eta^{(k)} | k\in 1\dots T\}, \beta \in \mathbb{R}, \theta \in \mathbb{R}, \lambda \in \mathbb{R}$}
+    
+        \Output{$\tilde Y \in \mathbb{R}^{2d\times 2r}$}
+    
+        $\tilde Y^{(0)} \gets \psi(Y^{(0)})$\;
+    
+        \For{$k\gets 1:T$}{
+    
+            $w^{(k)}_R, w^{(k)}_I \sim N(0, 1)^{d\times r}$\tcp*[l]{Sample from the standard normal of size ${d\times r}$}
+    
+            $w^{(k)} \gets w^{(k)}_R + i w^{(k)}_I$\;
+    
+            $\tilde w^{(k)} \gets \psi(w^{(k)})$\;
+    
+            $\tilde Y^{(k)} \gets \tilde Y^{(k-1)} - \eta^{(k)} \nabla f  (\tilde Y^{(k-1)}, \theta, \lambda) + \cfrac{\sqrt{2\eta^{(k)}}}{\beta} \tilde w^{(k)}$\;
+    
+            $\tilde Y \gets \frac{1}{k} \tilde Y^{(k)} + (1 - \frac{1}{k})\tilde Y$\;
+    
+        }
+    
+        \caption{Projected Langevin algorithm}
+    
+    \end{algorithm}\medbreak
+\end{frame}
+\begin{frame}{MHS algorithm}
+    \begin{algorithm}[H]
+        \DontPrintSemicolon
+
+    
+        \For{$k\gets 1:T$}{
+    
+            Sample $\tilde Y^* \sim p_1(\tilde Y|\tilde Y^{(k-1)})$\;
+    
+            Sample $u \sim U(0, 1)$\;
+    
+            $\alpha \gets \min\left\{\log A_1(\tilde Y^*, \tilde Y^{(k-1)}, \theta, \lambda), \log(1)\right\}$\;
+    
+            \eIf{$\log(u) \leq \alpha$}{
+    
+                \tcp*[l]{Accept $\tilde Y^*$}
+    
+                $\tilde Y^{(k)} \gets \tilde Y^*$
+    
+            }{
+    
+                \tcp*[l]{Reject $\tilde Y^*$}
+    
+                $\tilde Y^{(k)} \gets \tilde Y^{(k-1)}$
+    
+            }
+    
+            $\tilde Y \gets \frac{1}{k} \tilde Y^{(k)} + (1 - \frac{1}{k})\tilde Y$\;
+    
+        }
+    
+        \caption{Metropolis-Hastings with Student-t prior}
+    
+    \end{algorithm}
+\end{frame}
+\begin{frame}{MHGS algorithm}
+    \begin{algorithm}[H]
+
+        \DontPrintSemicolon
+    
+    
+        \For{$k\gets 1:T$}{
+    
+            $\tilde Y^{(k)} \gets \tilde Y^{(k-1)}$\;
+    
+            \For{$i\gets 1:2d$}{
+    
+                \For{$j\gets 1:2r$}{
+    
+                    Sample $y^* \sim p_2(y|\tilde Y^{(k)}_{ij})$\;
+    
+                    Sample $u \sim U(0, 1)$\;
+    
+                    $\alpha \gets \min\left\{\log A_2(y^*, \tilde Y^{(k)}_{ij}, \theta, \lambda), \log(1)\right\}$\;
+    
+                    \eIf{$\log(u) \leq \alpha$}{
+    
+    
+                        $\tilde Y^{(k)}_{ij} \gets y^*$
+    
+                    }{
+    
+    
+                        $\tilde Y^{(k)}_{ij} \gets \tilde Y^{(k)}_{ij}$
+    
+                    }
+    
+                }
+    
+            }
+        
+        }
+    
+    
+    \end{algorithm}\medbreak
+\end{frame}
+\begin{frame}{Impact of shots: prob-estimator}
+    \begin{figure}[H]
+        %experiments/shots_lambda_prob_with_var_lambda
+        \centering
+        \includegraphics[width=0.7\textwidth]{figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png}
+        \caption{Impact of the number of used shots on the error with varying parameter $\lambda$ for the prob-estimator with $n=3$}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Impact of knowing the rank}
+    \begin{figure}[H]
+
+        \centering
+    
+        \begin{subfigure}[b]{0.49\textwidth}
+    
+            % experiments/rank_known_var_theta_pl
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/rank_info/rank_known_var_theta_pl-1.png}
+    
+            \caption{Rank of $\rho$ known}
+    
+            \label{fig:rank-info-var-theta-sub}
+    
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.49\textwidth}
+    
+            % experiments/rank_not_known_var_theta_pl
+    
+            \centering
+    
+            \includegraphics[width=\textwidth]{figures/experiments/rank_info/rank_not_known_var_theta_pl-1.png}
+    
+            \caption{Rank of $\rho$ not known}
+    
+            \label{fig:rank-no-info-var-theta-sub}
+    
+        \end{subfigure}
+    
+        \caption{Rank knowledge plot for $n=3$ and different combinations of $\theta$}
+    
+        \label{fig:rank-info-var-theta}
+    
+    \end{figure}    
+\end{frame}
+\begin{frame}{Physics aspects}
+    \begin{itemize}
+        \item Wave function collapse
+        \item Heisenberg uncertainty principle
+        \item No-cloning theorem
+    \end{itemize}
+\end{frame}
+\begin{frame}{Questions and answers}
+    \begin{itemize}
+        \item Why do you think that Projected Langevin converges faster?\\
+        It is simply a property of the algorithm, langevin converges faster due to the use of the posterior
+        \item Why do you say that the posterior is costly to calculate?\\
+        Because it involves a matrix inversion, which is costly. Even though the authors use a trick, it is still expensive to calculate.
+        \item Why do you think the prob-estimator is slow?\\
+        Again, property of the method. The fact that we iterate over each dimesion reduces the speed.
+        \item Why on the graph with the rank of $\rho$, we see that the error for a low rank is lower ?
+        Probably comes from the fact that we use a low rank prior. I agree that intuitively it makes sense for higher ranks to be approximated better, as by sampling random values, chances are that the resulting approximation will be of full rank.
+    \end{itemize}
+\end{frame}
+\begin{frame}{Questions and answers (2)}
+    \begin{itemize}
+        \item Why do you think mhgs works better?
+        Perhaps due to the fact that it iterates over the dimensions a la gibbs, and this results in a better accuracy, similar to the prob-estimator
+    \end{itemize}
+\end{frame}
+% \begin{frame}{Potential future experiments}
+%     \begin{itemize}
+%         \item Try experiemnts with more qubits to draw more robust conclusions
+%         \item Test with other algorithms and priors to see if its a property of this prior in particular, or it generalizes (The calculation of the graidient is going to be more costly in all cases)
+%         \item Try to use HMC to see if it still converges as fast for higher dimensions
+%     \end{itemize}
+    
+% \end{frame}
 
 \end{document}
 

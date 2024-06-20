@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.10)  19 JUN 2024 23:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.5.10)  20 JUN 2024 23:28
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/daniel/Documents/thesis/report/presentation/main
+**/home/daniel/Documents/thesis/report/presentation/main.tex
 (/home/daniel/Documents/thesis/report/presentation/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-04-11>
@@ -952,31 +952,31 @@ Package: blx-case-expl3 2024/03/21 v3.20 expl3 case changing code for biblatex
 ))
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\\' on input line 87.
+(hyperref)                removing `\\' on input line 88.
 
 \@quotelevel=\count487
 \@quotereset=\count488
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 101.
-LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1031,7 +1031,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 101.
+Package hyperref Info: Link coloring ON on input line 102.
  (./main.out) (./main.out)
 \@outlinefile=\write6
 \openout6 = `main.out'.
@@ -1063,29 +1063,28 @@ Package biblatex Info: Automatic encoding selection.
 \openout5 = `main.bcf'.
 
 Package biblatex Info: Trying to load bibliographic data...
-Package biblatex Info: ... file 'main.bbl' not found.
-
-No file main.bbl.
-Package biblatex Info: Reference section=0 on input line 101.
-Package biblatex Info: Reference segment=0 on input line 101.
-(./main.nav)
-<figures/logo_ucl.jpg, id=29, 597.432pt x 138.0357pt>
+Package biblatex Info: ... file 'main.bbl' found.
+ (./main.bbl)
+Package biblatex Info: Reference section=0 on input line 102.
+Package biblatex Info: Reference segment=0 on input line 102.
+ (./main.nav)
+<figures/logo_ucl.jpg, id=33, 597.432pt x 138.0357pt>
 File: figures/logo_ucl.jpg Graphic file (type jpg)
 <use figures/logo_ucl.jpg>
-Package pdftex.def Info: figures/logo_ucl.jpg  used on input line 103.
+Package pdftex.def Info: figures/logo_ucl.jpg  used on input line 104.
 (pdftex.def)             Requested size: 113.81102pt x 26.29445pt.
 
-Overfull \vbox (48.1945pt too high) detected at line 103
+Overfull \vbox (48.1945pt too high) detected at line 104
  []
 
 
-Overfull \vbox (44.55656pt too high) detected at line 103
+Overfull \vbox (44.55656pt too high) detected at line 104
  []
 
 [1{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
  <./figures/logo_ucl.jpg>]
-LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 117.
+LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 118.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/base/ts1cmss.fd
 File: ts1cmss.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 ) [2
@@ -1099,19 +1098,19 @@ File: ts1cmss.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 ] [6
 
 ]
-<figures/diagram_qt_zoom_final.png, id=76, 987.69pt x 465.74pt>
+<figures/diagram_qt_zoom_final.png, id=80, 987.69pt x 465.74pt>
 File: figures/diagram_qt_zoom_final.png Graphic file (type png)
 <use figures/diagram_qt_zoom_final.png>
-Package pdftex.def Info: figures/diagram_qt_zoom_final.png  used on input line 158.
+Package pdftex.def Info: figures/diagram_qt_zoom_final.png  used on input line 159.
 (pdftex.def)             Requested size: 307.28987pt x 144.89668pt.
  [7
 
  <./figures/diagram_qt_zoom_final.png>]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 172.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 184.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 172.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 184.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [8
@@ -1137,35 +1136,35 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ] [18
 
 ]
-Overfull \hbox (33.65005pt too wide) detected at line 391
+Overfull \hbox (33.65005pt too wide) detected at line 415
 [][] 
  []
 
 [19
 
 ]
-Overfull \hbox (33.65005pt too wide) detected at line 391
+Overfull \hbox (33.65005pt too wide) detected at line 415
 [][] 
  []
 
 [20
 
 ]
-Overfull \hbox (33.65005pt too wide) detected at line 391
+Overfull \hbox (33.65005pt too wide) detected at line 415
 [][] 
  []
 
 [21
 
 ]
-Overfull \hbox (33.65005pt too wide) detected at line 391
+Overfull \hbox (33.65005pt too wide) detected at line 415
 [][] 
  []
 
 [22
 
 ]
-Overfull \hbox (33.65005pt too wide) detected at line 391
+Overfull \hbox (33.65005pt too wide) detected at line 415
 [][] 
  []
 
@@ -1174,21 +1173,21 @@ Overfull \hbox (33.65005pt too wide) detected at line 391
 ] [24
 
 ]
-Overfull \hbox (16.82503pt too wide) detected at line 432
+Overfull \hbox (16.82503pt too wide) detected at line 457
 [][] 
  []
 
 [25
 
 ]
-Overfull \hbox (16.82503pt too wide) detected at line 432
+Overfull \hbox (16.82503pt too wide) detected at line 457
 [][] 
  []
 
 [26
 
 ]
-Overfull \hbox (16.82503pt too wide) detected at line 432
+Overfull \hbox (16.82503pt too wide) detected at line 457
 [][] 
  []
 
@@ -1197,83 +1196,87 @@ Overfull \hbox (16.82503pt too wide) detected at line 432
 ] (./main.toc) [28
 
 ]
-<figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png, id=216, 419.166pt x 327.624pt>
+<figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png, id=224, 419.166pt x 327.624pt>
 File: figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png Graphic file (type png)
 <use figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png>
-Package pdftex.def Info: figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png  used on input line 448.
+Package pdftex.def Info: figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png  used on input line 473.
 (pdftex.def)             Requested size: 215.10196pt x 168.12584pt.
- [29
+
+Overfull \vbox (11.6728pt too high) detected at line 473
+ []
+
+[29
 
  <./figures/experiments/baseline/iters_acc_comp_iters_no_avg-1.png (PNG copy)>]
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png, id=222, 419.166pt x 327.624pt>
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png, id=230, 419.166pt x 327.624pt>
 File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png Graphic file (type png)
 <use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png  used on input line 492.
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png  used on input line 517.
 (pdftex.def)             Requested size: 150.57372pt x 117.68959pt.
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png, id=223, 419.166pt x 327.624pt>
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png, id=231, 419.166pt x 327.624pt>
 File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png Graphic file (type png)
 <use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png  used on input line 492.
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png  used on input line 517.
 (pdftex.def)             Requested size: 150.57372pt x 117.68959pt.
  [30
 
  <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n4-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_iters_no_avg_n5-1.png (PNG copy)>]
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png, id=233, 419.166pt x 327.624pt>
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png, id=241, 419.166pt x 327.624pt>
 File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png Graphic file (type png)
 <use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png  used on input line 506.
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png  used on input line 531.
 (pdftex.def)             Requested size: 215.10196pt x 168.12584pt.
  [31
 
  <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg-1.png (PNG copy)>]
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png, id=240, 419.166pt x 327.624pt>
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png, id=248, 419.166pt x 327.624pt>
 File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png Graphic file (type png)
 <use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png  used on input line 540.
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png  used on input line 565.
 (pdftex.def)             Requested size: 150.57372pt x 117.68959pt.
-<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png, id=241, 425.4294pt x 327.624pt>
+<figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png, id=249, 425.4294pt x 327.624pt>
 File: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png Graphic file (type png)
 <use figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png>
-Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png  used on input line 540.
+Package pdftex.def Info: figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png  used on input line 565.
 (pdftex.def)             Requested size: 150.57372pt x 115.95488pt.
  [32
 
  <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n4-1.png (PNG copy)> <./figures/experiments/baseline/diff_n_qubits/iters_acc_comp_time_no_avg_n5-1.png (PNG copy)>] [33
 
 ]
-<figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png, id=255, 421.0932pt x 327.624pt>
+<figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png, id=263, 421.0932pt x 327.624pt>
 File: figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png Graphic file (type png)
 <use figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png>
-Package pdftex.def Info: figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png  used on input line 567.
+Package pdftex.def Info: figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png  used on input line 592.
 (pdftex.def)             Requested size: 215.10196pt x 167.36096pt.
 
-Overfull \vbox (2.49907pt too high) detected at line 567
+Overfull \vbox (2.49907pt too high) detected at line 592
  []
 
 [34
 
  <./figures/experiments/mhs_mhgs/iters_acc_comp_iters_no_avg_sep_prob_pl_mhs_mhgs-1.png (PNG copy)>]
-<figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png, id=261, 419.166pt x 328.5876pt>
+<figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png, id=269, 419.166pt x 328.5876pt>
 File: figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png Graphic file (type png)
 <use figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png>
-Package pdftex.def Info: figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png  used on input line 607.
+Package pdftex.def Info: figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png  used on input line 632.
 (pdftex.def)             Requested size: 215.10196pt x 168.62033pt.
 
-Overfull \vbox (11.36261pt too high) detected at line 607
+Overfull \vbox (11.36261pt too high) detected at line 632
  []
 
 [35
 
  <./figures/experiments/shots/shots_acc_comp_shots_exp_loglog-1.png (PNG copy)>]
-<figures/experiments/rank_info/rank_known-1.png, id=267, 436.9926pt x 328.5876pt>
+<figures/experiments/rank_info/rank_known-1.png, id=275, 436.9926pt x 328.5876pt>
 File: figures/experiments/rank_info/rank_known-1.png Graphic file (type png)
 <use figures/experiments/rank_info/rank_known-1.png>
-Package pdftex.def Info: figures/experiments/rank_info/rank_known-1.png  used on input line 647.
+Package pdftex.def Info: figures/experiments/rank_info/rank_known-1.png  used on input line 672.
 (pdftex.def)             Requested size: 150.57372pt x 113.22244pt.
-<figures/experiments/rank_info/rank_not_known-1.png, id=268, 436.9926pt x 328.5876pt>
+<figures/experiments/rank_info/rank_not_known-1.png, id=276, 436.9926pt x 328.5876pt>
 File: figures/experiments/rank_info/rank_not_known-1.png Graphic file (type png)
 <use figures/experiments/rank_info/rank_not_known-1.png>
-Package pdftex.def Info: figures/experiments/rank_info/rank_not_known-1.png  used on input line 647.
+Package pdftex.def Info: figures/experiments/rank_info/rank_not_known-1.png  used on input line 672.
 (pdftex.def)             Requested size: 150.57372pt x 113.22244pt.
  [36
 
@@ -1283,24 +1286,88 @@ Package pdftex.def Info: figures/experiments/rank_info/rank_not_known-1.png  use
 
 ]
 
-LaTeX Warning: Empty bibliography on input line 667.
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/bx/n' instead on input line 692.
 
 [39
 
 ]
-Overfull \vbox (6.80289pt too high) detected at line 689
+Overfull \vbox (6.80289pt too high) detected at line 715
  []
 
 [40
 
 ]
-Overfull \hbox (18.4931pt too wide) detected at line 707
+Overfull \hbox (18.4931pt too wide) detected at line 732
 []\OML/cmm/m/it/10.95 f[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 Y; \OT1/cmr/bx/n/10.95 D\OT1/cmr/m/n/10.95 ) = \OML/cmm/m/it/10.95 ^^U []\OT1/cmr/m/n/10.95 ([] \OMS/cmsy/m/n/10.95 ^^@ []\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 A[]YY[]\OT1/cmr/m/n/10.95 ))[] + [] [] [](\OML/cmm/m/it/10.95 ^^R[]I[] \OT1/cmr/m/n/10.95 + \OML/cmm/m/it/10.95 YY[]\OT1/cmr/m/n/10.95 )
  []
 
 [41
 
-] [42
+]
+Overfull \hbox (169.31409pt too wide) in paragraph at lines 810--810
+[]$  
+ []
+
+
+Overfull \hbox (111.2473pt too wide) in paragraph at lines 810--810
+[]$  
+ []
+
+
+Overfull \vbox (304.04353pt too high) detected at line 810
+ []
+
+[42
+
+]
+Overfull \vbox (24.7281pt too high) detected at line 847
+ []
+
+[43
+
+]
+Overfull \vbox (17.39253pt too high) detected at line 882
+ []
+
+[44
+
+]
+Overfull \vbox (58.19191pt too high) detected at line 923
+ []
+
+[45
+
+]
+<figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png, id=338, 440.3652pt x 328.5876pt>
+File: figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png Graphic file (type png)
+<use figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png>
+Package pdftex.def Info: figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png  used on input line 931.
+(pdftex.def)             Requested size: 215.10196pt x 160.50293pt.
+ [46
+
+ <./figures/experiments/shots/shots_acc_comp_shots_exp_lambda_prob_with_var_lambda_loglog-1.png (PNG copy)>]
+<figures/experiments/rank_info/rank_known_var_theta_pl-1.png, id=344, 441.3288pt x 328.5876pt>
+File: figures/experiments/rank_info/rank_known_var_theta_pl-1.png Graphic file (type png)
+<use figures/experiments/rank_info/rank_known_var_theta_pl-1.png>
+Package pdftex.def Info: figures/experiments/rank_info/rank_known_var_theta_pl-1.png  used on input line 971.
+(pdftex.def)             Requested size: 150.57372pt x 112.10938pt.
+<figures/experiments/rank_info/rank_not_known_var_theta_pl-1.png, id=345, 453.3738pt x 328.5876pt>
+File: figures/experiments/rank_info/rank_not_known_var_theta_pl-1.png Graphic file (type png)
+<use figures/experiments/rank_info/rank_not_known_var_theta_pl-1.png>
+Package pdftex.def Info: figures/experiments/rank_info/rank_not_known_var_theta_pl-1.png  used on input line 971.
+(pdftex.def)             Requested size: 150.57372pt x 109.13116pt.
+ [47
+
+ <./figures/experiments/rank_info/rank_known_var_theta_pl-1.png (PNG copy)> <./figures/experiments/rank_info/rank_not_known_var_theta_pl-1.png (PNG copy)>] [48
+
+]
+Overfull \vbox (22.85294pt too high) detected at line 990
+ []
+
+[49
+
+] [50
 
 ]
 \tf@nav=\write7
@@ -1317,25 +1384,29 @@ Overfull \hbox (18.4931pt too wide) detected at line 707
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-04-11>
  ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: ABC75BD4F0AE950A17DE60C6AB08A101;755.
+(rerunfilecheck)             Checksum: F7755926B958C96BC15BE392C9AE1023;848.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 34899 strings out of 474050
- 702956 string characters out of 5742269
- 1936751 words of memory out of 5000000
- 56606 multiletter control sequences out of 15000+600000
- 573368 words of font info for 92 fonts, out of 8000000 for 9000
+ 35249 strings out of 474050
+ 711328 string characters out of 5742269
+ 1945751 words of memory out of 5000000
+ 56927 multiletter control sequences out of 15000+600000
+ 575670 words of font info for 102 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,20n,123p,1957b,803s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,28n,123p,1961b,1349s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
-Output written on main.pdf (42 pages, 1499732 bytes).
+Output written on main.pdf (50 pages, 1746309 bytes).
 PDF statistics:
- 431 PDF objects out of 1000 (max. 8388607)
- 320 compressed objects within 4 object streams
- 97 named destinations out of 1000 (max. 500000)
- 135 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 495 PDF objects out of 1000 (max. 8388607)
+ 373 compressed objects within 4 object streams
+ 122 named destinations out of 1000 (max. 500000)
+ 158 words of extra memory for PDF output out of 10000 (max. 10000000)
 
