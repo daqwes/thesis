@@ -35,8 +35,6 @@ def run_experiment(savefig=True):
             init_point = gen_init_point(d,d)
             As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
             for k in range(n_meas):
-                # TODO: it is not clear why this works better than `flatten(order="F")`
-                # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             _, rho_approx_prob, _ = run_MH(
                 n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed = None, init_point=init_point
@@ -55,7 +53,6 @@ def run_experiment(savefig=True):
     plt.figure()
     plt.semilogy(rho_ranks, accs_pl_avg, "-o", label="langevin")
     plt.semilogy(rho_ranks, accs_prob_avg, "-o", label="prob")
-    # plt.vlines(x=[n_burnin], ymin=0, ymax=0.1, color="r", label="end of burnin")
     plt.legend()
     plt.xlabel(r"Rank of $\rho$ [#]")
     plt.ylabel("$L_2$ squared error")
@@ -65,7 +62,6 @@ def run_experiment(savefig=True):
     plt.show()
     plt.close()
     if savefig:
-        # dump_run_information("rank_not_known", {"rank": list(rho_ranks), "acc_pl": accs_pl_avg, "acc_prob": accs_prob_avg})
         dump_run_information_from_tensors(accs_prob, accs_pl, {"d": list(rho_ranks), "samples": list(range(n_samples))}, "rank_not_known")
 
 if __name__ == "__main__":

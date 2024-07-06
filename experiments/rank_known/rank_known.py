@@ -37,8 +37,6 @@ def run_experiment(savefig=True):
             init_point_PL = gen_init_point(d, rho_rank)
             As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
             for k in range(n_meas):
-                # TODO: it is not clear why this works better than `flatten(order="F")`
-                # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             _, rho_approx_prob, _ = run_MH(
                 n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_MH
@@ -69,7 +67,6 @@ def run_experiment(savefig=True):
     plt.close()
     if savefig:
         dump_run_information_from_tensors(accs_prob, accs_pl, {"d": list(rho_ranks), "samples": list(range(n_samples))}, "rank_known")
-        # dump_run_information("rank_known", {"rank": list(rho_ranks),  "acc_pl": accs_pl_avg, "acc_prob": accs_prob_avg})
 
 if __name__ == "__main__":
     run_experiment()

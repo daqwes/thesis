@@ -50,6 +50,7 @@ def f(
     d, r = int(s1 / 2), int(s2 / 2)
     Y_rho_r_outer = Y_rho_r @ np.conj(Y_rho_r.T)
     y = np.trace(As_r_swap @ Y_rho_r_outer, axis1=1, axis2=2)
+    # Unoptimized version
     # y = np.zeros(n_meas)
     # for j in range(n_meas):
     #     y[j] = np.trace(As_r[:, :, j] @ (Y_rho_r @ np.conj(Y_rho_r.T)))
@@ -88,8 +89,9 @@ def gradf(
     p1 = 2 * np.sqrt(2) * lambda_ * \
         (y_hat - np.sqrt(2) * np.trace(As_r_swap @ Y_rho_r_outer, axis1=1, axis2=2))
     p2 = As_r_sum_swap @ Y_rho_r
-    # print(p1.shape, p2.shape)
+
     G = -np.sum(np.expand_dims(p1, (1, 2)) * p2, 0)
+    # Unoptimized version
     # for j in range(n_meas):
     #     G -= (2 * np.sqrt(2) * lambda_ * 
     #             (y_hat[j] - np.sqrt(2) * np.trace(As_r[:, :, j] @ Y_rho_r_outer))
@@ -101,6 +103,7 @@ def gradf(
     D, V = scipy.linalg.eigh(to_inv)
     A = (V * np.sqrt(D)) @ V.T
     
+    # Unoptimized version
     # A = sqrtm(to_inv)
     # A = np.real(A)
     # print(A.dtype)
@@ -161,8 +164,6 @@ def langevin(
         As_r_swap[j,:,:] = As_r[:,:,j]
         As_r_sum_swap[j,:,:] = As_r[:, :, j] + np.conj(As_r[:,:,j].T)
 
-
-    # Start training
     cost = np.zeros(n_iter + 1)
     n_rec = np.zeros(n_iter + 1)
     # Change Y_rho_r_record to Y_rho_record as they are complex
@@ -217,7 +218,7 @@ def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str|int, As: np.ndarray,
         _, r = init_point.shape
         Y_rho0 = init_point
     else:
-        r = d # TODO: change, not the most optimal way for the rank of the matrix
+        r = d
         Y_rho0 = gen_init_point(d, r)
     lambda_ = n_shots / 2
     if eta_shots_indep is not None:
@@ -252,7 +253,7 @@ def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str|int, As: np.ndarray,
             # print((M_avg - Y_rho_record[n_burnin + i]).abs().sum())
             Y_rho_record[n_burnin + i] = M_avg.copy()
     else:
-        M_avg = np.mean(Y_rho_record[n_burnin:,:,:], 0) # 
+        M_avg = np.mean(Y_rho_record[n_burnin:,:,:], 0)
     return Y_rho_record, M_avg, t_rec
 
 def main():
@@ -269,7 +270,6 @@ def main():
     rhos_pl, rho_avg_pl, cum_times_pl  = run_PL(n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=seed, running_avg=True)
     err = np.linalg.norm(rho_avg_pl - rho_true, "fro")
     print(err**2)
-
 
 
 if __name__ == "__main__":

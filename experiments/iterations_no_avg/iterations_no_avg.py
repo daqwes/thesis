@@ -29,8 +29,6 @@ def run_experiment(savefig=True):
     accs_pl = []
     As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
     for i in range(n_meas):
-        # TODO: it is not clear why this works better than `flatten(order="F")`
-        # as it is more correct to use the latter (similar to what is done in R)
         As_flat[i,:] = As[:,:,i].flatten(order="C")
     rhos_prob, _, cum_times_prob = run_MH(
         n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin

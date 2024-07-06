@@ -37,9 +37,6 @@ def main(savefig=True):
 
     for _, data in df.iterrows():
         # Header: lambda,shots,sample,acc_prob,acc_pl
-        # print(data)
-        # print(data["lambda"])
-        # exit(0)
         idx_lambda = rev_map_lambdas[int(data["lambda"])]
         idx_shot = rev_map_shots[int(data.shots)]
         idx_sample = int(data["sample"])

@@ -31,8 +31,6 @@ def run_experiment(savefig=True):
             rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_rank, seed=seed)
             As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
             for k in range(n_meas):
-                # TODO: it is not clear why this works better than `flatten(order="F")`
-                # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             _, rho_last_prob, _ = run_MH(n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin)
             _, rho_avg_pl, _  = run_PL(n, n_meas, n_shots, rho_rank, As, y_hat, n_iter, n_burnin)

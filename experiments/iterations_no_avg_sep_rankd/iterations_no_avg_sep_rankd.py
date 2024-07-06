@@ -38,11 +38,11 @@ def run_experiment(savefig=True):
         n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed = None, init_point = init_point
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point = init_point, eta_shots_indep=eta_shots_indep_PL
+        n, n_meas, n_shots, rho_type, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point = init_point, eta_shots_indep=eta_shots_indep_PL
     )
 
-    accs_prob = [0] * (n_iter)
-    accs_pl = [0] * (n_iter)
+    accs_prob = [0.0] * (n_iter)
+    accs_pl = [0.0] * (n_iter)
     for i in range(n_iter):
         accs_prob[i] = compute_error(rhos_prob[i, :, :], rho_true)
         accs_pl[i] = compute_error(rhos_pl[i, :, :], rho_true)

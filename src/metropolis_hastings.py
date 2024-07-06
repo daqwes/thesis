@@ -27,7 +27,7 @@ def norm_complex(arr: np.ndarray):
     else:
         return arr/np.sqrt((np.abs(arr)**2).sum())
 
-def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm: float, pkl: str|None, seed: int|None, n_iter: int = 500, n_burnin: int = 100) -> np.ndarray:
+def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm: float, pkl: str|None, seed: int|None, n_iter: int = 500, n_burnin: int = 100):
     """
     """
     if seed is not None:
@@ -35,11 +35,12 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
     d = 2**n
     rho = np.zeros((d, d), dtype=np.complex128)
     Te = random_standard_exponential(d, seed) # Initial Y_i^0
-    U = u_hat # eigenvectors of \hat(rho) found using inversion, initial V_i^0
-    Lamb = Te/Te.sum() # gamma^0
+    U = u_hat #initial V_i^0
+    # gamma^0
+    Lamb = Te/Te.sum() #type: ignore
     ro = 1/2
     be = 1
-    cum_times = [0] * (n_iter) 
+    cum_times = [0.0] * (n_iter) 
     rhos_record = np.zeros((n_iter, d, d), dtype=np.complex128)
     rhos_record[0,:,:] = u_hat
     start_time = time.perf_counter()
@@ -47,23 +48,26 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
     acc_count_V = 0
     for t in range(n_iter):
         for j in range(d): # Loop for Y_i
-            Te_can = Te.copy()
-            Te_can[j] = Te[j] * np.exp(be * random_uniform(-0.5, 0.5, 1, seed)) # \tilde(Y)_i = exp(y ~ U(-0.5, 0.5)) Y_i^t-1
+            Te_can = Te.copy() #type: ignore
+            # \tilde(Y)_i = exp(y ~ U(-0.5, 0.5)) Y_i^t-1
+            Te_can[j] = Te[j] * np.exp(be * random_uniform(-0.5, 0.5, 1, seed)) #type: ignore
             L_can = Te_can/Te_can.sum() # \tilde(gamma)_i = \tilde(Y_i)/sum_j^d(\tilde(Y_j))
             tem_can = (U @ np.diag(L_can) @ np.conj(U.T)).flatten(order="F") # gamma * U * U^T (U = V in paper)
             tem = (U @ np.diag(Lamb) @ np.conj(U.T)).flatten(order="F") # prev gamma * U * U^T
             ss1 = (Pra_m @ tem_can - p_as)**2  # l^prob: sum_a sum_s (Tr(v P^a_s) - hat(p^_a,s))^2
             ss2 = (Pra_m @ tem - p_as)**2
             ss = (ss1 - ss2).sum()
-            r_prior = (ro-1) * np.log(Te_can[j]/Te[j]) - Te_can[j] + Te[j] # other part of R acceptance ratio
+            # other part of R acceptance ratio
+            r_prior = (ro-1) * np.log(Te_can[j]/Te[j]) - Te_can[j] + Te[j] #type: ignore 
             ap = -gamm*np.real(ss) # other part (why use np.real?)
             if np.log(random_uniform(0, 1, 1, seed=seed)) <= ap + r_prior: 
                 Te = Te_can # if value above draw from U(0,1), then update
                 acc_count_gamma +=1
-            Lamb = Te/Te.sum() # gamma
+            # gamma
+            Lamb = Te/Te.sum() # type: ignore
         for j in range(d): # Loop for V_i
             U_can = U.copy()
-            rd_U = U[:,j] + random_multivariate_complex(np.zeros(d), np.eye(d), 1, seed)/100#np.random.multivariate_normal(np.zeros(d*2),np.eye(d*2)/100, size=(1)).view(np.complex128)
+            rd_U = U[:,j] + random_multivariate_complex(np.zeros(d), np.eye(d), 1, seed)/100
             U_can[:, j] = norm_complex(rd_U) # Sample U/V from the unit sphere (not sure why we add to previous value)
             tem_can = (U_can @ np.diag(Lamb) @ np.conj(U_can.T)).flatten(order="F") # gamma * U * U^T
             tem = (U @ np.diag(Lamb) @ np.conj(U.T)).flatten(order="F") # gamma * U_t-1 * U^T_t-1
@@ -83,7 +87,6 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
         cum_times[t] = time.perf_counter() - start_time
     ac_rate_gamma = acc_count_gamma / (n_iter * d)
     ac_rate_V = acc_count_V / (n_iter * d)
-    # print(ac_rate_gamma, ac_rate_V) 
     return rhos_record, rho, cum_times
 
 def run_MH(n: int, n_meas: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int|None|None = 0, init_point: np.ndarray|None = None, gamma: float|None = None):
@@ -123,15 +126,11 @@ def main():
     n_meas = d * d
     n_shots = 100000
     rho_type = "rank2"
-    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type)
+    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
 
     As_flat = np.zeros((4**n, 2**n * 2**n), dtype = np.complex128)
     for i in range(4**n):
-        # TODO: it is not clear why this works better than `flatten(order="F")`
-        # as it is more correct to use the latter (similar to what is done in R)
         As_flat[i,:] = As[:,:,i].flatten(order="C") 
-    
-    # rho_hat, u_hat = compute_rho_inversion(n, y_hat)
 
     gamm = n_shots/2 # lambda in paper
     n_iter = 2000
@@ -140,9 +139,6 @@ def main():
     rho_prob = MH_prob(n, y_hat, As_flat, u_hat, gamm, None, seed, n_iter, n_burnin)
     err = np.linalg.norm(rho_prob- rho_true, "fro")
     print(err**2)
-    # print(rho_true[:4, :4])
-    # print(rho_prob[:4, :4])
-    # print(y_hat.shape)
 
 def main_sep_data_gen():
     seed = 0

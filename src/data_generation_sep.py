@@ -29,7 +29,7 @@ def projectors_py(idx_list, r_):
     ret = np.array([np.outer(np.conj(ev), ev) for ev in selected_evs])
     return ret
 
-def random_uniform(low: float, high: float, size: tuple[int, ...], seed: int|None = None) -> np.ndarray | float: 
+def random_uniform(low: float, high: float, size: tuple[int, ...]|int, seed: int|None = None) -> np.ndarray | float: 
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -37,7 +37,7 @@ def random_uniform(low: float, high: float, size: tuple[int, ...], seed: int|Non
     else:
         return np.random.uniform(low, high, size)
 
-def random_multivariate_complex(mean: np.ndarray, cov: np.ndarray, size: tuple[int, ...], seed: int|None = None) -> np.ndarray:
+def random_multivariate_complex(mean: np.ndarray, cov: np.ndarray, size: tuple[int, ...]|int, seed: int|None = None) -> np.ndarray:
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -112,39 +112,6 @@ def get_observables_PL_format(n: int):
             idx = i + j*R
             Pra[:,:,idx] = functools.reduce(np.kron, projectors_py(a[j], r[i]))
     return Pra
-
-# def init_matrices(n: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-#     """Initializes all the matrices for the simulation of the data, the inversion method and for the prob-estimator
-#     Returns:
-#         Tuple[np.ndarray[A*R, d*d], np.ndarray[J, d*d], np.ndarray[I, J]]: Pra, sig_b, P_rab
-#     """
-#     A = 3**n
-#     R = 2**n
-#     J = 4**n
-#     I = 6**n
-#     b = np.array(list(itertools.product(range(4), repeat=n))) # {I, x, y, z}^n
-#     a = np.array(list(itertools.product(range(1, 4), repeat=n))) # {x,y,z}^n
-#     r = np.array(list(itertools.product([-1, 1], repeat=n)))
-
-#     # Corresponds to P^a_s in paper (each row here is a matrix), size: 2^n x 3^n flattened
-#     Pra = []
-#     for j in range(A):
-#         for i in range(R):
-#             Pra.append(np.array(functools.reduce(np.kron, projectors_py(a[j], r[i]))).flatten("F"))
-#     Pra = np.array(Pra)
-    
-#     sig_b = np.array([functools.reduce(np.kron, (basis[b[i,:], :, :])) for i in range(J)])
-#     P_rab = np.zeros((I, J))
-#     for j in range(J):
-#         tmp = np.zeros((R, A))
-#         for s in range(R):
-#             for l in range(A):
-#                 val = np.prod(r[s, b[j] != 0])\
-#                     * np.prod(a[l, b[j] != 0] == b[j, b[j]!=0])
-#                 tmp[s,l] = val
-#         P_rab[:, j] = tmp.flatten(order="F")
-
-#     return Pra, sig_b, P_rab, b, a, r
 
 def get_true_rho(n: int, rho_type: str = "rank1", seed=None) -> np.ndarray:
     """ Sample true rho 

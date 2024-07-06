@@ -1,7 +1,8 @@
 # Numerical comparison of MCMC methods for Quantum Tomography
 
 ## Author: Danila Mokeev
-This work was done in the context of a Master's thesis at Université Catholique de Louvain.
+
+This work was done in the context of a Master's thesis at Université Catholique de Louvain. It was supervised by Estelle Massart and Tameem Adel.
 ## Abstract
 Quantum Tomography is a process to reconstruct the state of a quantum system. By measuring replicas of the state, we can estimate the density matrix that represents it. Many methods exist to approximate the density matrix, including direct and optimization based approaches. In recent years however, Bayesian methods have emerged as a promising alternative thanks to their ability to incorporate prior information and quantify uncertainty. In this work, our contribution is twofold. First, we numerically compare 2 recent MCMC methods, the prob-estimator and the Projected Langevin algorithm, in different experimental setups. Second, we introduce 2 new algorithms which combine the prior used in Projected Langevin with the algorithm from the prob-estimator. This allows us to evaluate the advantages that a gradient-based method brings, as well as the impact of a Student-t prior on the result.
 
@@ -10,7 +11,6 @@ Quantum Tomography is a process to reconstruct the state of a quantum system. By
 The repository is structured as follows:
 ```
 ├── experiments
-├── playground
 ├── README.md
 └── src
 ```
@@ -23,3 +23,4 @@ The main dependencies for running all the code are `numpy`, `scipy`, `pandas` an
 ```bash
 pip install -r requirements.txt
 ```
+The code was tested with `python3.12`, however other versions might also work.

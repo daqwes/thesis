@@ -35,37 +35,21 @@ def run_experiment(savefig=True):
         n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
+        n, n_meas, n_shots, rho_type, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
 
     rhos_mhs, _, cum_times_mh, acc_rate_mhs = run_MH_studentt(
         n, n_shots, As_PL, y_hat, n_iter, n_burnin, seed = None, proposal_dist="exp_dep", run_avg=True, scaling_coef_prop=0.1,  init_point=init_point
     )
 
-    accs_prob = [0] * (n_iter)
-    accs_pl = [0] * (n_iter)
-    accs_mhs = [0] * n_iter
+    accs_prob = [0.0] * (n_iter)
+    accs_pl = [0.0] * (n_iter)
+    accs_mhs = [0.0] * n_iter
     for i in range(n_iter):
         accs_prob[i] = compute_error(rhos_prob[i, :, :], rho_true)
         accs_pl[i] = compute_error(rhos_pl[i, :, :], rho_true)
         accs_mhs[i] = compute_error(rhos_mhs[i, :, :], rho_true)
-
-    # plt.figure()
-    # plt.semilogy(cum_times_pl[:n_burnin], accs_pl[:n_burnin])
-    # plt.semilogy(cum_times_pl[n_burnin:], accs_pl[n_burnin:], label="langevin")
-
-    # plt.semilogy(cum_times_prob[:n_burnin], accs_prob[:n_burnin])
-    # plt.semilogy(cum_times_prob[n_burnin:], accs_prob[n_burnin:], label="prob")
-
-    # plt.legend()
-    # plt.xlabel("Time [s]")
-    # plt.ylabel("$L_2$ squared error")
-    # plt.title("Accuracy wrt time, with burnin, sep DG")
-    # if savefig:
-    #     plt.savefig(f"iters_acc_comp_time_no_avg_sep.pdf", bbox_inches="tight")
-    # plt.show()
-    # plt.close()
-
+        
     plt.figure()
     plt.semilogy(range(n_iter), accs_pl, label="langevin")
     plt.semilogy(range(n_iter), accs_prob, label="prob")

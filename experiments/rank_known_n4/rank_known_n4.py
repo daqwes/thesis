@@ -38,14 +38,12 @@ def run_experiment(savefig=True):
             init_point_PL = gen_init_point(d, rho_rank)
             As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
             for k in range(n_meas):
-                # TODO: it is not clear why this works better than `flatten(order="F")`
-                # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             _, rho_approx_prob, _ = run_MH(
                 n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_MH
             )
             _, rho_approx_pl, _ = run_PL(
-                n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_PL, eta_shots_indep=eta_shots_indep
+                n, n_meas, n_shots, rho_rank, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point_PL, eta_shots_indep=eta_shots_indep
             )
             
             err_prob = compute_error(rho_approx_prob, rho_true)

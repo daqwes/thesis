@@ -82,7 +82,5 @@ def run_experiment(savefig=True):
     if savefig:
         dump_run_information("run_shots_sep_mh_studentt", {"shots": shots, "acc_pl": accs_pl, "acc_prob": accs_prob, "acc_mhs": accs_mhs})  
 
-
-
 if __name__ == "__main__":
     run_experiment()

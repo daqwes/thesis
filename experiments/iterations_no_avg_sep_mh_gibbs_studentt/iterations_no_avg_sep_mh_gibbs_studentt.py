@@ -41,7 +41,7 @@ def run_experiment(savefig=True):
             n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
         )
         rhos_pl, _, cum_times_pl = run_PL(
-            n, n_meas, n_shots, rho_true, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
+            n, n_meas, n_shots, rho_type, As_PL, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
         )
 
         rhos_mhgs, _, cum_times_mh, acc_rate_mhgs = run_MH_gibbs_studentt(
@@ -52,22 +52,6 @@ def run_experiment(savefig=True):
             accs_prob[i,j] = compute_error(rhos_prob[i, :, :], rho_true)
             accs_pl[i,j] = compute_error(rhos_pl[i, :, :], rho_true)
             accs_mhgs[i,j] = compute_error(rhos_mhgs[i, :, :], rho_true)
-
-    # plt.figure()
-    # plt.semilogy(cum_times_pl[:n_burnin], accs_pl[:n_burnin])
-    # plt.semilogy(cum_times_pl[n_burnin:], accs_pl[n_burnin:], label="langevin")
-
-    # plt.semilogy(cum_times_prob[:n_burnin], accs_prob[:n_burnin])
-    # plt.semilogy(cum_times_prob[n_burnin:], accs_prob[n_burnin:], label="prob")
-
-    # plt.legend()
-    # plt.xlabel("Time [s]")
-    # plt.ylabel("$L_2$ squared error")
-    # plt.title("Accuracy wrt time, with burnin, sep DG")
-    # if savefig:
-    #     plt.savefig(f"iters_acc_comp_time_no_avg_sep.pdf", bbox_inches="tight")
-    # plt.show()
-    # plt.close()
 
     avg_accs_pl = accs_pl.mean(axis=1)
     avg_accs_prob = accs_prob.mean(axis=1)
@@ -88,7 +72,6 @@ def run_experiment(savefig=True):
     plt.close()
     if savefig:
         dump_run_information_from_tensors3(accs_prob, accs_pl, accs_mhgs, "mhgs", {"iter": list(range(n_iter)), "sample": list(range(n_samples))}, path="run_iterations_no_avg_sep_gibbs_mh_studentt")
-        # dump_run_information("run_iterations_no_avg_sep_gibbs_mh_studentt", {"iter": list(range(n_iter)), "acc_pl": accs_pl, "acc_prob": accs_prob, "acc_mhs": accs_mhs})
 
 if __name__ == "__main__":
     run_experiment()

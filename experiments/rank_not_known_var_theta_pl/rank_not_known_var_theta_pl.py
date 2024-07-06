@@ -49,8 +49,6 @@ def run_experiment(savefig=True):
                 init_point = gen_init_point(d,d)
                 As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
                 for l in range(n_meas):
-                    # TODO: it is not clear why this works better than `flatten(order="F")`
-                    # as it is more correct to use the latter (similar to what is done in R)
                     As_flat[l,:] = As[:,:,l].flatten(order="C")
                 if i == 0:
                     if not test_run:
@@ -83,8 +81,6 @@ def run_experiment(savefig=True):
     for i in range(len(thetas_pl)):
         plt.semilogy(rho_ranks, accs_pl_avg[i], "-o", label=rf"langevin,$\theta$={thetas_pl[i]}", c=colors_prob[i])
 
-    # plt.semilogy(rho_ranks, accs_pl_avg, "-o", label="langevin")
-    # plt.vlines(x=[n_burnin], ymin=0, ymax=0.1, color="r", label="end of burnin")
     plt.legend()
     plt.xlabel(r"Rank of $\rho$ [#]")
     plt.ylabel("$L_2$ squared error")
@@ -103,7 +99,6 @@ def run_experiment(savefig=True):
         with open("params_" + filename + ".pkl", "wb") as f:
             pickle.dump(params, f)
         dump_run_information_from_tensors(accs_prob, accs_pl, params, filename)
-        # dump_run_information("rank_known", {"rank": list(rho_ranks),  "acc_pl": accs_pl_avg, "acc_prob": accs_prob_avg})
 
 if __name__ == "__main__":
     run_experiment()

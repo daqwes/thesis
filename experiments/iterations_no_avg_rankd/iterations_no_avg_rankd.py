@@ -29,8 +29,6 @@ def run_experiment(savefig=True):
     accs_pl = []
     As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
     for i in range(n_meas):
-        # TODO: it is not clear why this works better than `flatten(order="F")`
-        # as it is more correct to use the latter (similar to what is done in R)
         As_flat[i,:] = As[:,:,i].flatten(order="C")
     
     init_point = gen_init_point(d,d)
@@ -39,11 +37,11 @@ def run_experiment(savefig=True):
         n, n_meas, n_shots, rho_true, As_flat, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
     rhos_pl, _, cum_times_pl = run_PL(
-        n, n_meas, n_shots, rho_true, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
+        n, n_meas, n_shots, rho_type, As, y_hat, n_iter, n_burnin, seed=None, init_point=init_point
     )
 
-    accs_prob = [0] * (n_iter)
-    accs_pl = [0] * (n_iter)
+    accs_prob = [0.0] * (n_iter)
+    accs_pl = [0.0] * (n_iter)
     for i in range(n_iter):
         accs_prob[i] = compute_error(rhos_prob[i, :, :], rho_true)
         accs_pl[i] = compute_error(rhos_pl[i, :, :], rho_true)

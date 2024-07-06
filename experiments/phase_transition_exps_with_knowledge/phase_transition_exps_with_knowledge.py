@@ -32,8 +32,6 @@ def run_experiment(savefig=True):
             rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_rank, seed=seed)
             As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
             for k in range(n_meas):
-                # TODO: it is not clear why this works better than `flatten(order="F")`
-                # as it is more correct to use the latter (similar to what is done in R)
                 As_flat[k,:] = As[:,:,k].flatten(order="C")
             
             init_point_MH = gen_init_point(d, d)

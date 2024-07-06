@@ -1,24 +1,10 @@
-import time
-
-from typing import Callable, Iterable
+from typing import Sequence
 import numpy as np
 from numpy.typing import ArrayLike
 import pandas as pd
 
-def time_run(f: Callable):
-    """Times the execeution of a function
-    Args:
-        f (Callable): some function to time
-    Returns:
-        Tuple[float, Any] time and return values from function f 
-    """
-    tic = time.perf_counter()
-    r_val = f()
-    tac = time.perf_counter()
-    return tac - tic, r_val 
-
 def compute_error(rho_hat: np.ndarray, rho_true: np.ndarray, err_type: str = "fro_sq") -> float:
-    """
+    """Computer error between rho hat and rho
     """
     if err_type == "fro_sq":
         return np.linalg.norm(rho_hat - rho_true)**2 #type: ignore
@@ -30,7 +16,7 @@ def compute_error(rho_hat: np.ndarray, rho_true: np.ndarray, err_type: str = "fr
     else:
         raise ValueError("No such error type")
     
-def dump_run_information(path: str, d: dict[str, Iterable]):
+def dump_run_information(path: str, d: dict[str, Sequence|np.ndarray]):
     df = pd.DataFrame.from_dict(d)
     df.to_csv(path + ".csv")
 
@@ -54,10 +40,7 @@ def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.nda
                 col = map_colidx_colname[k]
                 col_value = cols[col][idx_in_col] # type: ignore
                 cols_values_except_acc.append(col_value)
-            # print(cols_values_except_acc + [val_prob, val_pl])
             df_list.append(cols_values_except_acc + [val_prob, val_pl])
-            # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
-            # print(df)
     df = pd.DataFrame(df_list, columns=list(cols.keys()) + ["acc_prob", "acc_pl"])
     df.to_csv(path + ".csv")
 
@@ -82,14 +65,11 @@ def dump_run_information_from_tensors3(tensor_prob: np.ndarray, tensor_pl: np.nd
                 col: str = map_colidx_colname[k]
                 col_value = cols[col][idx_in_col] # type: ignore
                 cols_values_except_acc.append(col_value)
-            # print(cols_values_except_acc + [val_prob, val_pl])
             df_list.append(cols_values_except_acc + [val_prob, val_pl, val3])
-            # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
-            # print(df)
     df = pd.DataFrame(df_list, columns=list(cols.keys()) + ["acc_prob", "acc_pl", "acc_" + algo3_name])
     df.to_csv(path + ".csv")
 
-def dump_run_information_from_tensors4(tensor_prob: np.ndarray, tensor_pl: np.ndarray, tensor3: np.ndarray, tensor4: np.ndarray, algo3_name: str, algo4_name: str, cols: dict[str, list[float]], path: str, map_colidx_colname: dict[int, str]|None=None):
+def dump_run_information_from_tensors4(tensor_prob: np.ndarray, tensor_pl: np.ndarray, tensor3: np.ndarray, tensor4: np.ndarray, algo3_name: str, algo4_name: str, cols: dict[str, Sequence|np.ndarray], path: str, map_colidx_colname: dict[int, str]|None=None):
     """We assume the following structure:
     tensor_prob: np.ndarray with accuracy for prob
     tensor_pl: np.ndarray with accuracy for pl
@@ -109,16 +89,13 @@ def dump_run_information_from_tensors4(tensor_prob: np.ndarray, tensor_pl: np.nd
                 col = map_colidx_colname[k]
                 col_value = cols[col][idx_in_col]
                 cols_values_except_acc.append(col_value)
-            # print(cols_values_except_acc + [val_prob, val_pl])
             df_list.append(cols_values_except_acc + [val_prob, val_pl, val3, val4])
-            # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
-            # print(df)
     df = pd.DataFrame(df_list, columns=list(cols.keys()) + ["acc_prob", "acc_pl", "acc_" + algo3_name, "acc_" + algo4_name])
     df.to_csv(path + ".csv")
 
 
 
-def dump_run_information_from_tensor(algo_name: str, tensor: np.ndarray, cols: dict[str, list[float]], path: str, avgs: list, map_colidx_colname: dict[int, str]|None=None):
+def dump_run_information_from_tensor(algo_name: str, tensor: np.ndarray, cols: dict[str, Sequence|np.ndarray], path: str, avgs: list, map_colidx_colname: dict[int, str]|None=None):
     """We assume the following structure:
     tensor_prob: np.ndarray with accuracy for prob
     tensor_pl: np.ndarray with accuracy for pl
@@ -139,10 +116,7 @@ def dump_run_information_from_tensor(algo_name: str, tensor: np.ndarray, cols: d
                 col = map_colidx_colname[k]
                 col_value = cols[col][idx_in_col]
                 cols_values_except_acc.append(col_value)
-            # print(cols_values_except_acc + [val_prob, val_pl])
             df_list.append(cols_values_except_acc + [avgs[idx_avgs], val_acc])
             idx_avgs += 1
-            # df[list(cols.keys()) + ["acc_prob", "acc_pl"]] = cols_values_except_acc + [val_prob, val_pl]
-            # print(df)
     df = pd.DataFrame(df_list, columns=list(cols.keys()) + ["sample_avg", "acc_" + algo_name])
     df.to_csv(path + ".csv")

@@ -28,8 +28,6 @@ def run_experiment(savefig=True):
     rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
     As_flat = np.zeros((n_meas, 2**n * 2**n), dtype = np.complex128)
     for i in range(n_meas):
-        # TODO: it is not clear why this works better than `flatten(order="F")`
-        # as it is more correct to use the latter (similar to what is done in R)
         As_flat[i,:] = As[:,:,i].flatten(order="C")
     init_point = gen_init_point(d, d)
     for n_burnin in burnin_range:
@@ -51,16 +49,6 @@ def run_experiment(savefig=True):
         plt.savefig(f"burnin_acc_comp_burnin.pdf", bbox_inches="tight")
     plt.show()
 
-    # plt.figure()
-    # plt.loglog(shots, accs_pl, label="langevin")
-    # plt.loglog(shots, accs_prob, label="prob")
-    # plt.legend()
-    # plt.xlabel("Number of shots [#]")
-    # plt.ylabel("$L_2$ squared error")
-    # plt.title("Comparison of accuracy wrt shots, loglog")
-    # if savefig:
-    #     plt.savefig(f"shots_acc_comp_shots{ext}_loglog.pdf", bbox_inches="tight")
-    # plt.show()
     if savefig:
         dump_run_information("run_burnin_no_avg", {"n_burnin": burnin_range, "acc_pl": accs_pl, "acc_prob": accs_prob})  
 

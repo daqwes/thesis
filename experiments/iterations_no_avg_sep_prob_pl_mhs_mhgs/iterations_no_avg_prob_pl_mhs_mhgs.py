@@ -58,22 +58,6 @@ def run_experiment(savefig=True):
             accs_mhs[i,j] = compute_error(rhos_mhs[i, :, :], rho_true)
             accs_mhgs[i,j] = compute_error(rhos_mhgs[i, :, :], rho_true)
 
-    # plt.figure()
-    # plt.semilogy(cum_times_pl[:n_burnin], accs_pl[:n_burnin])
-    # plt.semilogy(cum_times_pl[n_burnin:], accs_pl[n_burnin:], label="langevin")
-
-    # plt.semilogy(cum_times_prob[:n_burnin], accs_prob[:n_burnin])
-    # plt.semilogy(cum_times_prob[n_burnin:], accs_prob[n_burnin:], label="prob")
-
-    # plt.legend()
-    # plt.xlabel("Time [s]")
-    # plt.ylabel("$L_2$ squared error")
-    # plt.title("Accuracy wrt time, with burnin, sep DG")
-    # if savefig:
-    #     plt.savefig(f"iters_acc_comp_time_no_avg_sep.pdf", bbox_inches="tight")
-    # plt.show()
-    # plt.close()
-
     avg_accs_pl = accs_pl.mean(axis=1)
     avg_accs_prob = accs_prob.mean(axis=1)
     avg_accs_mhs = accs_mhs.mean(axis=1)

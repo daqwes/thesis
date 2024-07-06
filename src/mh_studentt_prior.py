@@ -40,12 +40,10 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
     return post
     
 def eval_proposal(Y_next: np.ndarray, Y_prev: np.ndarray, dist: str = "normal", scaling_coef: float = 1.0):
-    # TODO
     m, n = Y_next.shape
     if dist == "normal":
         return 1/(2 * np.pi)**(m*n) * np.exp(-1/2 * np.linalg.norm(Y_next, ord="fro")**2)
     elif dist == "normal_dep":
-        # return 1/(2 * np.pi)**(m*n) * np.exp(-1/2 * np.linalg.norm(Y_next - Y_prev, ord="fro")**2)
         return 1 # symmetric proposal
     elif dist == "goe":
         assert m == n, "d and r must have the same value for GOE"
@@ -115,16 +113,13 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap:
             # Not taking into account the proposal
             n = n_post #* n_prop
             d = d_post #* d_prop
-        # print(eval_proposal(next, prop_dist), eval_posterior_real(prev, As_r_swap, y_hat, lambda_, theta ))
-        # print(eval_proposal(prev, prop_dist), eval_posterior_real(next, As_r_swap, y_hat, lambda_, theta))
         ratio = n/d
-        print(n_post, d_post, ratio)
         if np.isnan(ratio):
             raise ValueError("Ratio is incorrect, div by 0")
     return min(1, ratio)
 
 
-def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int|None, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True) -> np.ndarray:
+def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int|None, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True):
     """ Metropolis-Hastings algorithm with a student-t prior   
     """
     if seed is not None:
@@ -159,7 +154,6 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
         if log_transform:
             rd = np.log(rd)
         ratio = acc_ratio(Y_r_next, Y_r_prev, As, As_r_swap, y_hat, lambda_, theta, proposal_dist, scaling_coef_prop, use_prop_in_ratio, log_transform=log_transform)
-        # print(rd, ratio)
         if rd < ratio:
             Y_r_prev = Y_r_next
             acc_count+=1
@@ -168,7 +162,6 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
         cum_times[t] = time.perf_counter() - start_time
 
     acc_rate = acc_count / n_iter
-    # print(f"Acceptance rate: {acc_rate}")
     return rhos_record, rho_iter, cum_times, acc_rate 
 
 
@@ -199,7 +192,6 @@ def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_i
         M_avg = np.zeros_like(rhos_record[0,:,:])
         for i in range(n_iter - n_burnin):
             M_avg = rhos_record[n_burnin + i,:,:] * 1/(i + 1) + M_avg  * (1 - 1 /(i+1))
-            # print((M_avg - Y_rho_record[n_burnin + i]).abs().sum())
             rhos_record[n_burnin + i] = M_avg.copy()
     else:
         M_avg = np.mean(rhos_record[n_burnin:,:,:], 0) # 

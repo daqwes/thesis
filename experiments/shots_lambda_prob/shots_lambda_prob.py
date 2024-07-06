@@ -51,9 +51,6 @@ def run_experiment(savefig=True):
         for i, n_shots in enumerate(shots):
             for j in range(n_samples):
                 time_since_start = time.perf_counter() - start
-                print("Iteration:", k,i,j,"time:", f"{time_since_start:.2f}")
-                # for k,i,j -> 
-                # print(j+ dims[1] * i + dims[0] * dims[1] * k)
                 seed = j + n_samples * i + len(shots) * n_samples * k
                 rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type=rho_type, seed = seed)
 
@@ -78,9 +75,6 @@ def run_experiment(savefig=True):
                 accs_prob[k,i,j] = err_prob
                 accs_pl[k,i,j] = err_pl
 
-    
-
-    # (len(lambdas), len(shots), n_samples)
     avg_accs_prob = accs_prob.mean(axis=2)
     avg_accs_pl = accs_pl.mean(axis=2)
     plt.figure()
@@ -100,7 +94,6 @@ def run_experiment(savefig=True):
     # 
     if savefig:
         dump_run_information_from_tensors(accs_prob, accs_pl, {"lambda": lambdas, "shots": shots, "sample": list(range(n_samples))}, "run_shots_lambda_prob")
-        # dump_run_information("run_shots_lambda_prob", {"shots": shots, "acc_pl": accs_pl, "acc_prob": accs_prob})  
 
 if __name__ == "__main__":
     run_experiment()

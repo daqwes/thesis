@@ -1,5 +1,4 @@
 import numpy as np
-# import h5py
 
 s0 = np.eye(2)
 sx = np.array([[0, 1], [1, 0]])
@@ -127,19 +126,6 @@ def pauli_measurements(n: int):
         As[:, :, j] = A
     return As
 
-
-# def dump_h5(data: np.ndarray, var_name: str):
-#     data_d = np.array(data).astype(np.complex128).transpose().copy()#.reshape(*data.shape[::-1]).copy()#  .reshape(*data.shape[::-1])
-#     data_d2 = np.array(data).astype(np.complex128).reshape(data.shape[::-1]).copy()
-#     imag_data_d = np.where(np.imag(data_d) == 0, 0, np.imag(data_d))
-#     real_data_d = np.where(np.real(data_d) == 0, 0, np.real(data_d))
-#     # for j in range(data.shape[-1]):
-#     #     print(np.real(data[:,:,j]))
-
-#     with h5py.File(f"{var_name}_py.h5", "w") as file:
-#         file.create_dataset("data_real", data=real_data_d)
-#         file.create_dataset("data_imag", data=imag_data_d)
-
 def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_meas: int) -> np.ndarray:
     """Compute n_shots measurements of the system. 
        In case n_shots is None, return the true measurements (expectation of the each measurable)
@@ -176,24 +162,14 @@ def generate_data(n: int, n_meas: int, n_shots: int|None, rho_type: str|int, see
     y_hat = measure_system(As, rho_true, n_shots, n_meas)
     return rho_true, As, y_hat
 
-
-
 def main():
     n = 3
     d = 2**n
     n_meas = d * d
     n_shots = 2000
     seed = 0
-    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type="rank2")
-    # dump_h5(As, "As")
-    # a = np.array(range(1,25)).reshape(4, 2, 3)
-    # print(a)
-    # print(np.ravel(a, "K"))
-    # dump_h5(a, "range")
-    # print(rho_true)
-    # print(As)
-    # print(y_hat)
+    rho_true, As, y_hat = generate_data(n, n_meas, n_shots, rho_type="rank2", seed=seed)
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

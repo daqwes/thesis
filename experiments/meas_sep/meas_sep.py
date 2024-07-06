@@ -69,7 +69,6 @@ def run_experiment(savefig=True):
 
     if savefig:
         dump_run_information_from_tensors(accs_prob, accs_pl, {"n_meas": meas, "sample": list(range(n_samples))}, path="run_meas_sep")
-        # dump_run_information("run_exps", {"exps": exps, "acc_pl": accs_pl, "acc_prob": accs_prob})
 
 if __name__ == "__main__":
     run_experiment()

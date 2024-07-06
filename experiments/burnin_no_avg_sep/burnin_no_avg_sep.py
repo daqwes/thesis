@@ -48,17 +48,6 @@ def run_experiment(savefig=True):
         plt.savefig(f"burnin_acc_comp_burnin_sep.pdf", bbox_inches="tight")
     plt.show()
 
-    # plt.figure()
-    # plt.loglog(shots, accs_pl, label="langevin")
-    # plt.loglog(shots, accs_prob, label="prob")
-    # plt.legend()
-    # plt.xlabel("Number of shots [#]")
-    # plt.ylabel("$L_2$ squared error")
-    # plt.title("Comparison of accuracy wrt shots, loglog")
-    # if savefig:
-    #     plt.savefig(f"shots_acc_comp_shots{ext}_loglog.pdf", bbox_inches="tight")
-    # plt.show()
-
     if savefig:
         dump_run_information("run_burnin_no_avg_sep", {"n_burnin": burnin_range, "acc_pl": accs_pl, "acc_prob": accs_prob})  
 

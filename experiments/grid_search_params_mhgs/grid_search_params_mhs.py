@@ -43,8 +43,6 @@ def run_experiment(savefig=True):
                     print(prop, lambda_, theta, sample, err)
                 avg_err/= n_samples
                 avgs += [avg_err]*n_samples
-                # print("Avg: ",prop, lambda_, theta, sample, avg_err)
-                # print()
     if savefig:
         dump_run_information_from_tensor("mhs", accs_mhs, {"prop": [p[0] for p in proposals], "lambda": lambdas, "theta": thetas, "sample": list(range(n_samples))}, path="grid_search_params_mhs", avgs=avgs)
 

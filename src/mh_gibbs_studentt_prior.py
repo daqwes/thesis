@@ -40,12 +40,9 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
     return post
     
 def eval_proposal_scalar(next: float, prev: float, dist: str = "normal", scaling_coef: float = 1.0):
-    # TODO
     if dist == "normal":
-        # return 1/(2 * np.pi)**(m*n) * np.exp(-1/2 * np.linalg.norm(Y_next, ord="fro")**2)
-        # raise NotImplementedError("dist is not implemented")
         rv = norm(loc=0, scale=scaling_coef)
-        return rv.pdf(next)
+        return rv.pdf(next) # type: ignore
     elif dist == "normal_dep":
         # return 1/(2 * np.pi)**(m*n) * np.exp(-1/2 * np.linalg.norm(Y_next - Y_prev, ord="fro")**2)
         return 1 # symmetric proposal
@@ -74,7 +71,7 @@ def sample_proposal_scalar(curr: float, seed: int|None, dist: str = "exp_dep", s
     else:
         raise ValueError("dist type not valid, provide correct value")
 
-def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, indices: tuple[float, float], As: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, prop_dist: str = "normal", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = False) -> float:
+def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, indices: tuple[int, int], As: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, prop_dist: str = "normal", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = False) -> float:
     """
     r = prop(x|x') * post(x') / prop(x'|x) * post(x)
     Here, post = exp(-(L + log(prior))).
@@ -113,7 +110,7 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, indices: tuple[float, floa
     return min(1, ratio)
 
 
-def MH_gibbs_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int|None, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True) -> np.ndarray:
+def MH_gibbs_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int|None, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True):
     """ Metropolis-Hastings algorithm using gibbs and a student-t prior   
     """
     if seed is not None:
@@ -169,17 +166,15 @@ def run_MH_gibbs_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarra
         _, r = init_point.shape
         Y0 = init_point
     else:
-        r = d # TODO: change as not the most optimal approach
+        r = d
         Y0 = gen_init_point(d, r)
     if lambda_ is None:
         lambda_ = n_shots / 2
     if theta is None:
         if n == 3:
             theta = 0.1
-            # r = 6
         elif n == 4:
             theta = 1
-            # r = 2
         else:
             theta = 1
     rhos_record, rho_mh_stt, cum_times, acc_rate = MH_gibbs_studentt(n, y_hat, As, Y0, lambda_, theta, seed, n_iter, n_burnin, proposal_dist, scaling_coef_prop, use_prop_in_ratio, log_transform)
@@ -188,7 +183,6 @@ def run_MH_gibbs_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarra
         M_avg = np.zeros_like(rhos_record[0,:,:])
         for i in range(n_iter - n_burnin):
             M_avg = rhos_record[n_burnin + i,:,:] * 1/(i + 1) + M_avg  * (1 - 1 /(i+1))
-            # print((M_avg - Y_rho_record[n_burnin + i]).abs().sum())
             rhos_record[n_burnin + i] = M_avg.copy()
     else:
         M_avg = np.mean(rhos_record[n_burnin:,:,:], 0) # 
