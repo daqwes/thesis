@@ -18,7 +18,6 @@ else:
 def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, log_transform: bool):
     s1, s2 = Y_r.shape
     d, r = int(s1 / 2), int(s2 / 2)
-    # print(np.linalg.norm(Y_r, 'fro'))
     Y_rho_r_outer = Y_r @ np.conj(Y_r.T)
     y = np.trace(As_r_swap @ Y_rho_r_outer, axis1=1, axis2=2)
     
@@ -26,7 +25,6 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
         lik = lambda_ * np.linalg.norm(y_hat - np.sqrt(2) * y) ** 2
         prior = (2*d + r + 2)/4 * np.log(np.linalg.det(theta**2 * np.eye(2 * d) / np.sqrt(2)
                     + np.sqrt(2) * Y_rho_r_outer))
-        # print(lik, prior)
         post = -(lik + prior)
     # post = exp(-f) with f = L + log(P) -> exp(-L)/P
     else:
@@ -35,7 +33,6 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
         )
         prior = np.linalg.det(theta**2 * np.eye(2 * d) / np.sqrt(2)
                     + np.sqrt(2) * Y_rho_r_outer) ** ((2*d + r + 2)/4)
-        # print(lik, prior)
         post = lik/prior
     return post
     

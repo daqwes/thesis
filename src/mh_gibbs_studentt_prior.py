@@ -18,7 +18,6 @@ else:
 def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, log_transform: bool):
     s1, s2 = Y_r.shape
     d, r = int(s1 / 2), int(s2 / 2)
-    # print(np.linalg.norm(Y_r, 'fro'))
     Y_rho_r_outer = Y_r @ np.conj(Y_r.T)
     y = np.trace(As_r_swap @ Y_rho_r_outer, axis1=1, axis2=2)
     
@@ -26,7 +25,6 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
         lik = lambda_ * np.linalg.norm(y_hat - np.sqrt(2) * y) ** 2
         prior = (2*d + r + 2)/4 * np.log(np.linalg.det(theta**2 * np.eye(2 * d) / np.sqrt(2)
                     + np.sqrt(2) * Y_rho_r_outer))
-        # print(lik, prior)
         post = -(lik + prior)
     # post = exp(-f) with f = L + log(P) -> exp(-L)/P
     else:
@@ -35,7 +33,6 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
         )
         prior = np.linalg.det(theta**2 * np.eye(2 * d) / np.sqrt(2)
                     + np.sqrt(2) * Y_rho_r_outer) ** ((2*d + r + 2)/4)
-        # print(lik, prior)
         post = lik/prior
     return post
     
@@ -99,10 +96,8 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, indices: tuple[int, int], 
             d = d_post * d_prop
         else:
             # Not taking into account the proposal
-            n = n_post #* n_prop
-            d = d_post #* d_prop
-        # print(eval_proposal(next, prop_dist), eval_posterior_real(prev, As_r_swap, y_hat, lambda_, theta ))
-        # print(eval_proposal(prev, prop_dist), eval_posterior_real(next, As_r_swap, y_hat, lambda_, theta))
+            n = n_post
+            d = d_post
         ratio = n/d
         print(n_post, d_post, ratio)
         if np.isnan(ratio):
@@ -154,7 +149,6 @@ def MH_gibbs_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray,
         rhos_record[t, :, :] = real_to_complex(rho_iter)
         cum_times[t] = time.perf_counter() - start_time
     acc_rate = acc_count / n_iter
-    # print(f"Acceptance rate: {acc_rate}")
     return rhos_record, rho_iter, cum_times, acc_rate 
 
 

@@ -250,7 +250,6 @@ def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str|int, As: np.ndarray,
         M_avg = np.zeros_like(Y_rho_record[0,:,:])
         for i in range(n_iter - n_burnin):
             M_avg = Y_rho_record[n_burnin + i,:,:] * 1/(i + 1) + M_avg  * (1 - 1 /(i+1))
-            # print((M_avg - Y_rho_record[n_burnin + i]).abs().sum())
             Y_rho_record[n_burnin + i] = M_avg.copy()
     else:
         M_avg = np.mean(Y_rho_record[n_burnin:,:,:], 0)

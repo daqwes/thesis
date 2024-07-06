@@ -1,6 +1,6 @@
 # Numerical comparison of MCMC methods for Quantum Tomography
 
-## Author: Danila Mokeev
+## Author: Daniel Mokeev
 
 This work was done in the context of a Master's thesis at Université Catholique de Louvain. It was supervised by Estelle Massart and Tameem Adel.
 ## Abstract

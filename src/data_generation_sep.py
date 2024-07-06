@@ -2,7 +2,6 @@ import numpy as np
 from numpy.linalg import eig
 import itertools
 import functools
-from typing import *
 import sys
 
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
@@ -53,7 +52,7 @@ def random_standard_exponential(size: tuple[int, ...], seed: int|None = None) ->
     else:
         return np.random.standard_exponential(size) 
 
-def compute_rho_inversion(n: int, b: np.ndarray, p_as: np.ndarray, P_rab: np.ndarray, sig_b: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def compute_rho_inversion(n: int, b: np.ndarray, p_as: np.ndarray, P_rab: np.ndarray, sig_b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the rho estimate with the inversion method
     Args:
         p_as (np.ndarray[R*A]): Vector mapping each observable and result combination to its empirical probability
