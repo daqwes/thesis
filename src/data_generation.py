@@ -85,7 +85,7 @@ def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
         w = 0.98
         dens_ma = w * dens_ma + (1 - w) * np.eye(d) / d
     elif rho_type == "rankd":
-        # Maximal mixed state (rankd = 16)
+        # Maximal mixed state (rankd = 16 if n==4)
         r = d
         V = random_unitary(d, r)
         gamma = np.random.gamma(1 / r, 1, (r))  # Note: see obs for comment on this

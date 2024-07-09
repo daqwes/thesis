@@ -180,7 +180,7 @@ def run_MH_gibbs_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarra
             M_avg = rhos_record[n_burnin + i,:,:] * 1/(i + 1) + M_avg  * (1 - 1 /(i+1))
             rhos_record[n_burnin + i] = M_avg.copy()
     else:
-        M_avg = np.mean(rhos_record[n_burnin:,:,:], 0) # 
+        M_avg = np.mean(rhos_record[n_burnin:,:,:], 0)
 
     return rhos_record, M_avg, cum_times, acc_rate
 

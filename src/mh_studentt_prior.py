@@ -171,7 +171,7 @@ def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_i
         _, r = init_point.shape
         Y0 = init_point
     else:
-        r = d # TODO: change as not the most optimal approach
+        r = d
         Y0 = gen_init_point(d, r)
     if lambda_ is None:
         lambda_ = n_shots / 2

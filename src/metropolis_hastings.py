@@ -163,11 +163,6 @@ def main_sep_data_gen():
 
     rho_type = "rank2" 
 
-    # Pra = get_observables(n)
-    # rho_true = get_true_rho(n, rho_type, seed=seed)
-    # u_hat = random_unitary(d, d, seed=seed)
-    # y_hat = compute_measurements(n, rho_true, n_shots, seed=None)
-
     rho_true, As, y_hat = generate_data_sep(n, n_meas, n_shots, rho_type=rho_type, seed=seed)
 
     prob_seed = None
@@ -179,7 +174,6 @@ def main_sep_data_gen():
 
     err_mse = compute_error(rho_prob, rho_true, "MSE")
     err_fro_sq = compute_error(rho_prob, rho_true, "fro_sq")
-    # print(f"MSE: {err_mse}")
     print(f"Fro^2: {err_fro_sq}")
 
     

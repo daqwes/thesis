@@ -69,9 +69,9 @@ def compute_rho_inversion(n: int, b: np.ndarray, p_as: np.ndarray, P_rab: np.nda
     Args:
         p_as (np.ndarray[R*A]): Vector mapping each projector and result combination to its empirical probability
         P_rab: (np.ndarray[I=2^n x 3^n, J=4^n])
-        sig_b: (np.ndarray[J, d=16, d])
+        sig_b: (np.ndarray[J, d=16 if n==4, d])
     Returns:
-        Tuple[np.ndarray[d=2^n, d], np.ndarray]: the approximation of rho using the inversion technique, and its eigenvectors 
+        tuple[np.ndarray[d=2^n, d], np.ndarray]: the approximation of rho using the inversion technique, and its eigenvectors 
     """
     d = 2**n
     J = 4**n
@@ -163,7 +163,7 @@ def get_true_rho(n: int, rho_type: str = "rank1", seed=None) -> np.ndarray:
         w = 0.98
         dens_ma = w * dens_ma + (1 - w) * np.eye(d)/d
     elif rho_type == "rankd":
-        # Maximal mixed state (rankd = 16)
+        # Maximal mixed state (rankd = 16 if n==4)
         u = norm_complex(np.random.multivariate_normal(np.zeros(d*2),np.eye(d*2)/100, size=(d)).view(np.complex128))
         dens_ma = np.conj(u.T) @ u /d
     else:
