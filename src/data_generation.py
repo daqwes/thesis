@@ -41,7 +41,8 @@ def random_unitary(n: int, p: int, seed=None):
 
 
 def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
-    """Sample true rho
+    """
+    Sample the true matrix rho
     Args:
         rho_type (str|int): type of density matrix we want to sample. Possibilities are
             - rank1
@@ -96,6 +97,13 @@ def gen_true_rho_PL(n: int, rho_type: str|int = "rank1") -> np.ndarray:
     return dens_ma
 
 def dec2bin(j: int, n: int):
+    """Computes the binary representation of an integer `j` and normalizes it to the length of the binary representation of `n` by adding 0s
+    Args:
+        j (int): number to convert
+        n (int): number of which we take the length to normalize
+    Returns:
+        binary version j of normalized length (list[int])
+    """
     bin_j = bin(j)[2:]
     bin_length = len(bin_j)
     arr = "0" * (2 * n - bin_length) + bin_j
@@ -103,11 +111,11 @@ def dec2bin(j: int, n: int):
 
 
 def pauli_measurements(n: int):
-    """
+    """Computes the observables/measurements matrices and returns them
     Args:
         n (int): number of qubits
     Returns:
-        np.ndarray
+        measurements (np.ndarray)
     """
     As = np.zeros((2**n, 2**n, 4**n), dtype=np.complex128)
     for j in range(4**n):
@@ -127,8 +135,15 @@ def pauli_measurements(n: int):
     return As
 
 def measure_system(As: np.ndarray, rho_true: np.ndarray, n_shots: int|None, n_meas: int) -> np.ndarray:
-    """Compute n_shots measurements of the system. 
-       In case n_shots is None, return the true measurements (expectation of the each measurable)
+    """Compute n_shots measurements of the system.
+       In case n_shots is None, return the true measurements (expectation of each observable)
+    Args:
+        As (np.ndarray): observables
+        rho_true (np.ndarray): true density matrix
+        n_shots (int): number of shots
+        n_meas (int): number of measurements/observables
+    Returns:
+        empirical probabilities (np.ndarray)
     """
     y_hat = np.zeros(n_meas)
     for j in range(n_meas):
@@ -146,9 +161,12 @@ def generate_data(n: int, n_meas: int, n_shots: int|None, rho_type: str|int, see
     """Generate a density matrix, and simulate the measurement process
     Args:
         n (int): number of qubits
+        n_meas (int): number of measurements/observables to use
+        n_shots (int): number of shots
         rho_type (str|int): Type/Rank of density matrix to simulate
+        seed (int): optional initial seed
     Returns:
-
+        true rho, observables, empirical probabilities: (tuple[np.ndarray, np.ndarray, np.ndarray])
     """
     if seed is not None:
         np.random.seed(seed)

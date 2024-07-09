@@ -4,7 +4,8 @@ from numpy.typing import ArrayLike
 import pandas as pd
 
 def compute_error(rho_hat: np.ndarray, rho_true: np.ndarray, err_type: str = "fro_sq") -> float:
-    """Computer error between rho hat and rho
+    """
+    Computer error between rho hat and true rho
     """
     if err_type == "fro_sq":
         return np.linalg.norm(rho_hat - rho_true)**2 #type: ignore
@@ -17,11 +18,14 @@ def compute_error(rho_hat: np.ndarray, rho_true: np.ndarray, err_type: str = "fr
         raise ValueError("No such error type")
     
 def dump_run_information(path: str, d: dict[str, Sequence|np.ndarray]):
+    """
+    Write information from experiment to file given a dict `d` to `path`.csv 
+    """
     df = pd.DataFrame.from_dict(d)
     df.to_csv(path + ".csv")
 
 def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.ndarray, cols: dict[str, ArrayLike], path: str, map_colidx_colname: dict[int, str]|None=None):
-    """We assume the following structure:
+    """
     tensor_prob: np.ndarray with accuracy for prob
     tensor_pl: np.ndarray with accuracy for pl
     cols:  dict[str, list[float]] which maps the name of each dimension to its range of values
@@ -46,7 +50,7 @@ def dump_run_information_from_tensors(tensor_prob: np.ndarray, tensor_pl: np.nda
 
 
 def dump_run_information_from_tensors3(tensor_prob: np.ndarray, tensor_pl: np.ndarray, tensor3: np.ndarray, algo3_name: str, cols: dict[str, ArrayLike], path: str, map_colidx_colname: dict[int, str]|None=None):
-    """We assume the following structure:
+    """
     tensor_prob: np.ndarray with accuracy for prob
     tensor_pl: np.ndarray with accuracy for pl
     cols:  dict[str, list[float]] which maps the name of each dimension to its range of values
@@ -70,7 +74,7 @@ def dump_run_information_from_tensors3(tensor_prob: np.ndarray, tensor_pl: np.nd
     df.to_csv(path + ".csv")
 
 def dump_run_information_from_tensors4(tensor_prob: np.ndarray, tensor_pl: np.ndarray, tensor3: np.ndarray, tensor4: np.ndarray, algo3_name: str, algo4_name: str, cols: dict[str, Sequence|np.ndarray], path: str, map_colidx_colname: dict[int, str]|None=None):
-    """We assume the following structure:
+    """
     tensor_prob: np.ndarray with accuracy for prob
     tensor_pl: np.ndarray with accuracy for pl
     cols:  dict[str, list[float]] which maps the name of each dimension to its range of values
@@ -96,7 +100,7 @@ def dump_run_information_from_tensors4(tensor_prob: np.ndarray, tensor_pl: np.nd
 
 
 def dump_run_information_from_tensor(algo_name: str, tensor: np.ndarray, cols: dict[str, Sequence|np.ndarray], path: str, avgs: list, map_colidx_colname: dict[int, str]|None=None):
-    """We assume the following structure:
+    """
     tensor_prob: np.ndarray with accuracy for prob
     tensor_pl: np.ndarray with accuracy for pl
     cols:  dict[str, list[float]] which maps the name of each dimension to its range of values

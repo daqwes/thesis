@@ -18,9 +18,12 @@ basis = np.stack([np.eye(2), sx, sy, sz])
 
 def projectors_py(idx_list, r_):
     """
-    Returns the P^{a_i}_{s_i} list of projection matrices
-    Note1: the evs returned by numpy and the ones obtained don't match, 
-    but as they are not unique, it is still correct.
+    Calculates and returns the P^{a_i}_{s_i} list of projector matrices
+    Args:
+        idx_list (list[int]): indices of which basis to select 
+        r_ (list[int]): indices of which eigenvectors to select
+    Returns:
+        projector matrices (np.ndarray)
     """
     r_idx = [1 if i==-1 else 0 for i in r_]
     evs = [eig(basis[i])[1] for i in idx_list]
@@ -29,6 +32,9 @@ def projectors_py(idx_list, r_):
     return ret
 
 def random_uniform(low: float, high: float, size: tuple[int, ...]|int, seed: int|None = None) -> np.ndarray | float: 
+    """
+    Returns a random uniform value or a numpy array of dimension `size` of values. Each of them is iid and comprised between `low` and `high`.
+    """
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -37,6 +43,9 @@ def random_uniform(low: float, high: float, size: tuple[int, ...]|int, seed: int
         return np.random.uniform(low, high, size)
 
 def random_multivariate_complex(mean: np.ndarray, cov: np.ndarray, size: tuple[int, ...]|int, seed: int|None = None) -> np.ndarray:
+    """
+    Returns a random complex vector or tensor of dimension `size` from a multivariate normal(`mean`,`cov`). Each column is iid.
+    """
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -45,6 +54,9 @@ def random_multivariate_complex(mean: np.ndarray, cov: np.ndarray, size: tuple[i
         return np.random.multivariate_normal(mean, cov, size) + 1j * np.random.multivariate_normal(mean, cov, size)
 
 def random_standard_exponential(size: tuple[int, ...], seed: int|None = None) -> np.ndarray | float:
+    """
+    Returns a random value from the standard exponential distribution or a tensor of dimension `size` of values. Each entry is iid.
+    """
     if seed is not None:
         np.random.seed(seed)
     if isinstance(size, int) and size == 1:
@@ -55,7 +67,7 @@ def random_standard_exponential(size: tuple[int, ...], seed: int|None = None) ->
 def compute_rho_inversion(n: int, b: np.ndarray, p_as: np.ndarray, P_rab: np.ndarray, sig_b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the rho estimate with the inversion method
     Args:
-        p_as (np.ndarray[R*A]): Vector mapping each observable and result combination to its empirical probability
+        p_as (np.ndarray[R*A]): Vector mapping each projector and result combination to its empirical probability
         P_rab: (np.ndarray[I=2^n x 3^n, J=4^n])
         sig_b: (np.ndarray[J, d=16, d])
     Returns:
@@ -77,14 +89,13 @@ def compute_rho_inversion(n: int, b: np.ndarray, p_as: np.ndarray, P_rab: np.nda
         rho_hat += rho_b[s] * sig_b[s]
 
     u_hat = eig(rho_hat)[1]
-
-    # renormalize lambda_hat
-    lamb_til = eig(rho_hat)[0]
-    lamb_til[lamb_til < 0] = 0
-    lamb_hat = lamb_til/lamb_til.sum()
     return rho_hat, u_hat
 
 def get_observables(n: int):
+    """
+    Calculates and returns the measurements/projectors for the separate qubit method for `n` qubits.
+    The format is [R1=d x d flattened, R2, R3, ..]
+    """
     A = 3**n
     R = 2**n
     a = np.array(list(itertools.product(range(1, 4), repeat=n))) # {x,y,z}^n
@@ -98,7 +109,7 @@ def get_observables(n: int):
 
 def get_observables_PL_format(n: int):
     """
-    Returns observables in the [d, d, n_obs: R1 R2 R3..] format
+    Returns projectors in the [d, d, n_obs: R1 R2 R3..] format for `n` qubits
     """
     d = 2**n
     A = 3**n
@@ -113,7 +124,8 @@ def get_observables_PL_format(n: int):
     return Pra
 
 def get_true_rho(n: int, rho_type: str = "rank1", seed=None) -> np.ndarray:
-    """ Sample true rho 
+    """ 
+    Sample the true matrix rho 
     Args:
         rho_type (str): type of density matrix we want to sample. Possibilities are
             - rank1
@@ -163,10 +175,12 @@ def get_true_rho(n: int, rho_type: str = "rank1", seed=None) -> np.ndarray:
 def compute_measurements(n: int, dens_ma, n_shots: int | None=2000, seed=None):
     """Simulate the data measurement process for the prob estimator
     Args:
+        n (int): number of qubits
         dens_ma (np.ndarray[d= 2^n, d]): True rho
         n_shots (int): Number of measurements
+        seed (int): optional initial seed
     Returns:
-        np.ndarray[R*A]: Vector mapping each observable and result combination to its empirical probability
+        np.ndarray[R*A]: Vector mapping each projector and result combination to its empirical probability
     """
     if seed is not None:
         np.random.seed(seed)
@@ -189,7 +203,7 @@ def compute_measurements(n: int, dens_ma, n_shots: int | None=2000, seed=None):
     Prob_ar = np.real(Prob_ar)
     if n_shots is None:
         return Prob_ar.flatten(order="F")
-    # For each observable, we sample n_shots samples 
+    # For each projector, we sample n_shots samples 
     # according to the true probabilities calculated above, and then give the probability
     # For example: 
     # if n=4 (qubits) and a_i = {x, x, y, z}, then an outcome could be s_j {-1, 1, -1, 1}
@@ -208,19 +222,21 @@ def compute_measurements(n: int, dens_ma, n_shots: int | None=2000, seed=None):
 
 
 def generate_data_sep(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int|None):
-    """Generate a density matrix, and simulate the measurement process
+    """Generate a density matrix, and simulate the measurement process for the separate qubit process
     Args:
         n (int): number of qubits
+        n_meas (int): number of measurements/projectors
+        n_shots (int): number of shots to perform
         rho_type (str): Type of density matrix to simulate
+        seed (int): potential initial seed
     Returns:
-
+        true rho, measurements/projectors, empirical probabilities associated to projectors (tuple[np.ndarray, np.ndarray, np.ndarray])
     """
-    d = 2**n
     if seed is not None:
         np.random.seed(seed)
     A = 3**n
     R = 2**n
-    # Here we need to select the observables randomly, based on samples.
+    # Here we need to select the projectors randomly, based on samples.
     # Because the maximum number of pauli matrices combinations is A = 3**n (for which we then select the 2**n possible combinations of possible output)
     # we sample n_meas among A, and then select its R = 2**n associated outcomes, requiring the range select 
     samples = np.random.choice(A, n_meas, replace=False) * R
@@ -236,12 +252,15 @@ def generate_data_sep(n: int, n_meas: int, n_shots: int|None, rho_type: str, see
 
 
 def generate_data_sep_PL(n: int, n_meas: int, n_shots: int|None, rho_type: str, seed: int|None):
-    """Generate a density matrix, and simulate the measurement process. Returns the measure
+    """Generate a density matrix, and simulate the measurement process. Returns the measurements/projectors in the PL format
     Args:
         n (int): number of qubits
+        n_meas (int): number of measurements/projectors
+        n_shots (int): number of shots
         rho_type (str): Type of density matrix to simulate
+        seed (int): optional initial seed
     Returns:
-
+        true rho, projectors/measurements, empirical probabilities (tuple[np.ndarray, np.ndarray, np.ndarray])
     """
     d = 2**n
     A = 3**n

@@ -12,19 +12,20 @@ else:
     from .data_generation import generate_data, random_unitary
 
 def complex_to_real(X: np.ndarray) -> np.ndarray:
-    """ """
+    """Convert from a d x 2 complex matrix to a 2d x 2r real matrix"""
     X_re = np.real(X)
     X_im = np.imag(X)
     return np.sqrt(2) / 2 * np.block([[X_re, X_im], [-X_im, X_re]])
 
 def real_to_complex(X: np.ndarray):
-    """"""
+    """Convert from a 2d x 2r real matrix to a d x r complex matrix"""
     two_d, _ = X.shape
     d = int(two_d/2)
     return np.sqrt(2) * (X[:d,:d] + 1j*X[:d, d:])
 
 def gen_init_point(d, r, seed=None) -> np.ndarray:
     """
+    Generates an initial orthonormal matrix of theoretical rank-1 of size d x r
     """
     # Generate initial candidate, VV* = V*V = I (columns are orthonormal wrt to the conj transpose)
     V = random_unitary(d, r, seed)
@@ -45,6 +46,9 @@ def f(
     alpha: float,
     As_r_swap: np.ndarray
 ):
+    """
+    Compute the value of f. This returns a scalar.
+    """
     n_meas = y_hat.shape[0]
     s1, s2 = Y_rho_r.shape
     d, r = int(s1 / 2), int(s2 / 2)
@@ -63,11 +67,6 @@ def f(
                 / 4 
                 + (2 * d + r + 2) * d * np.log(2) / 4
             )
-def check_symmetric(a, rtol=1e-05, atol=1e-08):
-    return np.allclose(a, a.T, rtol=rtol, atol=atol)
-
-def is_pos_def(x):
-    return np.all(np.linalg.eigvals(x) > 0)
 
 def gradf(
     Y_rho_r: np.ndarray,
@@ -79,6 +78,9 @@ def gradf(
     As_r_swap: np.ndarray,
     As_r_sum_swap: np.ndarray
 ):
+    """
+    Compute the value of the gradient of f. This returns a matrix of same size as `Y_rho_r`
+    """
     s1, s2 = Y_rho_r.shape
     d, r = int(s1 / 2), int(s2 / 2)
     G = np.zeros_like(Y_rho_r)
@@ -195,8 +197,8 @@ def langevin(
     return Y_rho_record, t_rec, n_rec
 
 
-def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str|int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int|None|None = 0, running_avg: bool = True, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None, beta: float|None = None, theta: float|None = None):
-    """Runner function for the prob-estimator
+def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str|int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 5000, n_burnin: int = 100, seed: int|None = 0, running_avg: bool = True, init_point: np.ndarray|None = None, eta_shots_indep: float|None = None, beta: float|None = None, theta: float|None = None):
+    """Runner function for the Projected Langevin method
     Args:
         n (int): number of qubits
         n_meas (int): number of measurements, corresponds to the number of measurement matrices 
@@ -207,6 +209,12 @@ def run_PL(n: int, n_meas: int, n_shots: int, rho_type: str|int, As: np.ndarray,
         y_hat (np.ndarray): empirical probabilities associated to each measurement matrix
         n_iter (int): number of iterations
         n_burnin (int): number of iterations to keep at the end
+        seed (int): optional initial seed
+        running_avg (bool): optional flag to indicate if rho hat is computed as a running average
+        init_point (np.ndarray): optional initial point
+        eta_shots_indep (float): optional value to use for the numerator of eta
+        beta (float): optional value for beta
+        theta (float): optional value for theta 
     Returns:
         np.ndarray: approximated version of the density matrix
     """

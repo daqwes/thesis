@@ -5,17 +5,16 @@ from scipy.special import binom
 
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
 if __name__ == '__main__' or parent_module.__name__ == '__main__':
-    from data_generation_sep import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_sep_PL
-    from data_generation import norm_complex
+    from data_generation_sep import generate_data_sep_PL
     from proj_langevin import gen_init_point, complex_to_real, real_to_complex
     from utils import compute_error
 else:
-    from .data_generation_sep import random_multivariate_complex, random_standard_exponential, random_uniform, generate_data_sep_PL
-    from .data_generation import norm_complex
+    from .data_generation_sep import generate_data_sep_PL
     from .proj_langevin import gen_init_point, complex_to_real, real_to_complex
     from .utils import compute_error
 
 def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, log_transform: bool):
+    """Evaluate the posterior distribution"""
     s1, s2 = Y_r.shape
     d, r = int(s1 / 2), int(s2 / 2)
     Y_rho_r_outer = Y_r @ np.conj(Y_r.T)
@@ -37,6 +36,7 @@ def eval_posterior_real(Y_r: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarra
     return post
     
 def eval_proposal(Y_next: np.ndarray, Y_prev: np.ndarray, dist: str = "normal", scaling_coef: float = 1.0):
+    """Evaluate the proposal distribution `dist`"""
     m, n = Y_next.shape
     if dist == "normal":
         return 1/(2 * np.pi)**(m*n) * np.exp(-1/2 * np.linalg.norm(Y_next, ord="fro")**2)
@@ -53,8 +53,7 @@ def eval_proposal(Y_next: np.ndarray, Y_prev: np.ndarray, dist: str = "normal", 
     else:
         raise ValueError("dist is not a valid type")
 def sample_proposal(d: int, r: int, Y_curr: np.ndarray, seed: int|None, dist: str = "normal", scaling_coef: float = 1.0):
-    """
-    """
+    """Sample from the proposal distribution `dist`"""
     if seed is not None:
         np.random.seed(seed)
     if dist == "normal":
@@ -78,11 +77,13 @@ def sample_proposal(d: int, r: int, Y_curr: np.ndarray, seed: int|None, dist: st
         return (G+G.T)/(np.sqrt(2))
     elif dist == "unitary_rank1":
         Y_prop = gen_init_point(d, r, seed)
-        return Y_prop#/Y_prop.sum()
+        return Y_prop
     else:
         raise ValueError("dist type not valid, provide correct value")
 def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap: np.ndarray, y_hat: np.ndarray, lambda_: float, theta: float, prop_dist: str = "normal", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = False) -> float:
     """
+    Compute the acceptance ratio r
+
     r = prop(x|x') * post(x') / prop(x'|x) * post(x)
     Here, post = exp(-(L + log(prior))).
     Then r = prop(x|x') * exp(-(L(x')  + prior(x')))/ prop(x'|x) * exp(-(L(x) + log(prior(x))))
@@ -108,8 +109,8 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap:
             d = d_post * d_prop
         else:
             # Not taking into account the proposal
-            n = n_post #* n_prop
-            d = d_post #* d_prop
+            n = n_post
+            d = d_post
         ratio = n/d
         if np.isnan(ratio):
             raise ValueError("Ratio is incorrect, div by 0")
@@ -117,8 +118,7 @@ def acc_ratio(Y_next: np.ndarray, Y_prev: np.ndarray, As: np.ndarray, As_r_swap:
 
 
 def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambda_: float, theta: float, seed: int|None, n_iter: int = 500, n_burnin: int = 100, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1, use_prop_in_ratio: bool = False, log_transform: bool= True):
-    """ Metropolis-Hastings algorithm with a student-t prior   
-    """
+    """Runs the Metropolis-Hastings algorithm with a student-t prior (MHS)"""
     if seed is not None:
         np.random.seed(seed)
     d, r = Y0.shape
@@ -163,6 +163,7 @@ def MH_studentt(n: int, y_hat: np.ndarray, As: np.ndarray, Y0: np.ndarray, lambd
 
 
 def run_MH_studentt(n: int, n_shots: int, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int|None = None, run_avg: bool = True, proposal_dist: str = "exp_dep", scaling_coef_prop: float = 1.0, use_prop_in_ratio: bool = False, log_transform: bool = True, init_point: np.ndarray|None = None, lambda_: float|None = None, theta: float|None = None):
+    """Runner function for MHS"""
     if seed is not None:
         np.random.seed(seed)
     d = 2**n

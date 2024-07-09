@@ -5,12 +5,12 @@ import sys
 parent_module = sys.modules['.'.join(__name__.split('.')[:-1]) or '__main__']
 if __name__ == '__main__' or parent_module.__name__ == '__main__':
     from data_generation import generate_data, random_unitary
-    from data_generation_sep import get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_sep
+    from data_generation_sep import random_uniform, random_multivariate_complex,  random_standard_exponential, generate_data_sep
     from proj_langevin import gen_init_point
     from utils import compute_error
 else:
     from .data_generation import generate_data, random_unitary
-    from .data_generation_sep import get_true_rho, compute_measurements, compute_rho_inversion, random_uniform, random_multivariate_complex, get_observables, random_standard_exponential, projectors_py, generate_data_sep
+    from .data_generation_sep import random_uniform, random_multivariate_complex, random_standard_exponential, generate_data_sep
     from .proj_langevin import gen_init_point
 def norm_complex(arr: np.ndarray):
     """Normalizes complex vector or matrix, in which case it normalizes it row by row
@@ -27,8 +27,19 @@ def norm_complex(arr: np.ndarray):
     else:
         return arr/np.sqrt((np.abs(arr)**2).sum())
 
-def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm: float, pkl: str|None, seed: int|None, n_iter: int = 500, n_burnin: int = 100):
-    """
+def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm: float, seed: int|None, n_iter: int = 500, n_burnin: int = 100):
+    """Runs the prob-estimator algorithm
+    Args:
+        n (int): number of qubits
+        p_as (np.ndarray): vector of empirical probabilities hat{p}
+        Pra_m (np.ndarray): projector matrices
+        u_hat (np.ndarray): initial sample to run the algorithm from
+        gamm (np.ndarray): lambda parameter in the paper
+        seed: (int): optional initial seed
+        n_iter (int): optional number of iterations
+        n_burnin (int): optional number of burnin iterations
+    Returns:
+        iterates of rho hat, final version of rho hat, cumulative times (tuple[np.ndarray, np.ndarray, np.ndarray]) 
     """
     if seed is not None:
         np.random.seed(seed)
@@ -116,7 +127,7 @@ def run_MH(n: int, n_meas: int, n_shots: int, rho_true: np.ndarray, As: np.ndarr
         u_hat = init_point
     else:
         u_hat = gen_init_point(d, d) 
-    rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, None, seed = None, n_iter=n_iter, n_burnin=n_burnin)
+    rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, seed = None, n_iter=n_iter, n_burnin=n_burnin)
     return rhos_record, rho_prob, cum_times
 
 def main():
@@ -136,7 +147,7 @@ def main():
     n_iter = 2000
     n_burnin = 100
     u_hat = random_unitary(d, d)
-    rho_prob = MH_prob(n, y_hat, As_flat, u_hat, gamm, None, seed, n_iter, n_burnin)
+    rho_prob = MH_prob(n, y_hat, As_flat, u_hat, gamm, seed, n_iter, n_burnin)
     err = np.linalg.norm(rho_prob- rho_true, "fro")
     print(err**2)
 
@@ -164,7 +175,7 @@ def main_sep_data_gen():
     np.random.seed()
 
     # rho_hat, u_hat = compute_rho_inversion(n, b, y_hat, P_rab, sig_b)
-    rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, None, seed=prob_seed, n_iter=n_iter, n_burnin=n_burnin)
+    rhos_record, rho_prob, cum_times = MH_prob(n, y_hat, As, u_hat, gamm, seed=prob_seed, n_iter=n_iter, n_burnin=n_burnin)
 
     err_mse = compute_error(rho_prob, rho_true, "MSE")
     err_fro_sq = compute_error(rho_prob, rho_true, "fro_sq")
