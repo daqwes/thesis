@@ -15,7 +15,7 @@ The repository is structured as follows:
 └── src
 ```
 
-The `src` directory contains all the source files for all the algorithms implementations, and `experiments` which has all the experiments. See this [file](experiments/README.md) which describes how to run the experiments, as well as which experiment connects to which plot/table.
+The `src` directory contains all the source files for all the algorithms implementations, and `experiments` has all the experiments. See this [file](experiments/README.md) which describes how to run the experiments, as well as which experiment connects to which plot/table.
 
 ## Installing dependencies
 
