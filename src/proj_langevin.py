@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.linalg import sqrtm
 from scipy.linalg import solve
 import scipy
 import time

@@ -96,8 +96,6 @@ def MH_prob(n: int, p_as: np.ndarray, Pra_m: np.ndarray, u_hat: np.ndarray, gamm
             else:
                 rhos_record[t+1, :, :] = U @ np.diag(Lamb) @ np.conj(U.T)
         cum_times[t] = time.perf_counter() - start_time
-    ac_rate_gamma = acc_count_gamma / (n_iter * d)
-    ac_rate_V = acc_count_V / (n_iter * d)
     return rhos_record, rho, cum_times
 
 def run_MH(n: int, n_meas: int, n_shots: int, rho_true: np.ndarray, As: np.ndarray, y_hat: np.ndarray, n_iter: int = 500, n_burnin: int = 100, seed: int|None|None = 0, init_point: np.ndarray|None = None, gamma: float|None = None):

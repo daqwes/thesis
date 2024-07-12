@@ -64,37 +64,10 @@ def random_standard_exponential(size: tuple[int, ...], seed: int|None = None) ->
     else:
         return np.random.standard_exponential(size) 
 
-def compute_rho_inversion(n: int, b: np.ndarray, p_as: np.ndarray, P_rab: np.ndarray, sig_b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Compute the rho estimate with the inversion method
-    Args:
-        p_as (np.ndarray[R*A]): Vector mapping each projector and result combination to its empirical probability
-        P_rab: (np.ndarray[I=2^n x 3^n, J=4^n])
-        sig_b: (np.ndarray[J, d=16 if n==4, d])
-    Returns:
-        tuple[np.ndarray[d=2^n, d], np.ndarray]: the approximation of rho using the inversion technique, and its eigenvectors 
-    """
-    d = 2**n
-    J = 4**n
-    temp1 = p_as @ P_rab
-    temp1 = temp1/d
-
-    # Calculate coefs rho_b
-    rho_b = [0] * J
-    for i in range(J):
-        rho_b[i] = temp1[i]/(3**((b[i] == 0).sum()))
-
-    # Calculate density using inversion technique
-    rho_hat = np.zeros((d, d), dtype=np.complex128)
-    for s in range(J):
-        rho_hat += rho_b[s] * sig_b[s]
-
-    u_hat = eig(rho_hat)[1]
-    return rho_hat, u_hat
-
 def get_observables(n: int):
     """
     Calculates and returns the measurements/projectors for the separate qubit method for `n` qubits.
-    The format is [R1=d x d flattened, R2, R3, ..]
+    The format is [R1=d x d flattened, R2, R3, ..] = 6**n x (d x d)
     """
     A = 3**n
     R = 2**n
