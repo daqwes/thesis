@@ -1,3 +1,7 @@
+.vscode
+report
+playground
+papers
 papers/**/*.pdf
 papers/**/*.dat
 **/.Rproj.user
@@ -9,3 +13,4 @@ report/main*
 experiments/figures/
 code_thesis_DM/
 code_thesis_DM.zip
+
